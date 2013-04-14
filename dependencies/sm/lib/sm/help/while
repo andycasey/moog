@@ -1,0 +1,4 @@
+Syntax: WHILE { expr } { commands }
+
+   Repeat the `commands' while the `expr' is true. You can break out of the
+loop early with the BREAK command.

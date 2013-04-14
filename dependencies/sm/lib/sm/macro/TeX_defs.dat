@@ -1,0 +1,159 @@
+# All the SM TeX definitions, as drawn by TeX_defs in "fonts"
+{\-1\\, : \rm Thin space}
+{\-1\\! : \rm -ve space}
+{\-1\\\\ :} \\{}
+{\-1\\AA :} \AA
+{\-1\\Alpha :} \Alpha
+{\-1\\Aquarius :} \Aquarius
+{\-1\\Aries :} \Aries
+{\-1\\Beta :} \Beta
+{\-1\\Cancer :} \Cancer
+{\-1\\Capricorn :} \Capricorn
+{\-1\\Chi :} \Chi
+{\-1\\Delta :} \Delta
+{\-1\\Earth :} \Earth
+{\-1\\Epsilon :} \Epsilon
+{\-1\\Eta :} \Eta
+{\-1\\Gamma :} \Gamma
+{\-1\\Gemini :} \Gemini
+{\-1\\Iota :} \Iota
+{\-1\\Jupiter :} \Jupiter
+{\-1\\Kappa :} \Kappa
+{\-1\\Lambda :} \Lambda
+{\-1\\Leo :} \Leo
+{\-1\\Libra :} \Libra
+{\-1\\Mars :} \Mars
+{\-1\\Mercury :} \Mercury
+{\-1\\Moon :} \Moon
+{\-1\\Mu :} \Mu
+{\-1\\Neptune :} \Neptune
+{\-1\\Nu :} \Nu
+{\-1\\Omega :} \Omega
+{\-1\\Omicron :} \Omicron
+{\-1\\Phi :} \Phi
+{\-1\\Pisces :} \Pisces
+{\-1\\Pluto :} \Pluto
+{\-1\\Pi :} \Pi
+{\-1\\Psi :} \Psi
+{\-1\\Rho :} \Rho
+{\-1\\S :} \S
+{\-1\\Sagittarius :} \Sagittarius
+{\-1\\Saturn :} \Saturn
+{\-1\\Scorpio :} \Scorpio
+{\-1\\Sigma :} \Sigma
+{\-1\\Sqrt :} \ \,\Sqrt
+{\-1\\Tau :} \Tau
+{\-1\\Taurus :} \Taurus
+{\-1\\Theta :} \Theta
+{\-1\\Upsilon :} \Upsilon
+{\-1\\Uranus :} \Uranus
+{\-1\\Venus :} \Venus
+{\-1\\Virgo :} \Virgo
+{\-1\\Xi :} \Xi
+{\-1\\Zeta :} \Zeta
+{\-1\\aleph :} \aleph
+{\-1\\alpha :} \alpha
+{\-1\\apoint a ns : \rm Dot}
+{\-1\\approx :} \approx
+{\-1\\ast :} \ast
+{\-1\\asteroid :}  \asteroid
+{\-1\\bar : \bar{Overline}}
+{\-1\\beta :} \beta
+{\-1\\bf : \rm\bf Bold `font'}
+{\-1\\bigcirc :} \bigcirc
+{\-1\\cdot :} \cdot
+{\-1\\center : see \\centre} 
+{\-1\\centre : \rm Centre in x} 
+{\-1\\cents :} \cents
+{\-1\\chi :} \chi
+{\-1\\circ :}  \circ
+{\-1\\clover :} \clover
+{\-1\\clubsuit :} \clubsuit
+{\-1\\comet :} \comet
+{\-1\\colour\{red\} :} {\colour{red}red}
+{\-1\\dag :} \dag
+{\-1\\ddag :} \ddag
+{\-1\\del :} \del
+{\-1\\delta :} \delta
+{\-1\\diamondsuit :} \diamondsuit
+{\-1\\div :} \div
+{\-1\\dot : \dot{A}}
+{\-1\\downarrow :} \downarrow
+{\-1\\epsilon :} \epsilon
+{\-1\\equinox :} \equinox
+{\-1\\equiv :} \equiv
+{\-1\\eta :} \eta
+{\-1\\firtree :} \firtree
+{\-1\\frac : \rm(Manual)}
+{\-1\\gamma :} \gamma
+{\-1\\ge :} \ge
+{\-1\\geq :} \geq
+{\-1\\hat{\-1\move 0 100{\#}} :} \hat{\-2\#}
+{\-1\\hbar :} \hbar
+{\-1\\heartsuit :} \heartsuit
+{\-1\\infty :} \infty
+{\-1\\int :} \int
+{\-1\\iota :} \iota
+{\-1\\it : \rm\it Italic `font'}
+{\-1\\kappa :} \kappa
+{\-1\\kern dx : \rm x += dx}
+{\-1\\langle :} \langle
+{\-1\\leftarrow :} \leftarrow
+{\-1\\le :} \le
+{\-1\\leq :} \leq
+{\-1\\lambda :} \lambda
+{\-1\\line lt len: \rm Line}
+{\-1\\mp :} \mp
+{\-1\\mu :} \mu
+{\-1\\\\\nabla :} \\nabla
+{\-1\\\\\ne :} \\ne
+{\-1\\\\\nu :} \\nu
+{\-1\\odot :} \odot
+{\-1\\oe : \oe Old English font}
+{\-1\\oint :} \oint
+{\-1\\omega :} \omega
+{\-1\\omicron :} \omicron
+{\-1\\oneline : \rm(Manual)}
+{\-1\\oplus :} \oplus
+{\-1\\otimes :} \otimes
+{\-1\\palmtree :} \palmtree
+{\-1\\parallel :} \parallel
+{\-1\\partial :} \partial
+{\-1\\perp :} \perp
+{\-1\\phantom : \rm(Manual)}
+{\-1\\phi :} \phi
+{\-1\\pi :} \pi
+{\-1\\pm :} \pm
+{\-1\\point ns : \rm Dot}
+{\-1\\pr : \rm Private font}
+{\-1\\prime :} \prime
+{\-1\\propto :} \propto
+{\-1\\psi :} \psi
+{\-1\\raise dy : \rm y += dy}
+{\-1\\rangle :} \rangle
+{\-1\\rightarrow :} \rightarrow
+{\-1\\rho :} \rho
+{\-1\\rm : \rm Roman font}
+{\-1\\sc : \sc Script font}
+{\-1\\shield :} \shield
+{\-1\\sigma :} \sigma
+{\-1\\sim :} \sim
+{\-1\\simeq :} \simeq
+{\-1\\smash : \rm(Manual)}
+{\-1\\snow :} \snow
+{\-1\\spadesuit :} \spadesuit
+{\-1\\sqrt :} \sqrt
+{\-1\\ssqrt :} \ssqrt{\-1\rm expr}
+{\-1\\strut : \rm vertical spacing}
+{\-1\\sum :} \sum
+{\-1\\tau :} \tau
+{\-1\\theta :} \theta
+{\-1\\ti : \ti `Tiny' font}
+{\-1\\times :} \times
+{\-1\\uparrow :} \uparrow
+{\-1\\upsilon :} \upsilon
+{\-1\\varepsilon :} \varepsilon
+{\-1\\varphi :} \varphi
+{\-1\\vartheta :} \vartheta
+{\-1\\xi :} \xi
+{\-1\\zeta :} \zeta

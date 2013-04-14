@@ -1,0 +1,5 @@
+Syntax: RANGE number_x number_y
+
+   If number is non-zero, set the range on the x or y axis to be
+number, so LIMITS will choose two values that differ by number.
+Nothing will happen until you issue a LIMITS command.

@@ -1,0 +1,20 @@
+   The following logical operators are allowed on vectors and scalers
+in SM, where non-zero means true:
+
+Unary:
+   !expr          Logical complement
+
+Binary:
+   expr == expr   Equal to                 expr != expr   Not equal
+   expr < expr    Less than                expr <= expr   Less than or equal
+   expr > expr    Greater than             expr >= expr   Greater than or equal
+   expr && expr   Logical and              expr || expr   Logical or
+
+Only == and != are allowed for string valued vectors. All arithmetic vectors
+test unequal to all string-valued vectors.  In a scalar context you can
+use AND and OR instead of && and ||; they have the advantage of only
+evaluating their right-hand-sides when necessary.
+
+Use `HELP arithmetic' for the arithmetic operators.  You can test to
+see if a variable is defined by looking at the value of $?var (see
+DEFINE).

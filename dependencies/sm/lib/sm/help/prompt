@@ -1,0 +1,4 @@
+Syntax: PROMPT new_prompt
+
+   The current prompt is replaced by new_prompt. The character '*' is
+replaced by a ^G, to ring the terminal bell.

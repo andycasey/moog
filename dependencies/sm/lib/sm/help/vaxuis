@@ -1,0 +1,17 @@
+Syntax: DEVICE vaxuis [ X Y ]
+
+   the VAXUIS driver is used to display graphics on a VAX Workstation
+using the VAX UIS$ library routines. The optional X and Y parameters
+specify the size of the graphics window ( in centimeters ) created on
+the workstation screen.
+
+   If called without the optional X and Y parameters the graphics 
+display window will be the same size as that previously displayed.
+
+   If the X and Y parameters are not specified the first time the
+DEVICE vaxuis command is issued, the graphics display window will
+occupy 1/2 the height and 1/2 the width of the workstation screen.
+
+For example, to create a 15 cm wide x 10 cm tall display window say:
+		DEVICE vaxuis 15 10
+

@@ -1,0 +1,840 @@
+## -*-SM-*- Set SM-mode in emacs
+#
+# Miscellaneous macros to do with projections. Contributed by Michael Strauss
+# (strauss@astro.princeton.edu), but partially rewritten by RHL (so blame him)
+#
+###########################################################################
+radtick	4	# put tick marks on a radial axis
+		# Usage: radtick dtick rmax angle iclock
+		# dtick: spacing of big ticks
+		# rmax: length of axis in user coordinates
+		# angle: angle of axis
+		# iclock: see AXIS command
+		# e.g. lim -10 10 0 20  radtick 1 10 45 0  radtick 1 10 135 1
+		if(abs(($fx2 - $fx1)/($fy2 - $fy1) - 1) > 1e-3 || \
+		    abs($aspect - 1) > 1e-3) {
+		   echo "$0 expects that aspect == 1 and xscale == yscale; caveat scribor"
+		}
+		define ang local  define len local
+		define ang $angle
+		define len ( $2*($gx2 - $gx1)/($fx2 - $fx1) )
+		ANGLE $3
+		RELOCATE 0 0
+		AXIS 0 $2 $($1/5) $1 $xp $yp $len 2 $4
+		ANGLE $ang
+		#
+eqgal	45	# Usage: ra dec l b [epoch]; Convert (ra, dec) to (l,b). 
+		# ra in hours, all others in degrees.  
+		# Epoch is J1950 (default) or J2000
+		if(!$?5) {
+		   define 5 "J1950"
+		}
+		if('$5' == 'J1950') {
+		   local define A  62.60
+		   local define B 282.25
+		   local define C  33.00
+		} else { if('$5' == 'J2000') {
+		   local define A  62.871749
+		   local define B 282.859481
+		   local define C  32.931919
+		} else {
+		   user abort Unknown epoch: $5
+		}}
+		define A (pi/180*$A)
+		define B (pi/180*$B)
+		define C (pi/180*$C)
+
+		local set ra = 15*$1*pi/180
+		local set dec =   $2*pi/180
+
+		set $4 = asin(sin(dec)*cos($A) - cos(dec)*sin(ra - $B)*sin($A))
+
+		set $3 = atan2((cos(dec)*sin(ra - $B)*cos($A) + \
+		    				sin(dec)*sin($A))/cos($4), \
+		    cos(dec)*cos(ra - $B)/cos($4)) + $C
+
+		set $3 = $3*180/pi
+		set $4 = $4*180/pi
+		#
+galeq	45	# Usage: galeq l b ra dec. [Epoch] Convert (l,b) to (ra, dec)
+		# ra in hours, all others in degrees
+		# Epoch is J1950 (default) or J2000
+		if(!$?5) {
+		   define 5 "J1950"
+		}
+		if('$5' == 'J1950') {
+		   local define A  62.60
+		   local define B 282.25
+		   local define C  33.00
+		} else { if('$5' == 'J2000') {
+		   local define A  62.871749
+		   local define B 282.859481
+		   local define C  32.931919
+		} else {
+		   user abort Unknown epoch: $5
+		}}
+		define A (pi/180*$A)
+		define B (pi/180*$B)
+		define C (pi/180*$C)
+
+		local set l = $1*pi/180
+		local set b = $2*pi/180
+
+		set $4 = asin(sin(b)*cos($A) + cos(b)*sin(l - $C)*sin($A))
+		set $3 = atan2((cos(b)*sin(l - $C)*cos($A) - \
+		    				sin(b)*sin($A))/cos($4), \
+		             cos(b)*cos(l - $C)/cos($4))
+
+		set $3 = ($3 + $B)*180/pi/15
+		set $4 =        $4*180/pi
+		#
+galgrid	0	#Puts up equal area grid
+		ltype 1
+		limits -180 180 -90 90
+		define i local
+		do i = -75,75,15 {
+		   relocate (-180.*cosd($i)) $i
+		   draw (180.*cosd($i)) $i
+		}
+		relocate -182 0
+		putlabel 4 0
+		relocate 0 0
+		putlabel 5 180
+		relocate 182 0
+		label 360
+		set _temp local  set _temp = -90, 90
+		set _line local
+		do i = -180, 180, 30 {
+		   set _line = $i*cosd(_temp)
+		   connect _line _temp
+		}
+		ltype 0
+galpoints 2	#plot points on an equal area grid; galpoints l b
+		points (($1 - 180.)*cosd($2)) $2
+galplot	4	#Usage: galplot ra dec l b
+		galgrid
+		eqgal $1 $2 $3 $4
+		ltype 0
+		galpoints $3 $4
+		#
+aitoff1	4	#convert l and b to x y in reverse aitoff coordinates: 
+		#aitoff l b x y
+		define _rl local define _den local
+		set _rl = 90. - 0.5*$1
+		set _den = sqrt(1 + cosd($2)*cosd(_rl))
+		set $3 = 2.*cosd($2)*sind(_rl)/_den
+		set $4 = 90.*sind($2)/_den
+		set $3 = 180. - 90.*$3
+		#
+invaitoff 4	#convert x y in inverse aitoff coordinates to l, b
+		#invaitoff x y l b
+		define i local
+		foreach i (_xp _yp _sin2b _b _h _l) {set $i local}
+		set _xp = (1. - $1/180)**2
+		set _yp = ($2/90)**2
+		set _sin2b = _yp*(2 - _xp - _yp)
+		set _b = sqrt(_sin2b)
+		set _b = (_b > 1) ? 1.0 : (_b < -1) ? -1.0 : _b
+		set _b = asind(_b)
+		set $4 = ($2 > 0) ? _b : -_b
+		set _h = (1 - _xp - _yp)/cosd($4)
+		set _h = (_h > 1) ? 1.0 : (_h < -1) ? -1 : _h
+		set _l = acosd(_h)
+		set _l = ($1 < 180) ? _l : -_l
+		set $3 = 180 - 2*_l
+		#
+aitoff	4	#convert l and b to x y in aitoff coordinates: 
+		#aitoff l b x y
+		define _rl local define _den local
+		set _rl = 90. - 0.5*$1
+		set _den = sqrt(1 + cosd($2)*cosd(_rl))
+		set $3 = 2.*cosd($2)*sind(_rl)/_den
+		set $4 = 90.*sind($2)/_den
+		set $3 = 180. - 90.*$3
+		set $3 = 360. - $3
+		#
+_aitoffgrid	##Put up equal area grid in Aitoff; no labels
+		limits 0 360 -90 90
+		define i local
+		foreach i (_l _b _x _y) {
+		   set $i local
+		}
+		set _l = 0, 360
+		do i = -75,75,15 {
+		   set _b = $i
+		   aitoff _l _b _x _y
+		   connect _x _y
+		}
+		set _b = -90, 90
+		do i = 0, 360, 30 {
+		   set _l = $i
+		   aitoff _l _b _x _y
+		   connect _x _y
+		}
+aitoffgrid	#Puts up equal area grid in Aitoff
+		_aitoffgrid
+		relocate -2 0
+		putlabel 4 360
+		relocate 180 0
+		putlabel 5 180
+		relocate 362 0
+		label 0
+		#
+aitoffgrid1	#Put up equal area grid in Aitoff. Reverse sense
+		_aitoffgrid
+		relocate -2 0
+		putlabel 4 0
+		relocate 180 0
+		putlabel 5 180
+		relocate 362 0
+		label 360
+		#
+sgtrans	4	# Convert galactic to supergalactic
+		# Usage: sgtrans l b sgl sgb
+		foreach 0 {_sgx _sgy _sgz _nx _ny _nz _p _sgb _sgl} {
+		   set $0 local
+		}
+		set _sgx = {-0.7357425689697266 0.6772612929344177 0}
+		set _sgy = {-.074553773384391064 -0.080991465669853824 0.9939225912094116}
+		set _sgz = {0.6731452991992128 0.7312711606134599 0.1100812554359436}
+		
+		set _nx = cosd($2)*cosd($1)
+		set _ny = cosd($2)*sind($1)
+		set _nz = sind($2)
+		set _x = _nx*$(_sgx[0]) +_ny*$(_sgx[1]) +_nz*$(_sgx[2])
+		set _y = _nx*$(_sgy[0]) +_ny*$(_sgy[1]) +_nz*$(_sgy[2])
+		set _z = _nx*$(_sgz[0]) +_ny*$(_sgz[1]) +_nz*$(_sgz[2])
+		set _sgb = asind(_z)
+		set _p = _x/cosd(_sgb)
+		set _p = (_p >= 1)?(0.9999):(_p)
+		set _p = (_p <= -1)?(-0.9999):(_p)	
+		set _sgl = acosd(_p)
+		set _sgl = (_y >= 0)?(_sgl):(360. - _sgl)
+		set $3 = _sgl
+		set $4 = _sgb
+		#
+gstrans	4	# Convert supergalactic to galactic coordinates
+		# Usage: gstrans sgl sgb l b
+		foreach 0 {_sgx _sgy _sgz _nx _ny _nz _p _sgb _sgl} {
+		   set $0 local
+		}
+		set_sgx = {-0.7357425689697266 0.6772612929344177 0}
+		set _sgy = {-.074553773384391064 -0.080991465669853824 0.9939225912094116}
+		set _sgz = {0.6731452991992128 0.7312711606134599 0.1100812554359436}
+		
+		set _nx = cosd($2)*cosd($1)
+		set _ny = cosd($2)*sind($1)
+		set _nz = sind($2)
+		set _x = _nx*$(_sgx[0]) +_ny*$(_sgy[0]) +_nz*$(_sgz[0])
+		set _y = _nx*$(_sgx[1]) +_ny*$(_sgy[1]) +_nz*$(_sgz[1])
+		set _z = _nx*$(_sgx[2]) +_ny*$(_sgy[2]) +_nz*$(_sgz[2])
+		set _sgb = asind(_z)
+		set _p = _x/cosd(_sgb)
+		set _p = (_p >= 1)?(0.9999):(_p)
+		set _p = (_p <= -1)?(-0.9999):(_p)	
+		set _sgl = acosd(_p)
+		set _sgl = (_y >= 0)?(_sgl):(360. - _sgl)
+		set $3 = _sgl
+		set $4 = _sgb
+		#
+calc_lb	6	#Calculates r, l and b given x, y, and z
+		#calc_lb x y z r l b
+		set _sinb local  set _cosl local
+		set $4 = sqrt($1**2 + $2**2 + $3**2)
+		set _sinb = ($4 > 0)?($3/$4):(0)
+		set _sinb = (_sinb < 1)?(_sinb):(0.999999)
+		set _sinb = (_sinb > -1)?(_sinb):(-0.999999)
+		set $6 = asind(_sinb)
+		set _cosl = ($4 > 0 && ($6 != 90 && $6 != 270))?($1/$4/cosd($6)):(0)
+		set _cosl = (_cosl < 1)?(_cosl):(0.999999)
+		set _cosl = (_cosl > -1)?(_cosl):(-0.999999)
+		set $5 = acosd(_cosl)
+		set $5 = ($2 > 0)?($5):(360. - $5)
+		#
+pielabel 7	#Draw axes for a redshift pieplot
+		#Arguments are:
+		#1 Coordinate system:
+		#   (e/E/g/s = equatorial (points are l,b)/ equatorial (ra,dec)/ galactic, supergalactic)
+		#2 (1 or 2) Arc coordinate is first or second
+		#3-6 lower and upper limits in first and second coordinate (n.b.: ra in hours)
+		#7   Maximum redshift (in units of c)
+		#
+		# E.g.
+		#    pielabel E 1 ($ra0/15) $($ra1/15) $dec0 $dec1 0.45
+		#    pieplot ra dec z
+		# or
+		#    lim ra 0 1
+		#    pielabel E 1 ($fx1/15) $($fx2/15) $fy1 $fy2 0.45
+		#    eqgal ra dec l b
+		#    pieplot l b z
+		define i local define v local
+		define i 1
+		foreach v (cut direction llim1 ulim1 llim2 ulim2 vmax) {
+		   define $v $$i
+		   define i ($i + 1)
+		}
+
+		expand 1.0001
+		angle 0
+		if ('$cut' == 'e' || '$cut' == 'E') {    #A cut in Equatorial coordinates, l,b
+		   define llim1 ($llim1*15)
+		   define ulim1 ($ulim1*15)
+		}
+		if ($direction == 1) {  #The arc dimension is the first variable
+		   define meanl (0.5*($llim1 + $ulim1))
+		   define meanb (0.5*(cosd($llim2) + cosd($ulim2)))
+		   define meanl ($meanl*$meanb)
+		   define maxtheta ($ulim1*$meanb - $meanl)
+		}
+		if ($direction == 2) {  #The arc dimension is the second variable
+		   define meanb (0.5*($llim2 + $ulim2))
+		   define maxtheta ($ulim2 - $meanb)
+		}
+		define xmax ($vmax*sind($maxtheta))
+		define ymax ($vmax*cosd($maxtheta))
+		limits $(-$vmax/2.) $($vmax/2.) 0 $vmax
+		limits $(-$xmax) $xmax 0 $(2.*$xmax)
+		RELOCATE 0 0
+		DRAW $xmax $ymax
+		define ticksize (lg($vmax/10))
+		if ($ticksize - int($ticksize) > 0.3) {
+		   define ticksize (10.**(int($ticksize) + 1))
+		} else {
+		   define ticksize (2*(10.**(int($ticksize))))
+		}
+		define int ($vmax/60)
+		do tick = $ticksize, $vmax, $ticksize {
+		   define x ($tick*sind($maxtheta))
+		   define y ($tick*cosd($maxtheta))
+		   relocate $x $y
+		   define x1 ($x - $int*cosd($maxtheta))
+		   define y1 ($y + $int*sind($maxtheta))
+		   draw $x1 $y1
+		   define x1 ($x + 2.*$int)
+		   relocate $x1 $y
+		   putlabel 6 $(sprintf('%g', $tick))
+		}
+		relocate 0 0
+		define nxmax (-$xmax)
+		draw $nxmax $ymax
+		do tick = $ticksize, $vmax, $ticksize {
+		   define x (-$tick*sind($maxtheta))
+		   define y ($tick*cosd($maxtheta))
+		   relocate $x $y
+		   define x1 ($x + $int*cosd($maxtheta))
+		   define y1 ($y + $int*sind($maxtheta))
+		   draw $x1 $y1
+		}
+		set theta = $(-$maxtheta), $maxtheta, 0.1
+		set arc_x = $vmax*sind(theta)
+		set arc_y = $vmax*cosd(theta)
+		connect arc_x arc_y
+		define tick_interval 10
+		if (('$cut' == 'e' || '$cut' == 'E') && $direction == 1) {
+		   define tick_interval 15
+		}
+		if ($direction == 1) {
+		   define start_tick ($tick_interval*(int(($llim1 - 0.001)/$tick_interval) + 1))
+		   do tick = $start_tick, $ulim1, $tick_interval {
+		      define theta ($tick*$meanb - $meanl)
+		      define x1 ($vmax*sind($theta))
+		      define y1 ($vmax*cosd($theta))
+		      relocate $x1 $y1
+		      define x1 (0.98*$vmax*sind($theta))
+		      define y1 (0.98*$vmax*cosd($theta))
+		      draw $x1 $y1
+		      define x1 (1.04*$vmax*sind($theta))
+		      define y1 (1.04*$vmax*cosd($theta))
+		      relocate $x1 $y1
+		      if ('$cut' == 'e' || '$cut' == 'E') {
+		         define ra ($tick/15.)
+		         putlabel 5 $ra^{\it h}
+		      } else {
+		         putlabel 5 $tick^o 
+		      }
+		   }
+		} else {
+		   define start_tick ($tick_interval*(int(($llim2 - 0.001)/$tick_interval) + 1))
+		   do tick = $start_tick, $ulim2, $tick_interval {
+		      define theta ($tick - $meanb)
+		      define x1 ($vmax*sind($theta))
+		      define y1 ($vmax*cosd($theta))
+		      relocate $x1 $y1
+		      define x1 (0.98*$vmax*sind($theta))
+		      define y1 (0.98*$vmax*cosd($theta))
+		      draw $x1 $y1
+		      define x1 (1.04*$vmax*sind($theta))
+		      define y1 (1.04*$vmax*cosd($theta))
+		      relocate $x1 $y1
+		      putlabel 5 $tick^o
+		   }
+		}
+		define midx (0.5*$vmax*cosd($maxtheta) + 0.1*$vmax*sind($maxtheta))
+		define midy (0.5*$vmax*sind($maxtheta) - 0.1*$vmax*cosd($maxtheta))
+		if ($xmax > 0.5*$vmax) { 
+		   define midx (0.75*$xmax*sind($maxtheta) + 0.15*$xmax*cosd($maxtheta))
+		   define midy (0.75*$xmax*cosd($maxtheta) - 0.15*$xmax*sind($maxtheta))
+		}
+		relocate $midx $midy
+		angle $(90 - $maxtheta)
+		putlabel 5 Redshift (km s^{-1})
+		define labelpoint ($vmax*1.1)
+		relocate 0 $labelpoint
+		angle 0
+		if ('$cut' == 'e' || '$cut' == 'E') {
+		   if ($direction == 1) {
+		      putlabel 5 Right Ascension \alpha
+		   } else {
+		      putlabel 5 Declination \delta
+		   }
+		} else { if ('$cut' == 'g') {
+		   if ($direction == 1) {
+		      putlabel 5 Galactic Longitude {\it l}
+		   } else {
+		      putlabel 5 Galactic Latitude {\it b}
+		   }
+		} else { if ('$cut' == 's') {
+		   if ($direction == 1) {
+		      putlabel 5 Supergalactic Longitude {\it L}
+		   } else {
+		      putlabel 5 Supergalactic Latitude {\it B}
+		   }
+		}}}
+		
+		define midx (-0.5*$vmax*cosd($maxtheta) - 0.03*$vmax)
+		define midy (0.5*$vmax*sind($maxtheta))
+		relocate $midx $midy
+		if ('$cut' == 'e' || '$cut' == 'E') {
+		   if ($direction == 1) {
+		      putlabel 4 $(sprintf('%g', $llim2))^o < \delta < $(sprintf('%g', $ulim2))^o
+		   } else {
+		      putlabel 4 $(sprintf('%g', $llim1/15))^{\it h} < \alpha < $(sprintf('%g', $$ulim2/15))^{\it h}
+		   }
+		} else { if ('$cut' == 'g') {
+		   if ($direction == 1) {
+		      putlabel 4 $llim2^o < {\it b} < $ulim2^o
+		   } else {
+		      putlabel 4 $llim1^o < {\it l} < $ulim1^o
+		   }
+		} else { if ('$cut' == 's') {
+		   if ($direction == 1) {
+		      putlabel 4 $llim2^o < {\it B} < $ulim2^o
+		   } else {
+		      putlabel 4 $llim1^o < {\it L} < $ulim1^o
+		   }
+		}}}
+pieplot	3	#Plot redshift points; requires pielabel to have
+		#been run. pieplot l b v, where l and b are in 
+		#Galactic coordinates.  If 'pielabel E ...', "l" and "b" are ra, dec (ra in hrs)
+		local set _l = $1
+		local set _b = $2
+		local set _v = $3
+		if ('$cut' == 's') {    #A cut in Supergalactic coordinates
+		   set sgl local   set sgb local
+		   sgtrans _l _b sgl sgb
+		   set _l = sgl
+		   set _b = sgb
+		} else { if ('$cut' == 'e')      {#A cut in Galactic coordinates
+		   set ra local  set dec local
+		   galeq _l _b ra dec
+		   set _l = ra*15
+		   set _b = dec
+		}}
+		set ltemp = _l
+		set btemp = _b
+		foreach x {_l _b _v} {
+		   set $x = $x if (ltemp > $llim1 && ltemp <= $ulim1 && \
+		    btemp > $llim2 && btemp <=$ulim2 && _v <= $vmax) 
+		}
+		if ($direction == 1) {  #The arc dimension is the first variable
+		   set theta = (_l*cosd(_b) - $meanl)
+		}
+		if ($direction == 2) {  #The arc dimension is the second variable
+		   set theta = (_b - $meanb)
+		}
+		points (_v*sind(theta)) (_v*cosd(theta))
+		#
+circlelabel 5	#Draw axes for a redshift circleplot
+		#Arguments are:
+		#1 Coordinate system (e/g/s = equatorial, galactic, supergalactic)
+		#2 (1/2) angular coordinate is first or second coordinate
+		#3, 4 lower and upper limits in cut
+		#5   Maximum redshift (km/s)
+
+		define i local define v local
+		define i 1
+		foreach v (cut direction llim ulim vmax) {
+		   local define $v $$i
+		   define i ($i + 1)
+		}
+		expand 1.0001
+		angle 0
+		if ($direction == 1) {  #The arc dimension is the first variable
+		   define meanb (0.5*(cosd($llim) + cosd($ulim)))
+		}
+		if ($direction == 2) {  #The arc dimension is the second variable
+		   if ('$cut' == 'e') {
+		      define llim ($llim*15)
+		      define ulim ($ulim*15)
+		   }
+		   define meanb (0.5*($llim + $ulim))
+		}
+		limits $(-$vmax) $($vmax) $(-$vmax) $vmax
+		set theta = 0, 360, 0.1
+		set x_arc = $vmax*cosd(theta)
+		set y_arc = $vmax*sind(theta)
+		connect x_arc y_arc
+		define tick_interval 30
+		do tick = 0, $(360 - $tick_interval), $tick_interval {
+		   define x1 ($vmax*cosd($tick))
+		   define y1 ($vmax*sind($tick))
+		   relocate $x1 $y1
+		   define x1 (0.98*$vmax*cosd($tick))
+		   define y1 (0.98*$vmax*sind($tick))
+		   draw $x1 $y1
+		   define x1 (1.04*$vmax*cosd($tick))
+		   define y1 (1.04*$vmax*sind($tick))
+		   relocate $x1 $y1
+		   if ('$cut' == 'e' && $direction == 1) {
+		      define ra ($tick/15.)
+		      putlabel 5 $ra^{\it h}
+		   } else {
+		      putlabel 5 $tick^o 
+		   }
+		}
+		relocate 0 $(1.1*$vmax)
+		putlabel 5 Radius of circle $vmax km s^{-1}
+		angle 0
+		define ticksize (lg($vmax/10))
+		if ($ticksize - int($ticksize) > 0.3) {
+		   define ticksize (10.**(int($ticksize) + 1)*2)
+		} else {
+		   define ticksize (10.**(int($ticksize) + 1))
+		}
+		set theta = 0, 360, 0.1
+		do tick = $ticksize, $($vmax - $ticksize), $ticksize {
+		   set arc_x = $tick*cosd(theta)
+		   set arc_y = $tick*sind(theta)
+		   ltype 2
+		   lweight 0.5
+		   connect arc_x arc_y
+		   relocate 0 $tick
+		   expand 0.7
+		   putlabel 5 $tick
+		}
+		expand 1.001
+		lweight 2
+		ltype 0
+		relocate 0 $(-1.1*$vmax)
+		if ('$cut' == 'e' && $direction == 1) {
+		putlabel 5 Right Ascension \alpha, $llim^o < \delta  < $ulim^o}
+		if ('$cut' == 'e' && $direction == 2) {
+		putlabel 5 Declination \delta, $llim^o < \alpha  < $ulim^o}
+		if ('$cut' == 'g' && $direction == 1) {
+		putlabel 5 Galactic Longitude {\it l}, $llim^o < {\it b} < $ulim^o}
+		if ('$cut' == 'g' && $direction == 2) {
+		putlabel 5 Galactic Latitude {\it b}, $llim^o < {\it l} < $ulim^o}
+		if ('$cut' == 's' && $direction == 1) {
+		putlabel 5 Supergalactic Longitude {\it L}, $llim^o < {\it B} < $ulim^o}
+		if ('$cut' == 's' && $direction == 2) {
+		putlabel 5 Supergalactic Latitude {\it B}, $llim^o < {\it L} < $ulim^o}
+		
+circleplot 3	#Plot redshift points; requires circlelabel to have
+		#been run. circleplot l b v, where l and b are in 
+		#Galactic coordinates.
+		set _l = $1
+		set _b = $2
+		set _v = $3
+		if ('$cut' == 's') {    #A cut in Supergalactic coordinates
+		   sgtrans _l _b sgl sgb
+		   set _l = sgl
+		   set _b = sgb
+		}
+		if ('$cut' == 'e')      {#A cut in Galactic coordinates
+		   galeq _l _b ra dec
+		   set _l = ra*15
+		   set _b = dec
+		}
+		set temp = _l
+		if ($direction == 1) {set temp = _b}
+		foreach x {_l _b _v} {
+		   set $x = $x if (temp > $llim && temp <= $ulim \
+		    && _v <= $vmax)
+		}
+		if ($direction == 1) {  #The arc dimension is the first variable
+		   set theta = (_l*(cosd(_b)/$meanb))
+		}
+		if ($direction == 2) {  #The arc dimension is the second variable
+		   set theta = _b
+		}
+		points (_v*cosd(theta)) (_v*sind(theta))
+		#
+circle_exclude 1	#After circleplot, draws lines corresponding to
+		#Galactic latitude excluded regions.
+		foreach i (_ra _rap _decp) {set $i local}
+		foreach i (_ra1 _ra2) {define $i local}
+		set _l = 0, 360, 0.1
+		set _b = _l*0 + $1
+		galeq _l _b _rap _decp
+		set _ra = _rap if (abs(_decp - $meanb) < 1)
+		#There are two such values:
+		define _ra1 $(_ra[0]*15)
+		relocate 0 0
+		ltype 0 
+		draw ($vmax*cosd($_ra1)) ($vmax*sind($_ra1))
+		define _ra2 $(_ra[$(dimen(_ra) - 1)]*15)
+		relocate 0 0
+		ltype 0 
+		draw ($vmax*cosd($_ra2)) ($vmax*sind($_ra2))
+		#
+aitoffdec 1	#Draw a line of constant declination in an aitoff plot.
+		foreach i (_ra _dec l b _x _y _xpp _ypp) {$i local}
+		set _ra = 0, 24, 0.01
+		set _dec = _ra*0 + $1
+		eqgal _ra _dec l b
+		aitoff l b _x _y
+		findbreak _x _y _xpp _ypp 1
+		connect _xpp _ypp
+		#
+aitoffdec1 1	#Draw a line of constant declination in a reverse aitoff plot.
+		foreach i (_ra _dec l b _x _y _xpp _ypp) {set $i local}
+		set _ra = 0, 24, 0.01
+		set _dec = _ra*0 + $1
+		eqgal _ra _dec l b
+		aitoff1 l b _x _y
+		findbreak _x _y _xpp _ypp 1
+		connect _xpp _ypp
+		#
+findbreak 5	##Sort x y so that xp, yp are continuous
+		# Note: this could easily be vectorised for speed. RHL
+		define _break 0
+		foreach i (_x _y _xp _yp) {set $i local}
+		define _break local
+		set _x = $1
+		set _y = $2
+		set _xp = _x
+		set _yp = _y
+		do i = 1, (dimen(_x) - 1) {
+		   if (abs(_x[$i] - _x[$i - 1]) > $5) {define _break $i}
+		}
+		if ($_break != 0 ){
+		   do i = 0, (dimen(_x) - $_break - 1) {
+		      define j ($i + $_break)
+		      set _xp[$i] = _x[$j]
+		      set _yp[$i] = _y[$j]
+		   }
+		   do i = 0, ($_break - 1) {
+		      define j (dimen(_x) - $_break + $i)
+		      set _xp[$j] = _x[$i]
+		      set _yp[$j] = _y[$i]
+		   }
+		}
+		set $3 = _xp
+		set $4 = _yp
+		#
+hemidec	1	#Draw a line of constant declination on a pair of
+		#hemispheres (see hemiplot)
+		set ra = 0, 24, 0.01
+		set dec = ra*0 + $1
+		eqgal ra dec l b
+		set lp = l if (b > 20)
+		set bp = b if (b > 20)
+		set lp = 360 - lp
+		set lp = lp + $rotate
+		set lp = (lp < 0)? (360 + lp) : lp
+		set lp = (lp > 360)? (-360 + lp) : lp
+		set r = sqrt(2.*(1 - sind(bp)))
+		set x = r*cosd(lp) - sqrt(2)
+		set y = r*sind(lp)
+		findbreak x y xp yp 0.1
+		connect xp yp
+		set lp = l if (b < -20)
+		set bp = b if (b < -20)
+		set lp = lp - $rotate + 180
+		set lp = (lp < 0)? (360 + lp) : lp
+		set lp = (lp > 360)? (-360 + lp) : lp
+		set r = sqrt(2.*(1 + sind(bp)))
+		set x = r*cosd(lp) + sqrt(2)
+		set y = r*sind(lp)
+		findbreak x y xp yp 0.1
+		connect xp yp
+
+hemiplot 6	#Sky plot in two hemispheres, equal area
+		#hemiplot l b v rmin rmax rotation_angle
+		define xp local define yp local
+		set l = $1
+		set b = $2
+		set v = $3
+		define rmin $4
+		define rmax $5
+		define rotate $6
+		set temp = v if (v > $rmin && v <= $rmax)
+		define sqrt2 (sqrt(2))
+		set l = l if (b > 0 && v > $rmin && v < $rmax)
+		set b = b if (b > 0 && v > $rmin && v < $rmax)
+		set l = 360 - l
+		set l = l + $rotate
+		set l = (l < 0)? (360 + l) : l
+		set l = (l > 360)? (-360 + l) : l
+		set r = sqrt(2.*(1 - sind(b)))
+		set x = r*cosd(l) - sqrt(2)
+		set y = r*sind(l)
+		limits -2.8284 2.8284 -1.4142 1.4142 
+		ptype 20 3
+		expand .3
+		points x y
+		set theta = 0, 370
+		set x = sqrt(2)*cosd(theta) - sqrt(2)
+		set y = sqrt(2)*sind(theta)
+		connect x y
+		# set theta = 95,445
+		set theta = 0, 360
+		ltype 1
+		do circle = 20, 80, 20 {
+		   set x = sqrt(2*(1 - sind($circle)))*cosd(theta) - sqrt(2)
+		   set y = sqrt(2*(1 - sind($circle)))*sind(theta)
+		   connect x y 
+		}
+		do theta = 15, 360, 15 {
+		   define thetap (360 - $theta)
+		   define thetap ($thetap + $rotate)
+		   if ($thetap < 0) {define thetap (360 + $thetap)}
+		   if ($thetap > 360) {define thetap (-360 + $thetap)}
+		   define xp (sqrt(2*1.1)*cosd($thetap) - sqrt(2))
+		   define yp (sqrt(2*1.1)*sind($thetap))
+		   if ($thetap >= 30 && $thetap <=330) {
+		      angle (90+$thetap)
+		      expand .7
+		      relocate $xp $yp
+		   putlabel 5 $theta}
+		   if ($theta/30 == int($theta/30) && $theta <= 180) {
+		      define xp (sqrt(2*(1 - sind(20)))*cosd($thetap) - sqrt(2))
+		      define yp (sqrt(2*(1 - sind(20)))*sind($thetap))
+		      relocate $xp $yp
+		      ltype 1
+		      define thetap ($thetap + 180)
+		      define xp (sqrt(2*(1 - sind(20)))*cosd($thetap) - sqrt(2))
+		      define yp (sqrt(2*(1 - sind(20)))*sind($thetap))
+		      draw $xp $yp
+		      ltype 0
+		   }
+		}
+		expand 1
+		ltype 0
+		angle 0
+		relocate (-sqrt(2)) (sqrt(2)*1.20)
+		putlabel 5 Northern Galactic Hemisphere
+		set l = $1
+		set b = $2
+		set v = $3
+		set l = l if (b < 0 && v > $rmin && v < $rmax)
+		set b = b if (b < 0 && v > $rmin && v < $rmax)
+		set l = l - $rotate + 180
+		set l = (l < 0)? (360 + l) : l
+		set l = (l > 360)? (-360 + l) : l
+		set r = sqrt(2.*(1 + sind(b)))
+		set x = r*cosd(l) + sqrt(2)
+		set y = r*sind(l)
+		ptype 20 3
+		expand .3
+		points x y
+		set theta = 0, 370
+		set x = sqrt(2)*cosd(theta) + sqrt(2)
+		set y = sqrt(2)*sind(theta)
+		connect x y
+		set theta = 1, 360
+		ltype 1
+		do circle = 20, 80, 20 {
+		   set x = sqrt(2*(1 - sind($circle)))*cosd(theta) + sqrt(2)
+		   set y = sqrt(2*(1 - sind($circle)))*sind(theta)
+		   connect x y 
+		}
+		ltype 0
+		do theta = 15, 360, 15 {
+		   define thetap ($theta - $rotate + 180)
+		   if ($thetap < 0) {define thetap (360 + $thetap)}
+		   if ($thetap > 360) {define thetap (-360 + $thetap)}
+		   define xp (sqrt(2*1.1)*cosd($thetap) + sqrt(2))
+		   define yp (sqrt(2*1.1)*sind($thetap))
+		   if ($thetap >= 210 || $thetap <= 150) {
+		      relocate $xp $yp
+		      angle (90+$thetap)
+		      expand .7
+		      putlabel 5 $theta
+		   }
+		   if ($theta/30 == int($theta/30) && $theta <= 180) {
+		      define xp (sqrt(2*(1 - sind(20)))*cosd($thetap) + sqrt(2))
+		      define yp (sqrt(2*(1 - sind(20)))*sind($thetap))
+		      relocate $xp $yp
+		      ltype 1
+		      define thetap ($thetap + 180)
+		      define xp (sqrt(2*(1 - sind(20)))*cosd($thetap) + sqrt(2))
+		      define yp (sqrt(2*(1 - sind(20)))*sind($thetap))
+		      draw $xp $yp
+		      ltype 0
+		   }
+		}
+		expand 1
+		angle 0
+		relocate $(sqrt(2)) $(sqrt(2)*1.20)
+		putlabel 5 Southern Galactic Hemisphere
+		relocate 0 -1.4142
+		putlabel 5 $(dimen(temp)) Galaxies
+		relocate 0 1.5
+		
+hemiconvert 5	#Convert from l b to x y for hemisphere plotting.
+		#hemiconvert l b x y rotate
+		define i local
+		foreach i (_l _b _x _y _r) {set $i local}
+		set _l = $1 if ($2 > 0)
+		set _b = $2 if ($2 > 0)
+		set _l = 360 - _l
+		set _l = _l + $5
+		set _l = (_l < 0)? (360 + _l) : _l
+		set _l = (_l > 360)? (-360 + _l) : _l
+		set _r = sqrt(2.*(1 - sind(_b)))
+		set $3 = _r*cosd(_l) - sqrt(2)
+		set $4 = _r*sind(_l)
+		#
+		set _l = $1 if ($2 < 0)
+		set _b = $2 if ($2 < 0)
+		set _l = _l - $5 + 180
+		set _l = (_l < 0)? (360 + _l) : _l
+		set _l = (_l > 360)? (-360 + _l) : _l
+		set _r = sqrt(2.*(1 + sind(_b)))
+		set _x = _r*cosd(_l) + sqrt(2)
+		set _y = _r*sind(_l)
+		set $3 = $3 concat _x
+		set $4 = $4 concat _y
+		#
+precess	46	# Usage: precess raout decout ra dec EpochIn EpochOut
+		# Precess coordinates from any epoch to another, setting $raout $decout
+		#
+		# This calculation is only exact for changing 1950.0
+		# to 2000.0 but should be accurate enough for other
+		# years around those dates. Input and output is RA and
+		# DEC in decimal degrees
+		local set ra = ($3)*pi/180
+		local set dec = ($4)*pi/180
+		if(!$?5) {
+		   define 5 1950.0
+		}
+		if(!$?6) {
+		   define 6 2000.0
+		}
+		local set dy = ($6 - $5)
+		
+		local set m2 = 1.28076E-2
+		local set m1 = 1.28053E-2
+		local set n2 = 5.5667E-3
+		local set n1 = 5.5674E-3
+        
+		local set c = dy*(m1 + n1*sin(ra)*tan(dec))*pi/180
+		local set b = n1*cos(ra)*dy*pi/180
+		
+		local set cp = dy*(m2 + n2*sin(ra + c)*tan(dec + b))*pi/180
+		local set bp = n2*cos(ra + c)*dy*pi/180
+		
+		define $1 ( 180/pi*(ra + (c + cp)/2) )
+		define $2 ( 180/pi*(dec + (b + bp)/2) )
+

@@ -1,0 +1,14 @@
+Syntax: ANGLE expr
+
+   For most purposes, only the first element of the expr is used, let's
+call it D, as it's an angle in degrees.
+
+   ANGLE will cause text from LABEL to come out D degrees
+anticlockwise from horizontal. It also causes points to be rotated
+counter-clockwise by D. If D is non-zero it will be applied to axis
+labels (note that 360 is non-zero).
+
+   For plotting points the full vector of values is used, with each
+point rotated by the corresponding element of expr. If more points are
+specified than the dimension of expr, the first element will be used
+for the excess.

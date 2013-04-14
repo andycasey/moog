@@ -1,0 +1,5 @@
+Syntax: And
+
+   In a scalar context, you can use AND instead of &&.  The difference
+is that AND doesn't evaluate the right-hand-side of the expression if
+the left-hand-side is false.

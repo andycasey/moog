@@ -1,0 +1,26 @@
+Syntax: CURSOR
+or      CURSOR WORD1 WORD2
+or      CURSOR READ
+
+   Display the crosshair cursor to enable you to get positions (in
+user coordinates).  Positions are typed on the screen following
+(almost) any key (followed by a newline if the key was a digit; you
+get a number of positions).  Exit the cursor routine by hitting the
+'e' or 'q' key. If you exit with 'e', CURSOR issues a relocate command
+to set the current plot position to the cursor position, and this
+command is entered onto the history buffer. With a 'q' exit, no
+command is entered (but the position is still updated).  You should
+not use <CR>, as it is often used by the cursor hardware.
+
+   You can simply read the current cursor position using CURSOR READ.
+
+   The second form defines a pair of vectors WORD1 and WORD2 from the
+position of the cursor when an `e', 'm', or `p' is hit, use `q' to
+exit without marking the current cursor position (`m' doesn't print
+the current cursor position). ^C aborts the command with no vectors
+defined. Note that to use SPLINE on the resulting vector, the x
+coordinates must be monotonic increasing, but see also the SORT
+command.
+
+   Use IMAGE CURSOR if you want to get the value of an image as well
+as the cursor position.

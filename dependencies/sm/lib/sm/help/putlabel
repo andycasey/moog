@@ -1,0 +1,18 @@
+Syntax: PUTLABEL INTEGER str
+
+   PUTLABEL writes a label at the current location with rotation and
+size specified by ANGLE and EXPAND (exactly like LABEL). The label is
+oriented with respect to the current location according to the
+argument INTEGER which can be 1 - 9 for:
+               label to left     centre     right
+        label above      7         8         9 
+              centered   4         5         6
+              below      1         2         3
+(cf. a vt100 keypad). If INTEGER is 0 the string isn't actually drawn,
+but the string's dimensions are calculated (and are available as
+$swidth, $sheight, and $sdepth), and any TeX definitions are remembered.
+
+   If EXPAND is exactly 1, and ANGLE is exactly 0, SM will attempt to
+use a hardware character set. To avoid this use EXPAND 1.0001, or
+preface the string with an explicit \\r (or include a {} if you are
+using TeX strings).

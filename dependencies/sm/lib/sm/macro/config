@@ -1,0 +1,36 @@
+config 02	# Print config info
+		if(!$?1) { define 1 0 }
+		if($?2){local define p {+}}else{ local define p " " define 2{standard} }
+		write $p "$!2" $version
+		write $p "$!2" "set_opts -m macosx (Darwin comice.stsci.edu 9.4.0)"
+		write $p "$!2" "CC: cc -Wall -DmacOSX -DNEED_SWAP -I/usr/X11R6/include -L/usr/X11R6/li"
+		write $p "$!2" "typedef float REAL;"
+		write $p "$!2" "#define X11"
+		write $p "$!2" "#define MACROSIZE 10000"
+		write $p "$!2" "#define VEC_STR_SIZE 40"
+		write $p "$!2" "#define OCTAL_NUMBERS 0"
+		write $p "$!2" "#define HAVE_READDIR"
+		write $p "$!2" "#define MAX_POW 37"
+		write $p "$!2" "#define ANSI_CPP"
+		write $p "$!2" "#define ANSI_PROTO"
+		write $p "$!2" "#define STDARG"
+		write $p "$!2" "#define Const const"
+		write $p "$!2" "#define Signed signed"
+		write $p "$!2" "#define Void void"
+		write $p "$!2" "#define Volatile volatile"
+		write $p "$!2" "#define Static static"
+		write $p "$!2" "#define Far"
+		write $p "$!2" "#define EXIT_OK 0"
+		write $p "$!2" "#define EXIT_BAD 1"
+		write $p "$!2" "#define unix"
+		write $p "$!2" "#define ANSI_INCLUDE"
+		write $p "$!2" "#define POSIX_INCLUDE"
+		write $p "$!2" "#define FORTRAN_APPEND __"
+		write $p "$!2" "#define HAVE_IOCTL_DEFN"
+		write $p "$!2" "#define FD_SET_H <sys/types.h>"
+		write $p "$!2" "#define _CONCATENATE(P,F) P ## F"
+		write $p "$!2" "#define CONCATENATE(P,F) PF"
+		write $p "$!2" "#define O_BINARY 0"
+		if(!$1) { return }
+		write $p "$!2" "npirzkal @"
+		#

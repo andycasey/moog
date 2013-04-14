@@ -1,0 +1,12 @@
+Syntax: USER ABORT [ string ]
+or      USER INTEGER string
+
+   USER ABORT generates a syntax error, using the string as the offending
+command if it's provided. If the macro abort_handler is defined it'll be
+passed the string instead of generating an error --- be sure to define it
+with 111 arguments!
+
+   USER integer calls the function "userfn", passing the address of
+INTEGER and the rest of the line (as the address of a NUL-terminated
+string) as arguments. This may be used to provide user functions
+without changing the parser.

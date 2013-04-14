@@ -1,0 +1,29 @@
+Syntax: DEVICE os2pm [args]
+
+   The OS2PM driver is used to display graphics in a Presentation Manger
+graphics window under OS/2 v2.x. Two optional arguments are currently supported.
+
+	-n	Disable all backing for the graphics window. This will
+		significantly increase the drawing speed, but the contents
+ 		of the graphics window will not be redrawn when portions of 
+		the window are uncovered or when the window is resized.
+
+	-gWxH	Specify the window geometry. The W and H parameters should
+		contains the WIDTH and HEIGHT of the graphics window in
+		pixels. 
+
+If DEVICE os2pm is specified without the -gWxH argument the graphics window
+will be created the same size as the last previously displayed window. If
+this is the first time the graphics window is created it will default to
+600 x 400 pixels.
+
+Example:	DEVICE os2pm -g800x500
+		.
+		.
+		.
+		DEVICE os2pm -n
+
+	The first DEVICE statement will produce an 800 x 500 pixel graphics
+ 	window with backing enabled. The second will again produce an 800 x 500
+	pixel window but with no backing.
+

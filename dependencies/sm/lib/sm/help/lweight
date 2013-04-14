@@ -1,0 +1,4 @@
+Syntax: LWEIGHT number
+
+   All vectors are with a weight of number, where the larger number
+is the blacker the line. The default is 1.

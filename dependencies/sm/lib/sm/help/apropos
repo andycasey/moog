@@ -1,0 +1,36 @@
+Syntax : APROPOS pattern
+
+   Apropos lists all macros whose name or introductory comments match
+the given pattern.
+
+   If your system supports it, APROPOS will also search the help files
+for the given string (in this case matches may not extend over more
+than one line). If VERBOSE is zero only the line containing the match
+is printed; if VERBOSE is one or more then a couple of lines on each
+side of the match are printed too. If you use `q' to stop looking at
+the help files APROPOS will proceed to search the macros.
+
+The pattern is a slightly restricted version of a
+normal Unix regular expression, specifically:
+
+	.	Matches any character except \n
+	[...]	Matches any of the characters listed in ... .
+		  If the first character is a ^ it means use anything except
+		the range specified (in any other position ^ isn't special)
+		  A range may be specified with a - (e.g. [0-9]), and if a ]
+		is to be part of the range, it must appear first (or after
+		the leading ^, if specified). A - may appear as a [---].
+	^	Matches only at the start of the string
+	$	Matches only at the end of a string
+	\t	Tab
+	\n	Newline
+	\.	(any other character) simply escapes the character (e.g. \^)
+	*	Any number of the preceeding character (or range)
+	?	One or more of the preceeding character or range
+
+(Of course, characters such as " and # that are special to SM must also
+be quoted e.g. APROPOS "^#.*quit" or APROPOS ^\#.*quit).
+
+By default searches are case insensitive, but you can make searching
+sensitive to case by deleting the variable case_fold_search (you can do this
+by putting a line "case_fold_search 0" in your .sm file if you so desire).

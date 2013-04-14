@@ -1,0 +1,13 @@
+Syntax: ERRORBAR WORD1 WORD2 expr INTEGER
+
+   ERRORBAR is analogous to POINTS; it draws one-sided error bars on
+all points defined by vectors WORD1 and WORD2, of length set by expr
+(maybe just a vector). The words may be replaced by expressions in
+parentheses, e.g. ERROBAR (2*x) (1+y) err 1.
+
+   INTEGER is 1 to put the bar along the +x direction, 2 for +y, 3 for
+-x, and 4 for -y. Use EXPAND to govern the size of the caps.
+
+(See also the macros ec and err for backwards compatibility, error_x
+and error_y to draw (symmetrical) two-sided errorbars, and logerr to
+put errobars on logarithmic plots).

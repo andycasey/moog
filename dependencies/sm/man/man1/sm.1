@@ -1,0 +1,196 @@
+.TH SM l
+.SH NAME
+sm \- a superior plotting package
+.SH SYNOPSIS
+.B sm
+[-f file] [-F file] [-h] [-l file] [-m file] [-n] [-q] [-s] [-S] [-u user] [-V] [-v#] commands
+.SH DESCRIPTION
+.I SM
+is a package designed to allow you to easily produce high quality
+plots, and also to manipulate 1-D data ( vectors ), and to a limited
+extent 2-D data (images). The command line flags are
+.IP -h
+Print short summary on command line options.
+.IP -f file
+Specify that
+.I file
+should be used as the SM environment file. If this is not specified,
+the file ".sm" will be used by default, in your current directory (or,
+failing that, your home directory).
+.IP -F file
+Specify that
+.I file
+should be used as the fonts file (overrides the
+B fonts
+entry in your .sm file).
+.IP -h
+Print a description of the command line arguments.
+.IP -l file
+Specify that all commands typed at the keyboard be logged to the file. This
+is also mostly useful for debugging. SM has much better ways of
+preserving the useful parts of a session.
+.IP -m file
+Specify that the macros in file be read while SM is starting up. Then
+execute the eponymous macro before a prompt is issued. For example, if the
+file is /usr/vital.m, then the macro vital (if it exists) is executed. This
+is probably superceded by the use of command line commands.
+.IP -n
+Don't execute the macro
+.B startup
+when starting SM.
+.IP -q
+Turn off the initial `Hello' message.
+.IP -s
+Specify that the terminal is (very) stupid, and don't use the history editor
+to read lines of input. Useful when SM is at the end of a pipeline.
+.IP -S
+Like s, but also suppress the prompt. S stands for either `stupid',
+or `silent'.
+.IP -u user
+Intepret ~ as user's home directory in .sm search path.
+.IP -V
+Print SM's version number (equivalent to the
+.B VERSION
+command) and exit.
+.IP -v#
+Set the initial value of
+.B VERBOSE
+to be #, which can be useful when debugging SM.
+.PP
+Any further text on the command line is treated as a command to be executed
+before issuing a prompt.
+.SH COMMANDS
+For a complete list of commands, and any other desired information, refer to
+the printed manual, or use the on-line HELP command.
+
+It is possible to read
+data from files into 1-D arrays known as vectors, to define vectors from
+from the keyboard and to manipulate vectors arithmetically. They may then be
+written to a file or plotted on linear or logarithmic axes as lines, points,
+or histograms. The points may be chosen from set of predefined symbols such
+as crosses or hexagons, or may be specified by the user. Plots may be
+labeled using a variety of fonts.
+Vectors may also be defined using a cursor, as may the position of text labels
+on a plot.
+
+The arithmetic operations include all the usual operators, trig functions,
+logs, exponentiation, logical operators, sorting, and spline fitting.
+By using these in conjunction with the powerful
+macro facility it is possible to write routines to, for instance,
+calculate least square fits or K-S statistics from vectors.
+
+It is possible to freely intermingle commands with macros, which accept
+arguments. The expansion of variables is transparent to the system, and
+they may be freely used anywhere. DO and FOREACH loops are provided to
+help with repetitive tasks, along with an IF ELSE construction which may also
+be used to plot only parts of vectors.
+There is a complete command (history) editor, which may also be
+used to make changes to macros. 
+
+It is possible to replay a set of plotting commands, for instance to send a
+perfected graph to a hard copy device. The editor can be used to make
+changes to this playback buffer. Macros, vectors, and
+variables may be saved to a file for future use.
+
+Graphics devices are usually specified in a graphcap file, similar to
+the usual termcap file, in a format sufficiently flexible to allow almost
+any device to be described. It is also possible to write C device drivers
+for such devices as need them, for example both X- or Sun- Windows have
+drivers written.
+
+.IP 
+.SH ENVIRONMENT FILE
+The environment file, by default called .sm in either your current
+directory or, failing that, your home directory, specifies the location of
+various files and directories that SM needs to function correctly.
+It is also possible to access the values of variables in the environment
+file from within SM, and the system startup macro may well do so. Usually
+you don't have to change your .sm file to change the values of these
+variables, you can simply define them (or delete them) like any other variable.
+The compulsory (C), and commonest of the other values (O) are as follows,
+(C/O) means that it is compiled into SM, but may be omitted.
+.PP
+background	The background colour for plots (O)
+.br
+bgipath		Path for BGI files under DOS.
+.br
+case_fold_search	Make APROPOS case-insensitive (O)
+.br
+default_font	Default font for labels (TeX only) (O)
+.br
+device		Default plotting device (O)
+.br
+edit			File specifying key bindings (O)
+.br
+fan_compress	Apply fan compression when connecting lines (O)
+.br
+filecap		File describing unformatted files (C/O)
+.br
+file_type		Variable used with filecap (O)
+.br
+fonts		File containing font tables (C)
+.br
+foreground	The foreground colour for plots (O)
+.br
+graphcap		File specifying graphic devices (C)
+.br
+help			Directory containing help files (C)
+.br
+history		Size of history list (default 80) (C/O)
+.br
+history_char	Character to recall history (default ^) (C/O)
+.br
+history_file	File to save history in (C/O)
+.br
+line_up_exponents	Line up positive and negative exponents in axis labels (default 0) (O)
+.br
+macro		Directory for system macros (C)
+.br
+macro2		Default directory for user macros (O)
+.br
+missing_data	The value to use for missing data in IMAGEs (?)
+.br
+name			The name SM calls you by (O)
+.br
+noclobber	If set, refuse to overwrite files with
+.B PRINT
+(default 0) (O)
+.br
+overload		Overload various commands, see the manual (O)
+.br
+printer		Name of default hardcopy device (O)
+.br
+prompt2		Secondary prompt (>)
+.br
+remember_history_line	Remember which line you last reused (O)
+.br
+save_file		Default file to save a SM session in (C/O)
+.br
+save_read_ptr		Attempt to save place in a data file for consecutive reads
+.br
+tabsize			Width of tabs to SM's editor
+.br
+TeX_strings	Accept TeX-style strings for labels (O)
+.br
+term			Default terminal, overruling TERM (O)
+.br
+temp_dir		Temporary directory for plots (C/O)
+.br
+termcap		Termcap file. Defaults to /etc/termcap (C/O)
+.br
+traceback		Print the macro stack following an error (O)
+.br
+uppercase		Define uppercase versions of some macros (O)
+.SH ENVIRONMENT VARIABLE
+PRINTER		which printer to use
+.br
+TERM			current terminal
+.br
+TERMCAP		location of termcap information
+.SH FILES
+.nf
+.sm                            environment file
+/usr/local/lib/sm/*            system wide SM files (.sm, graphcap, etc.)
+.fn
+.SH AUTHORS
+Robert Lupton and Patricia Monger

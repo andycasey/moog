@@ -1,0 +1,6 @@
+Syntax: RELOCATE X Y
+or      RELOCATE ( X Y )
+
+   Set the current location to (x,y) without drawing a line. The first
+form gives (x,y) in user coordinates, the second in screen coordinates
+(0-32767).

@@ -1,0 +1,14 @@
+Syntax: FOREACH variable ( list ) { commands }
+or      FOREACH variable { list } { commands }
+or      FOREACH variable vector { commands }
+
+   The two forms with lists define variable as each element of the
+list is in turn, and then the commands are executed. An example would be
+	FOREACH var ( alpha 2 gamma ) { WRITE STANDARD $var }
+
+   The version with {} surrounding the list is useful whenever you
+want the list to appear exactly as you typed it.
+
+   With a vector, the variable is defined to be each element of the vector
+in turn, e.g.
+        SET x=0,10 FOREACH var x { echo $var }

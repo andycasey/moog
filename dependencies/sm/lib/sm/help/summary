@@ -1,0 +1,266 @@
+		SM Commands: A Very Abbreviated Guide by Topic 
+		==============================================
+
+Original Author: Martin Elvis (elvis@cfa.harvard.edu)
+
+SM: version SM2_3_1                                                  [10/26/95]
+------------------------------------------------------------------------
+Leaving SM
+
+QUIT	quits the programme entirely. plot will go to hardcopy device.
+ABORT 	closes the current device without producing any hardcopy. 
+SAVE 	saves current macros, variables, and vectors to `filename'
+RESTORE restores all macros, variables, and vectors from `filename'
+
+------------------------------------------------------------------------
+Help functions
+
+HELP	prints longer version of this type of message for commands.
+APROPOS lists macros whose name or introductory comments match `pattern'. 
+
+------------------------------------------------------------------------
+Reading data into SM
+
+DATA	uses "file" as the source of data read with the READ command.
+LINES 	sets use of lines INTEGER1 to INTEGER2 from the current data file
+READ 	reads column INTEGER of data file to vector WORD
+
+------------------------------------------------------------------------
+Reading user macros into current SM
+
+MACRO READ name		read macro `name' into SM.
+MACRO EDIT name 	to edit a macro.
+
+------------------------------------------------------------------------
+Defining variables
+
+SET name = expr 	sets the vector "name" to be equal to "expr"
+DEFINE name value 	defines variables. accessed by $name
+VARIABLE		see DEFINE for how to define and use variables.
+LIST DEFINE [ begin end ] lists all the current variables (or macros)
+
+------------------------------------------------------------------------
+Looking at data
+
+PRINT [+] [ filename ] [ 'format' ] { vector_list }
+	prints the values of the vectors in vector_list to the terminal, 
+	or to the filename specified
+
+------------------------------------------------------------------------
+Plotting commands
+
+DEVICE WORD 	chooses plot device (x11, bgi, mswindows, lp [printer])
+ERASE	 	erases the graphics screen
+PAGE		starts a new page for a hardcopy plot
+HARDCOPY	produces a hard copy
+DEVICE META 	device META takes plot commands and stores and executes them.
+
+------------------------------------------------------------------------
+Plot area set up
+
+LOCATION GX1 GX2 GY1 GY2	sets physical plot location (0-32767)
+LIMITS	sets plot coordinates to vector1,vector2 or xmin,xmax,ymin,ymax
+BOX	puts axes around the plot region
+ASPECT 	sets aspect ratio (Y/X) to A for characters and points.
+GRID I1 I2	draws grid at major (I1=0) or minor (I1=1) tickmarks within box.
+RANGE n_x n_y	sets the range on the x, y axis to be n_x, n_y
+WINDOW nx ny x y	divide plot area into nx*ny regions, use the (x,y)th.
+AXIS A1 A2 AX AY ALEN	draws axis, label from A1 to A2 at AX, AY, length ALEN.
+TICKSIZE SMX BIGX SMY BIGY	determines tick intervals for BOX
+NOTATION XLO XHI YLO YHI	sets axis label format (exp. or float)
+FORMAT x-format y-format	specifies axis tick label formats. 
+
+------------------------------------------------------------------------
+Image file plotting
+
+IMAGE 	reads image from "file", can specify range of coordinates.
+MINMAX	sets `min' and `max' to the the max and min values of an image
+LEVELS 	sets CONTOUR levels to be the elements of `expr'
+CONTOUR	makes a contour plot of image.
+SURFACE type z1 z2 	draws a wire-frame surface of the current IMAGE.
+	TYPE determines surfaces to draw:
+	0  no hidden line removal   1  draw top surface
+	2  draw bottom surface      3  draw both top and bottom surfaces
+VIEWPOINT theta phi L	draws surfaces from direction (THETA,PHI), and project
+	onto surface passing through origin, from point L away from the
+	nearest corner of the cube containing image.
+CURSOR 	display crosshair cursor to enable you to get positions
+
+------------------------------------------------------------------------
+Line/point set-up
+
+EXPAND expr	expands all characters and points, its default is 1.0. 
+LWEIGHT		sets line thickness to `number' (larger is thicker)
+PTYPE n s	causes points to be drawn as n sided polygons of a style s,
+		where: 0 = open  1 = skeletal  2 = starred  3 = solid
+LTYPE I1	sets the type of line to be drawn by I1:
+		0 = solid	1 = dot   2 = short dash      3 = long dash
+		4 = dot - short dash      5 = dot-long dash   
+		6 = short dash-long dash  10 = erase lines
+CTYPE WORD 
+		sets line colour to WORD. ("default", "white", "black", "red", 
+		"green", "blue", "cyan", "magenta", or "yellow".)
+
+------------------------------------------------------------------------
+Plotting vectors with lines and points
+
+CONNECT draws lines connecting points in vectors pexpr1, pexpr2.
+POINTS 	makes points at the points in vectors WORD1 and WORD2.
+ERRORBAR WORD1 WORD2 expr INTEGER
+	draws one-sided error bars on all points defined by vectors WORD1 and
+	WORD2, of lengths set by expr. INTEGER is 1 to put the bar along the +x
+	direction, 2 for +y, 3 for -x, and 4 for -y.
+HISTOGRAM connects points in vectors pexpr1 and pexpr2 as a histogram.  
+SHADE INTEGER pexpr1 pexpr2	shades `inside' curve defined by pexpr1 pexpr2
+RELOCATE X Y	sets the current location to (x,y) without drawing a line.
+DOT		draws point at the current location.
+DRAW #1 #2	draws line from current position to #1,#2 (user coordinates)
+
+------------------------------------------------------------------------
+Annotating plots with labels
+
+LABEL 		writes the string str at the current location.
+XLABEL str  	writes label "str" centered under the x axis made by BOX.
+YLABEL str	writes label "str" centered to left of the yaxis made by BOX.
+PUTLABEL INTEGER str	writes label "str" at current location.
+ANGLE expr	text from LABEL comes out D degrees anticlockwise from 
+		horizontal. (D is first element of `expr') 
+DATE 	is a special variable that expands to the current date and time.
+
+------------------------------------------------------------------------
+Programming in SM
+
+DO variable = start, end [ , incr ] { commands }
+	executes the commands while the value of $variable runs from 
+	`start' to `finish', increment defaulting to 1.
+FOREACH variable ( list ) { commands }
+	The value of variable is set to each element of list is in turn,
+	and then the commands are executed. 
+RETURN	returns from the current macro, which includes breaking out 
+	of DO and FOREACH loops.
+IF (expr) { list1 } <CR>   {or  IF (expr) { list1 } ELSE { list2 }}
+	If `expr' is true, execute list1, otherwise list2 (if present).
+
+------------------------------------------------------------------------
+OPERATORS
+------------------------------------------------------------------------
+ARITHMETIC operators in SM:
+PI              Pi
+
+-expr           Change sign             ABS(expr)       Absolute value
+ACOS(expr)      Arccosine               ASIN(expr)      Arcsine
+ATAN(expr)      Arctangent              COS(expr)       Cosine
+DIMEN(vector)   Dimension of a vector   EXP(expr)       Exponential
+INT(expr)       Integral part           LG(expr)        Log_10
+LN(expr)        Log_e                   RANDOM(s_expr)  Random numbers
+SIN(expr)       Sine                    SQRT(expr)      Square root
+STRING(expr)    Convert to a string     SUM(expr)       Sum_i expr_i
+TAN(expr)       Tangent                 VECTOR[expr]    Elements of an array
+( expr )        Raise precedence
+
+expr + expr          Add                expr - expr     Subtract
+expr CONCAT expr     Concatenate        expr * expr     Multiply
+expr / expr          Divide             expr ** expr    Exponentiate
+ATAN2(expr_y,expr_x) Atan2
+
+HISTOGRAM(expr:expr)            Construct histogram
+IMAGE(expr,expr)                Extract cross section
+expr1 ? expr2 : expr3           expr2 if expr1 is true, else expr3
+
+------------------------------------------------------------------------
+LOGICAL operators in SM: (non-zero = true)
+   !expr          Logical complement
+   expr == expr   Equal to                 expr != expr   Not equal
+   expr < expr    Less than                expr <= expr   Less than or equal
+   expr > expr    Greater than             expr >= expr   Greater than or equal
+   expr && expr   Logical and              expr || expr   Logical or
+Only == and != are allowed for string valued vectors. 
+All arithmetic vectors test unequal to all string-valued vectors.
+
+------------------------------------------------------------------------
+STRINGS operations on vectors and scalars.
+
+LENGTH(expr)	The length (SCREEN units) that a string would have if plotted
+STRLEN(expr)	The number of characters in a string
+STRING(expr)	Convert a number to a string. You might prefer to use
+		sprintf('%t',expr) instead, as it gives you more control.
+( expr )	Raise precedence
+
+expr + expr	Add; concatenate element by element
+expr CONCAT expr Concatenate the two vectors
+INDEX(expr_1,expr_2)
+		Return the starting index of expr_2 in expr_1, or -1.
+SPRINTF(expr_1,expr_2)
+		Format expr_2 using the standard C format string expr_1. The
+		additional format %t or %T is identical to %e, but formats the
+		string as a power of 10 in TeX format.  Note that only one expr
+		may be formatted, but that you can say `sprintf(expr,expr) +
+		sprint(expr,expr) ...' to work around this restriction.
+vector[expr]	The elements of vector given by expr.
+
+SUBSTR(expr_1,expr_2,expr_3)
+		Return the expr_3-long substring of expr_1 starting at expr_2
+		if expr_3 is 0 return the rest of the string.
+expr1 ? expr2 : expr3
+		expr2 if expr1 is true, else expr3
+
+------------------------------------------------------------------------
+Vector manipulation
+
+SORT { vector_list }
+	sorts the first vector in thel list into increasing numerical order,
+	and rearranges the others (no. vectors<=10) in the same way.
+SPLINE x1 y1 x2 y2
+	performs a natural spline fit on vectors x1 and y1, (same dimension,
+	x1 monotonic increasing) and interpolates to points of vector x2,
+	creating vector y2.
+FFT n pexpr1 pexpr2 WORD1 WORD2
+	Fourier transforms 2 vectors (treated as the real and imaginary parts
+	of a complex vector), returning  answer in vectors WORD1 and WORD2.
+
+------------------------------------------------------------------------
+Controlling SM system stuff
+
+EDIT op_name key_name
+	redefines a key key_name to carry out the function op_name.
+TERMTYPE WORD [ NLINES ]
+	sets the terminal type for the line/history editor to be WORD. 
+CHDIR WORD
+	changes to a new directory. Use double quotes on WORD for safety. If 
+	first character of WORD is `~' it is replaced by your home directory. 
+PROMPT new_prompt
+	replaces the current prompt by new_prompt. The character '*' is
+	replaced by a ^G, to ring the terminal bell.
+VERBOSE INTEGER
+	makes SM produce output on what it is doing if integer is > 0.
+	be turned off again with another negative value.
+VERSION
+	returns a string identifying the version of SM in use.
+USER ABORT [ string ]     {or  USER INTEGER string}
+	USER ABORT generates a syntax error, using the string as the 
+	offending command if it's provided.
+WHATIS(something) has a value depending on what it is:
+	A number      0            bit  Not a number: 1            0    
+	a macro:      set 02 bit   1    a variable:   set 04 bit   2    
+	a vector:     set 010 bit  3    a keyword:    set 020 bit  4
+OVERLOAD keyword INTEGER
+	allows "keyword" (in lowercase) to be used as a macro name if
+	integer is non-zero.
+KEY key-sequence commands
+	defines the key-sequence to expand to the commands. 
+
+------------------------------------------------------------------------
+History mechanism
+
+HISTORY lists up to the the last eighty commands issued, giving each an
+	identifying number. HISTORY - lists the commands backwards.
+PLAYBACK re-executes the list use the macro `playback' (or `play'). 
+WRITE HISTORY WORD         {or  WRITE STANDARD}
+	writes the macro WORD onto the top of the history buffer. WRITE
+	STANDARD writes a string to the standard output.
+DELETE [ INTEGER1 INTEGER2 ] {or many variants}
+	deletes commands INTEGER1 to INTEGER2 (inclusive) from the 
+	history buffer. 
+ALL 	The macros edit_hist, hcopy, hmacro, insert, and playback use 
+	`all'  use `all' to save the history buffer while manipulating it. 
+EDITOR	edits the HISTORY LIST, or macros.

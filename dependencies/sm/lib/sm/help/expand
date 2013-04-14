@@ -1,0 +1,14 @@
+Syntax: EXPAND expr
+
+   EXPAND expands all characters and points, its default is 1.0. Note
+that the EXPAND factor is used in determining the plot window size in
+the WINDOW command, so EXPAND should be the same for each of a set of
+WINDOW commands.
+
+   If EXPAND is exactly 1, and ANGLE is exactly 0, SM will use
+hardware character sets if possible. To frustrate this, set expand
+1.001.
+
+   EXPAND can in fact be given a vector of values, which are used for
+each point in a POINTS command. This supercedes the use of a fractional
+PTYPE (although we still support it as a quaint anachronism).

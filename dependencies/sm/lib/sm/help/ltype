@@ -1,0 +1,24 @@
+Syntax: LTYPE INTEGER
+or      LTYPE ERASE
+or      LTYPE EXPAND number
+
+   All lines (except for those making up axes and characters) are
+drawn with line type INTEGER, meaning:
+
+        0 = solid
+        1 = dot
+        2 = short dash
+        3 = long dash
+        4 = dot - short dash
+        5 = dot - long dash
+        6 = short dash - long dash
+	10  erase lines
+
+   LTYPE ERASE is equivalent to LTYPE 10, and will erase any lines
+that are redrawn (e.g. LTYPE 0 BOX LTYPE ERASE BOX will first draw a
+box, and then erase it). Not all devices can support erasing
+individual lines, if yours doesn't you'll have to ERASE the whole
+screen.
+
+   LTYPE EXPAND makes all dots, dashes, and spaces in the chosen ltype
+larger (or smaller) by the value specified.

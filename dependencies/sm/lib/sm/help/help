@@ -1,0 +1,9 @@
+
+   These words may be upper or lower case. If word is not one of these but
+is a macro or a variable, its definition or value is printed. If it is a
+vector, the help string for that vector is printed (See SET HELP and PRINT).
+
+See also APROPOS for looking for strings in macros (e.g. APROPOS Mongo).
+
+   To get a prompt, try ^C. If very desperate indeed, ^\ (Unix) or ^Y (VMS)
+might help, but at some risk...

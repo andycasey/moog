@@ -1,0 +1,23 @@
+Syntax: WRITE HISTORY WORD
+or      WRITE STANDARD
+or      WRITE [+] WORD
+or      WRITE IMAGE WORD
+or      WRITE TABLE [+] WORD { vector [ vector ... ] }
+
+   WRITE HISTORY WORD writes the macro WORD onto the top of the history buffer.
+
+   WRITE STANDARD writes a string to the standard output. The string
+is taken to be the rest of the line up to a carriage return (which may
+be written explicitly as \n). WRITE filename is similar, but it writes
+the string to a file. If the filename is the same as the last time
+that you used this command, or if you preface the filename with a `+',
+the string is appended; otherwise the file is overwritten.
+
+   WRITE IMAGE WORD writes the current image to file WORD.
+
+   WRITE TABLE writes the specified vector(s) to file WORD; with + they
+are appended to the file.  All current IMAGE variables (as defined with
+IMAGE DEFINE) are written to the table header. Currently only FITS binary
+tables are supported.
+
+   For WRITE macro_name, see MACRO (or maybe SAVE).

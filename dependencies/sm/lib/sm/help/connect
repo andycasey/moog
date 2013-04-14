@@ -1,0 +1,8 @@
+Syntax: CONNECT pexpr pexpr [ IF (expr) ]
+
+   (`Pexpr' is the name of a vector, or an expression in parentheses,
+e.g. CONNECT x (sqrt(y)) if(y > 0) )
+
+   CONNECT draws line segments connecting the points in vectors pexpr1
+and pexpr2. If the IF clause is present, it only connects those points
+for which expr (see ARITHMETIC and LOGICAL) is non-zero.

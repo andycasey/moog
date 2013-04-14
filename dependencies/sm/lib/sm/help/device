@@ -1,0 +1,31 @@
+Syntax: DEVICE WORD [arguments]
+or      DEVICE INTEGER [ WORD ] [arguments]
+or      DEVICE META WORD
+or      DEVICE META CLOSE
+
+   Choose a plot device.  The actual rules for DEVICE are a little
+complex, but basically WORD specifies the driver to use. Most users
+need not worry about the numeric version of this command (which may
+disappear in the future anyway). If WORD is the name of a known device
+it is selected, otherwise SM will use the stdgraph driver and look for
+the device in graphcap (see Appendix II of the manual for details, and
+a discussion of the more complex forms of this command).  Fortunately,
+stdgraph is capable of driving almost all graphics terminals and
+printers in use.  Extra arguments are passed to the device driver.
+
+   The pseudo-device META is special, (try HELP meta). It is used to
+support metafiles, which allow you to save a plot as you display it,
+and finally send it to a different device.
+
+   Some examples may clarify this a little. DEVICE nodevice and DEVICE
+0 are equivalent, and specify the null device, which does nothing.
+This is the default.  "DEVICE 1 tek4010", "DEVICE stdgraph tek4010",
+and "DEVICE tek4010" are all equivalent, and specify that the device
+is to be stdgraph, using the graphcap entry for a Tektronix 4010
+terminal.  "DEVICE postscript laser1" specifies that the stdgraph
+postscript driver be used, and that it be passed the argument "laser1"
+(which it will presumably use to choose which laser printer to use).
+
+   Use the LIST DEVICE command to see which devices are available, either
+in graphcap or as hard-coded drivers. If relevant, you could try HELP x11
+or help sunview.

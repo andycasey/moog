@@ -1,0 +1,11 @@
+Syntax: SORT { vector_list }
+or      SORT < vector_list >
+or      SET vec = SORT ( expr )
+
+   Sort the first vector in the list into increasing numerical order,
+and rearrange the others in the same way. The maximum number of
+vectors that can be sorted is 10.
+
+Any mixture of string- integral- and arithmetic-valued vectors is allowed.
+
+   You can also use SORT as a function in an expression.

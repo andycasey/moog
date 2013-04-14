@@ -1,0 +1,33 @@
+Syntax: PRINT [+] [ filename ] [ 'format' ] { vector_list }
+or      PRINT [+] [ filename ] [ 'format' ] < vector_list >
+
+   Print the values of the vectors in vector_list to the terminal, or,
+if filename is specified, to that file. If a file is specified, each
+line of the header starts with a `#', so the file can be read without
+using the LINES command. The header is not printed if the variable
+print_noheader is defined and non-zero.
+
+   With the optional `+' the vectors are appended to the file, otherwise
+it is overwritten.
+
+   The optional format string is of the type accepted by the C
+function `printf', and you should see the manual or a book on C for
+more details. Basically, the format string is copied to the output
+with output specified by % signs. Each line is NOT terminated by a
+newline, you have to write them explicitly.
+
+   For example,
+      SET x=1,10 SET y=x**2
+      PRINT file '%10f (%10.2e)\n' { x y }
+will produce
+#        x            y
+#
+  1.000000 (  1.00e+00)
+  2.000000 (  4.00e+00)
+  3.000000 (  9.00e+00)
+(etc.)
+and
+      PRINT file '%g ' { x }
+#         x
+#
+1 2 3 4 5 6 7 8 9 10

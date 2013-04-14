@@ -1,0 +1,32 @@
+Syntax: SHADE number pexpr pexpr
+or      SHADE HISTOGRAM [ANGLE] number pexpr pexpr
+
+   (`Pexpr' is the name of a vector, or an expression in parentheses,
+e.g. SHADE 1000 x (sqrt(y)))
+
+   Shade `inside' a curve defined by the expressions. The shading is
+rotated through the current value of ANGLE, and lines are spaced
+number apart (screen coordinates, so the full screen is 32768
+across), 500 is about right. If number is 0, the lines will be drawn
+close enough to fill the area, but this is liable to be rather slow.
+The meaning of `inside' is that as the shading is done, from left to
+right taking the value of ANGLE into account, lines are drawn from
+every odd to every even crossing of the curve. The curve is considered
+as being closed by joining the first to the last point. If a shading
+line just touches the curve the algorithm may be confused, change
+number slightly.  Sometimes joining the ends of the curve may not be
+what you want, try using CONCAT to add points on the end yourself. For
+example, `SET x=0,10 SET y=x**2 LIMITS x y SHADE 1000 x y' looks like
+a new moon, but `SHADE 1000 (x CONCAT 10) (y concat -1e10)' shades
+beneath the curve, for ANGLE 0 that is.
+
+If number has a fractional part, the lines are offset by that
+fraction of the spacing; try:
+	 shade 100 x y ctype red shade 100.5 x y
+
+   SHADE HISTOGRAM is similar, but it shades the histogram that would
+be drawn by HISTOGRAM from the same set of points. In this case the
+area to be shaded lies between the histogram and the line y=0. If this
+offends you, offset the whole graph, and lie about the axes.
+
+The form with ANGLE is used for shading a histogram of y against x.

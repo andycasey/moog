@@ -1,0 +1,7 @@
+Syntax: QUIT
+
+   Quits the programme entirely. If you have a hardcopy device open,
+the plot will be sent. (Note that under VMS this may not work,
+depending on how your system manager set things up). See also the
+macro `q'.
+

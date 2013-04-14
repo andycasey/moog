@@ -1,0 +1,77 @@
+Syntax: DEFINE name value
+or      DEFINE name { value } [ \[ INTEGER , INTEGER \] ]
+or      DEFINE name < value > [ \[ INTEGER , INTEGER \] ]
+or      DEFINE name DELETE
+or      DEFINE name LOCAL
+or      DEFINE name ( expr )
+or      DEFINE name :
+or      DEFINE name ? [ < prompt > ]
+or      DEFINE name |
+or      DEFINE name READ INTEGER
+or      DEFINE name READ INTEGER1 INTEGER2
+or      DEFINE name IMAGE
+or      IMAGE DEFINE name value
+or      LIST DEFINE [start end]
+
+   All these commands define variables, which may be accessed by
+$name, in which case $name is replaced by its value.  Variables are
+not expanded within {...} or "...", if you want to force expansion
+within double quotes, use the form $!name, $!!name is expanded
+anywhere.  Name is any string starting with a letter or _, and
+containing only letters, digits or _.  Keywords are valid variable
+names. If you only want to know if a variable is defined, then $?name
+has value 1 if it is, 0 otherwise.  (Note that some variables such as
+`date' or `angle' are special as they always contain an up-to-date
+value, for an example `echo $date' sometime).
+
+   DEFINE name value, DEFINE name { value }, and DEFINE name < value >
+define name to be value, which may be a word, a number, or a list.
+DEFINE name DELETE deletes a variable.  DEFINE name ( expr ) sets
+variable name to be the value of a (scalar) expression; see ARITHMETIC
+and LOGICAL. The expression is permitted to be an element of a string
+vector (of course, arithmetic vectors are also allowed).  With the
+optional [ INTEGER, INTEGER ] clause (I apologise for the notation
+in the manual; those [] are required) you can choose a subrange,
+just as SUBSTR (q.v.) can choose a part of a vector element
+
+   DEFINE name LOCAL makes name local, that is, it is visible only in the
+current macro and macros called from it. If a variable of the same name
+already exists it will be invisible until you leave the macro containing
+the LOCAL command. You cannot set variables to be LOCAL except in macros.
+
+   DEFINE name : reads the value of name from the environment file.
+If it can't be found, and is capitalised, SM will look for it in the
+environment (as a logical variable for VMS).  DEFINE name ? will
+prompt you for the value of `name', using your prompt if specified.
+
+   DEFINE name | is used to define a variable from an internal SM
+variable such as expand or angle.  The variables accessible are listed
+in the manual under DEFINE, or may be listed with LIST DEFINE |, and many
+of them are used in the macro `show'.
+
+   These variables are all defined for you when SM starts and each is
+always correct, tracking the current value of the corresponding
+internal variable.  For example, try "echo $angle\n angle 45 echo
+$angle". If you now say define angle |, $angle will cease to track the
+internal value and will remain fixed (the same effect can be achieved
+with define angle 45). When you say define angle delete it will once
+more track the internal value. Your old code will continue to work,
+but in many cases it is possible to remove the explicit definition
+with |. This special sort of variable will not be SAVEd, and will not
+show up if you list the currently defined variables.
+
+   DEFINE name READ INTEGER sets name to be line INTEGER of the
+current data file, DEFINE name READ INTEGER1 INTEGER2 defines name to
+be word INTEGER2 of line INTEGER1.  Name is subject to the same
+restrictions as any variable.
+
+   DEFINE name IMAGE defines a variable from a file read with the
+IMAGE or TABLE command. Currently this only works for NX, NY, X0, X1,
+Y0, Y1, or any keyword from a FITS header.  You can define further
+such variables using IMAGE DEFINE name value, a facility that is
+chiefly useful in connection with the WRITE IMAGE command. You
+can list the image variables with LIST DEFINE IMAGE
+
+   LIST DEFINE lists all the current variables (or use the macro `lsv');
+LIST DEFINE | lists internal variables, and LIST DEFINE IMAGE image variables.
+

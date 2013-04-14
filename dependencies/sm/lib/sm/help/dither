@@ -1,0 +1,13 @@
+Syntax: DITHER x y min max fac
+
+   Floyd-Steinberg dither the current IMAGE, resulting in the vectors of
+points x and y; these are usually plotted as "ptype 1 1". Each pixel of
+the image is represented by (up to) fac*fac points. Even fac == 1 can
+produce recognisable images.
+
+   Image values between min and max are used in the dithering; values outside
+the range are taken to be min or max.
+
+   Note that you can manipulate your image before dithering with
+a command like
+	set image[*,*] = (image[*,*] == 1234) ? 4321 : image[*,*]

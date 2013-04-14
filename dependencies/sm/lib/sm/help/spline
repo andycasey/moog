@@ -1,0 +1,6 @@
+Syntax: SPLINE x1 y1 x2 y2
+
+   Perform a natural spline fit on vectors x1 and y1, which must have
+the same dimension, where x1 must be monotonic increasing. Then
+interpolate the spline to the points specified by vector x2, creating
+the new vector y2. Beyond the ends of x, linear interpolation is used.

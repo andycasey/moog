@@ -1,0 +1,21 @@
+   WHATIS(something) has a value depending on what it is:
+
+        A number        0                             bit
+        Not a number:   1                              0
+                a macro:              set 02 bit       1
+                a variable:           set 04 bit       2
+                a vector:             set 010 bit      3
+                     a float vector:  set 040 bit      5
+                     a string vector: set 0100 bit     6
+                     a long vector:   set 0200 bit     7
+                a keyword:            set 020 bit      4
+
+So if "aa" is the name of a string vector, WHATIS(aa) has the value 0111, or
+73, whereas WHATIS(HELP) has the value 021, or 17. WHATIS(1) is 0.
+
+There is a macro is_set in utils that tests if a particular bit is
+set by WHATIS, for example
+	if(is_set(kkk,1) == 1) { echo kkk is a macro }
+tests bit 1 (macro) for "kkk" and prints its findings;
+	if(is_macro(kkk)) { echo kkk is a macro }
+also works.

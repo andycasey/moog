@@ -1,0 +1,31 @@
+Syntax: EDIT op_name key_name
+
+   Redefine a key key_name to carry out the function op_name. For example,
+`EDIT start_of_line ^J' will make <LF> take the cursor to the start of the
+line.
+
+   Key_name is the name of the key either as a letter, a ^letter, or \nnn
+where ^A is ctrl-A and nnn is in octal. The (complete) default mapping is:
+   start_of_line          ^A      previous_char          ^B
+                                  delete_char            ^D
+   end_of_line            ^E      next_char              ^F
+   illegal                ^G      delete_previous_char   ^H
+   tab                    ^I
+   kill_to_end            ^K      refresh                ^L
+   carriage_return        ^M      next_line              ^N
+   insert_line_above      ^O      previous_line          ^P
+   quote_next             ^Q      search-forward         ^R  
+   search_reverse         ^S      toggle_overwrite       ^T
+   delete_to_start        ^U      scroll_forward         ^V
+   exit_editor            ^X      yank_buffer            ^Y
+   attach_to_shell        ^Z      escape                 \034 (^[)
+   delete_from_history    ^[^D    history_char           ^
+   first_line             ^[<     last_line              ^[>
+   previous_word          ^[b     delete_next_word       ^[d
+   next_word              ^[f     delete_previous_word   ^[h
+   quote_next             ^[q     undelete_word          ^[u
+   scroll_back            ^[v     yank_previous_buffer   ^[y
+with the meanings given under EDITOR. All other characters are mapped to
+themselves
+
+   See also KEY for binding keys to commands.

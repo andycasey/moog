@@ -1,0 +1,30 @@
+Syntax: HISTORY [-]
+
+   HISTORY lists up to the the last eighty commands issued, giving
+each an identifying number. HISTORY - lists the commands backwards,
+which is probably what you want if you are thinking of the history
+list as a macro (see HELP all)
+
+   The SM history feature is similar to that in the Unix
+C-shell, but using the character ^ instead of !. It also has a
+sort-of-emacs history editor, which works closely with the ^-system.
+See EDITOR for details.
+
+   Each command can be re-used by referring to it by its number as
+^nn, or by giving a unique abbreviation as ^abbrev. As a special case,
+the previous command may be repeated as ^^ and the last word of the
+last command as ^$. These symbols are white-space delimited, and are
+expanded as soon as possible. For example a ^^ will be immediately
+replaced by the text of the previous command, and ^^<CR> will execute
+it.  Sometimes a ^string search will get a more recent command than
+the one that you wanted, in this case use ^R (reverse search) instead.
+The history character need not be ^, you can rebind it to anything
+(its name is history_char).  You might also want to rebind ^ to be a
+simple ^.
+
+   These commands are written to a file in the current directory at
+the end of a session, and read from that file at the beginning of the
+next.  This file's name is given by the "save_file" entry in the
+environment (.sm) file, if it is absent, no history is saved.  The
+number of commands saved (default 80) can be set by the "history"
+entry in the environment file.

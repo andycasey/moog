@@ -1,0 +1,240 @@
+## -*-SM-*- Set SM-mode in emacs
+square	1	# sum the Fourier series for a square wave, using $1 terms
+		SET px=-PI,2*PI,PI/(10*$1 + 30)
+		SET y=0
+		DO _i=1,2*$1-1,2{
+		   SET y=y+SIN($_i*px)/$_i
+		}
+		LIMITS px -1.1 1.1
+		BOX
+		CONNECT px y
+cube		# draw a rotating cube
+		load 3d ERASE
+
+		local define ptype |  ptype 1 1
+		local set t=pi*do(0,2,.01) 
+		local set x=sin(t) local set y=cos(t) 
+		local set z=-1 + 2*(1-t/pi)**2
+		lim -1.7 1.7 -1.7 1.7 
+		local define t 10 local define p 20
+		3dBox $t $p -1 1 -1 1 -1 1 # set FX1 etc.
+		animate $t $p x y z
+		define ptype $ptype
+		#
+cdots      	# draw a set of coloured dots
+		SET t=0,1,.005 SET t=2*PI*3*t SET x=SIN(2*t) SET y=COS(3*t) 
+		SET i=1,DIMEN(x)
+		do i=1,8 {
+		        CTYPE $i
+		        LIMITS x y POINTS x y IF(i - 8*INT(i/8) == $i - 1)
+		}
+colours        	# draw a circle in a number of colours until ^C stops it
+		LIMITS -1 1 -1 1
+		FOREACH cc ( black white red green blue cyan magenta yellow) {
+		     CTYPE $cc circle 0 0 .5
+		}
+		colours
+crings	0	# draw a set of coloured circles
+		LIMITS -1 1 -1 1
+		local DEFINE r ( 1/dimen(ctype()) )
+		local set ct = ctype(string)
+		define cc local
+		FOREACH cc ct {
+		     CTYPE $cc circle 0 0 $r
+		     DEFINE r ($r+0.07)
+		}
+		CTYPE default
+crings2        	# Draw circles in 256 different shades of yellow
+		local set colours = CTYPE()
+		local set cnames = CTYPE(STRING)
+		LIMITS -1 1 -1 1
+		local set i=0,255 CTYPE = i + 256*i
+		define i local
+		do i=0,255 {
+		   ctype $i  circle 0 0 $($i/256)
+		}
+		define i y
+		define i ? {Restore colourmap? }
+		if('$i' != 'n') {
+		   ctype = colours  ctype = cnames
+		}
+		ctype 0
+		#
+scribble  	# use cursor to draw a line, and then shade the interior
+		echo Use cursor to define region
+		CURSOR _x _y
+		CONNECT _x _y dra _x[0] _y[0]
+		SHADE 500 _x _y
+shading   	# draw an ammonite
+		# syntax: shading
+		SET _a=0,3,.025
+		SET _x=EXP(_a)*COS(2*PI*_a) CONCAT \
+		       2.5*EXP(_a[DIMEN(_a)-1] - _a)*COS(2*PI*_a)
+		SET _y=EXP(_a)*SIN(2*PI*_a) CONCAT \
+		      -2.5*EXP(_a[DIMEN(_a)-1] - _a)*SIN(2*PI*_a)
+		RANGE 100 100 LIMITS _x _y RANGE 0 0 HISTOGRAM _x _y
+		SHADE HISTOGRAM 500 _x _y
+		FOREACH _v ( a x y ) { DELETE _$_v }
+sundial		# Draw a sundial for a dial of given radius
+		# The figure-8 lines are the path of the shadow of the tip
+		# of the gnomen (drawn at the left, but really a vertical
+		# stick at the place marked by a cross) at a given
+		# time during the year (analemmas), and the hyperbolas
+		# are the path of the shadow during a single day in the
+		# middle of each month, the solid lines in the spring,
+		# and the dotted in the autumn.
+		IF(!$?lat) { DEFINE lat 20 }
+		IF(!$?long) { DEFINE long 158 }
+		IF(!$?rad) { DEFINE rad 1 }
+		DEFINE lat ? { latitude? }
+		DEFINE long ? { longitude? }
+		DEFINE rad ? { radius of circle? }
+		LIMITS ({-$!!rad $!!rad}) ({-$!!rad $!!rad})
+		# calculate a sundial (lines of constant time)
+		SET day = 0,365.25,365.25/40
+		DO t=0,23 {
+		   SET time = $t/24
+		   calc_sundial $lat $long # every hour
+		   CONNECT x y IF(z >= 0)
+		}
+		# calc a sundial (lines of constant date)
+		SET time = 0,1,1/200
+		DO d=0,11 {
+		   IF($d >= 6) { 
+		      LTYPE 1
+		   }
+		   SET day = $d*30.5 + 15 # middle of month
+		   calc_sundial $lat $long # every month
+		   FOREACH v ( x y ) {
+		      SET $v = $v IF(z >= 0)
+		   }
+		   IF(DIMEN(x) > 0) {
+		      IF($lat > 90 - 23.439) { # in arctic circle
+		         SET ang = (x == 0) ? PI/2 : ATAN(y/ABS(x))
+		         SET ang = (x >= 0) ? ang : 3*PI - ang
+		         SORT { ang y x }
+		         SET x=x CONCAT x[0] SET y = y CONCAT y[0]
+		      } else {
+		         SORT { y x } SET ang = 1 # (so we can delete it)
+		      }
+		      CONNECT x y
+		   }
+		}
+		LTYPE 0
+		DEFINE fx1 | DEFINE fx2 | DEFINE r (($fx2 - $fx1)/300)
+		rel -$r 0 DRAW $r 0 rel 0 -$r DRAW 0 $r circle 0 0 $r
+		rel -0.9*$rad -0.5 dra -0.9*$rad 0.5	# height of gnomen
+		BOX 3 3 3 3
+		toplabel Latitude $lat^\circ  Longitude $long^\circ
+		FOREACH v ( fx1 fx2 fy1 plot ) { DEFINE $v DELETE }
+		FOREACH v ( ang day time x y z ) { DELETE $v }
+calc_sundial 2 	## Calculate a sundial, given day (0-365)  and time (0-1)
+		# $1 : latitude (degrees) $2 : longitude (degrees)
+		SET lambda = PI/180* ( $1 )
+		SET dt = (($2 + 7.5) - 15*INT(($2 + 7.5)/15) - 7.5)/15
+		SET n = -4384.5 + day + time
+		SET g = PI/180*( 357.528 + 0.9856003*n )
+		SET mu = PI/180*( 280.460 + 0.9856474*n + \
+		                            1.915*SIN(g) * 0.020*SIN(2*g) )
+		SET eps = PI/180*( 23.439 - 0.0000004*n )
+		SET ra = ATAN(COS(eps)*TAN(mu))
+		SET ra = (COS(mu) < 0) ? ra + PI : ra
+		SET dec = ASIN(SIN(eps)*SIN(mu))
+		SET st = 6.59265 + 0.06571*day + time*24 - dt
+		IF(st > 24) { SET st = st - 24 }
+		#
+		SET alpha = ra - PI/12*st
+		SET z = (COS(alpha)*COS(dec)*COS(lambda) +SIN(dec)*SIN(lambda))
+		SET x =(COS(alpha)*COS(dec)*SIN(lambda)-SIN(dec)*COS(lambda))/z
+		SET y = SIN(alpha)*COS(dec)/z
+		FOREACH v (alpha dec dt eps g lambda mu n ra st) { DELETE $v } 
+field     	# Draw a vector field
+		SET ang = 0,360,7.5
+		SET x=SIN(pi*ang/180) set y=COS(pi*ang/180)
+		SET ang = ang + 90
+		polar 1.1 15 45
+		DO r=0.05,1,0.1 {
+		   vfield ($r*x) ($r*y) 1 ang
+		}
+		FOREACH v ( ang x y ) { DELETE $v }
+grey_sincos     # draw a grey scale image of a sin(x)cos(y) surface
+		image ( 10 , 20 ) 0 1 0 1
+		glevels do(-1,1,0.05)
+		set x local set y local
+		set y=0,19
+		do x=0,9{
+		   set image[$x,y] = sin(0.4*$x*pi)*cos(0.1*y*pi)
+		}
+		lim 0 1 0 1
+		box greyscale 40 40 8
+		define 1 1
+		define 1 ? {Now draw that using dither; hit <CR> when ready}
+		ERASE
+		dither x y -1.1 2 20
+		set x=x+random(dimen(x))*2e-3
+		set y=y+random(dimen(y))*2e-3
+		define ptype local define ptype |
+		ptype 1 1 
+		box poi x y
+		ptype $ptype
+		#
+gauss_convolve  2 # convolve 2 gaussians with sigmas $1 and $2
+		set x=0,511 set y=exp(-((x-200)/$1)**2/2)
+		ERASE lim x y box con x y
+		set g=exp(-((x-dimen(x)/2)/$2)**2/2)
+		# g isn't centred at 0, so shift it
+		set i=0,dimen(g)-1 set gg=g if(i < dimen(x)/2)
+		set g=g concat gg
+		set i=0,dimen(g)-1 set g=g if(i >= dimen(x)/2)
+		set g=dimen(g)*g/sum(g)
+		#
+		set iy=0*y fft 1 y iy ky iky
+		set ig=0*g fft 1 g ig kg ikg
+		set kyg = ky*kg - iky*ikg  set ikyg=ky*ikg + iky*kg
+		fft -1 kyg ikyg yg iyg
+		con x yg
+		foreach 3 ( y yg ) {
+		    echo Variance of $3 = $( sum( $3*(x - sum(x*$3)/sum($3))**2 )/sum($3) )
+		}
+		echo Expect yg's variance to be $($1**2 + $2**2)
+M51	02	# Draw an image of M51. 
+		# If $1 == 1, gammaCorrect correct
+		# If $1 == 2, histogram equalise
+		# If $?2, also plot contours of linear image
+		if(!$?1) { define 1 0 }
+
+		if(!is_vector(save_image)) {
+		   image "/u/rhl/disdata/m51blu.fts"
+		   set save_image=image[*,*]
+		}
+		levels do(3000,30000,1000)
+		lim 100 512 50 452
+		ptype 1 1
+		define missing_data 0
+		set image[*,*] = save_image
+
+		if($?2) {
+		   ctype cyan contour ctype 0
+		}
+		if($1 == 0) {
+		   dither x y 2800 30000 1
+		   define 1 "Linear"
+		} else { if($1 == 1) {
+		   gammaCorrect 2800 30000 2
+		   dither x y 2800 30000 1
+		   define 1 "Gamma corrected"
+		} else {
+		   hist_equalise 2800 30000
+		   dither x y 0 1 1
+		   define 1 "Histogram equalised"
+		}}
+		
+		poi x y
+
+		RELOCATE $(int($fx1+0.1*($fx2 - $fx1))) $fy2
+		puts M51
+		if($?2) {
+		   puts Contouring: Linear in raw image
+		}
+		puts Dithered image: $1
+		#

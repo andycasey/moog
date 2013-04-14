@@ -1,0 +1,46 @@
+#
+# Filecap describes unformatted file formats to SM. The syntax is
+# identical to termcap or graphcap files.
+#
+c|C|C files:\
+	:HS#8:nx#0:ny#4:
+c_char|C_char|C files; data is char:\
+	:HS#8:nx#0:ny#4:DA=char:
+c_short|C_short|C files; data is short:\
+	:HS#8:nx#0:ny#4:DA=short:
+c_int|C_int|C files; data is int:\
+	:HS#8:nx#0:ny#4:DA=int:
+ch|CH|C files with headers:\
+	:HS#24:nx#0:ny#4:x0#8:x1#12:y0#16:y1#20:
+bintable|C FITS binary tables:\
+	:FM=byname:tc=fits:
+fits|cfits|FITS|CFITS|C FITS files:\
+	:DA=fits:HS#2880:RL#2880:
+fits512|FITS512|IRAF FITS files under VMS:\
+	:DA=fits:HS#2880:RL#512:
+no_header|Files with no header, will prompt for nx, ny:\
+	:HS#0:
+no_header_short|Short Files with no header, will prompt for nx, ny:\
+	:HS#0:DA=short:
+unix|UNIX|Fortran unformatted files under Unix:\
+	:HS#-1:nx#0:ny#4:RS#4:RL#-1:RE#4:
+unix_int|UNIX_INT|Like unix, but integer*4:\
+	:DA=int:tc=unix:
+unix_short|UNIX_SHORT|Like unix, but integer*2:\
+	:DA=short:tc=unix:
+unix_nohdr|UNIX|Like unix, but no size info, will prompt for nx, ny:\
+	:HS@#-1:nx@#0:ny@#4:RS#4:RL#-1:RE#4:
+vms_var|VMS_VAR|Fortran unformatted under VMS, recordtype=variable:\
+	:HS#8:nx#0:ny#4:
+vms_fixed|VMS_FIXED|Fortran unformatted under VMS, recordtype=fixed:\
+	:HS#-1:RS#0:RL#-1:RE@:nx#0:ny#4:
+# This seems to be correct, based on one example
+vms_direct:VMS_DIRECT|Fortran unformatted, direct access, under vms:\
+	:HS#8:RS#0:RE#0:nx#0:nx#4:
+#
+# RHL special filetypes
+#
+# NS: Don't do any byte swapping, even on a vax
+#
+wolf|Special nearly-fits RHL files:\
+	:NS:tc=fits:

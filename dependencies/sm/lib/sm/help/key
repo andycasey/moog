@@ -1,0 +1,11 @@
+Syntax: KEY key-sequence commands
+
+   Define the key-sequence to expand to the commands. If the commands
+end with `\N', they are immediately executed. Hitting <CR> immediately
+after the KEY is also allowed; you'll be prompted for the rest
+(without the editor seeing the key-sequence first). Or you could quote
+the beginning of the key sequence with the `quote_next' character
+(usually ^Q and ESC-q). If the key-sequence is pf# or PF# (where # is
+1, 2, 3, or 4) it is taken to refer to a special function key on your
+keyboard.
+

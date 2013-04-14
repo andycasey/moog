@@ -1,0 +1,44 @@
+Syntax: PTYPE n s
+or      PTYPE pexpr
+or      PTYPE WORD
+or      PTYPE { list }
+
+   PTYPE n s causes points to be drawn as n sided polygons of a style s,
+where s refers to:
+        0 = open 
+        1 = skeletal (center connected to vertices)
+        2 = starred
+        3 = solid
+For example, PTYPE 1 1 makes points appear as dots, PTYPE 4 1 makes
+(diagonal) crosses, and PTYPE 6 3 makes filled hexagons. Points made
+up of lines (types 0, 1, and 2) are drawn using the current LTYPE.
+
+   PTYPE pexpr uses vector WORD as its source of n and s, except that
+the numbers are contracted together. (`Pexpr' is the name of a vector,
+or an expression in parentheses, e.g. PTYPE (y+10) or PTYPE y). If the
+entry has a fractional part, it is treated as an expansion factor (no
+fractional part means default expansion).  For example, an an entry of
+103.5 in WORD is the same as PTYPE 10 3, EXPAND 0.5. This expansion is
+relative to the current EXPAND. It's much easier to use a vector of
+expansions directly to the EXPAND command, but fractional ptypes are
+preserved for backwards compatibility.
+
+   If WORD in PTYPE WORD is an arithmetic vector it's interpreted as in
+the previous paragraph. On the other hand, if it's a vector of strings
+they are taken to be the labels to use for points. When you issue a
+POINTS command they are written at the current expansion and angle at
+the points (essentially using a PUTLABEL 5 command). As usual, the
+font used is specified by the variable default_font which you can set
+in your .sm file (it's only available for TeX_strings users
+though).
+
+   PTYPE with a list in braces defines a symbol to be drawn with the
+POINTS command. The list is taken to be a set of coordinates relative
+to the current point. If an (x,y) pair is preceeded by `m' (move) or
+`r' (relocate), no line is drawn but the current pointer is moved to
+(x,y). If the pair is preceeded by a `d' (draw) or nothing, then a
+line is drawn from the previous point to (x,y). The coordinates are
+given in screen units (i.e. the complete device is 0-32767 on a side).
+For example, `PTYPE { r 200 0 0 200 -200 0 0 -200 200 0 }' will define
+diamond, similar to `PTYPE 4 0 angle 45'. ANGLE and EXPAND apply as
+usual.

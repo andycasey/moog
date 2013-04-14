@@ -1,0 +1,461 @@
+## -*-SM-*- Set SM-mode in emacs
+apro		## apropos, not on history
+		del1 APROPOS
+batch		## run the history buffer, but don't delete from history list
+		MACRO _all_ 0 10000 _all_ MACRO _all_ DELETE
+bell		## ring terminal bell
+		echo 
+calc	111	## evaluate an expression
+		DEFINE 1 ($1) echo $1\n
+cd	1	## change directories
+		CHDIR "$!1"
+compatible 01	## define macros to be compatible with Mongo
+		# If the argument is non-zero or omitted, 
+		# compatibility mode is turned on.
+		# note that some of these make it hard to use regular SM!
+		if($?1 == 0) {
+		   compatible 1
+		   RETURN
+		}
+		if($1 == 0) { 
+		   MACRO DELETE "$!macro"compatible
+		}
+		FOREACH w { connect define errorbar help histogram limits \
+		       list points read window write } {
+		   OVERLOAD $w $1
+		}
+		if($1) {
+		   MACRO READ "$!macro"compatible
+		}
+		#		So newline will end IF statement
+declare	1	## declare a vector $1: declare name size
+		SET DIMEN($1) = 
+del		## delete last command from history list
+		DELETE
+del1      	## don't put command on history list
+		DELETE HISTORY \n
+echo      	## write to terminal
+		WRITE STANDARD#
+ed	01	## edit a macro, or previous macro if argument is missing
+		DEFINE 2 $verbose VERBOSE 0
+		IF($?1) {
+		   DEFINE ed_macro $1
+		} ELSE {
+		   IF($?ed_macro == 0) {
+		      DEFINE ed_macro ? {Which macro do you want to edit? }
+		   } else {
+		      echo editing $ed_macro
+		   }
+		}
+		echo Use ^X to exit
+		MACRO EDIT $ed_macro
+		del1
+		VERBOSE $2
+edall		## edit history buffer
+		edit_hist
+edit_all	## edit history buffer
+		edit_hist
+edit_hist  	## edit the history list
+		del1 MACRO all 0 100000	# define "all" from buffer
+		WRITE STANDARD Editing History Buffer\n
+		MACRO EDIT all			# do the editing
+		DELETE HISTORY 0 100000 	# empty history buffer
+		WRITE HISTORY all		# replace history by "all"
+emacs_all  	## edit the history list using an external editor.
+		emacs_hist
+emacs_hist  	## edit the history list using an external editor.
+		# if you have an environment variable EDITOR it'll be used,
+		# if you don't, we'll use emacs
+		define EDITOR :
+		if(!$?EDITOR) {
+		   DEFINE EDITOR emacs
+		}
+		del1
+		MACRO all 0 100000	# define "all" from buffer
+		!rm -f .all~
+		MACRO WRITE all .all~
+		WRITE STANDARD Editing History Buffer\n
+		!sed -e 's/^all[ 	]*/  /' -e 's/^..//' .all~ > .all
+		!$EDITOR .all
+		DELETE HISTORY 0 100000 	# empty history buffer
+		RESTORE .all
+		!rm -f .all
+error_handler	## Handle ^C interrupts
+		DEFINE 1 $verbose VERBOSE 0
+		EXPAND 1
+		window 1 1 1 1
+		DEFINE TeX_strings :
+		if($?TeX_strings) {
+		   if($TeX_strings == 0) {
+		      DEFINE TeX_strings DELETE
+		   }
+		}
+		IF($?gx1) {             # someone saved a location
+		   LOCATION $gx1 $gx2 $gy1 $gy2
+		}
+		LTYPE 0
+		echo handler...
+		VERBOSE $1
+execute	1	# read and execute an SM file of commands (1 per line)
+		# (This is identical to input_new)
+		define 3 5              # maximum nesting for execute
+		do 2=1,$3 {
+		   IF(is_macro(_temp$2) == 0 && is_macro(all$2) == 0) {
+		      MACRO all$2 0 10000 # save history
+		      DELETE 0 10000
+		      RESTORE $1        # read commands
+		      define 3 5        # maximum nesting for input
+		      MACRO _temp$2 0 10000
+		      DELETE 0 10000
+		      WRITE HISTORY all$2 # restore history
+		      _temp$2
+		      MACRO _temp$2 DELETE
+		      MACRO all$2 DELETE
+		      RETURN
+		   }
+		}
+		echo Attempt to nest too many $0s (max depth: $3)
+		#
+extend_history 1 # Extend history buffer to be of size $1
+		del1
+		MACRO all 0 10000
+		DELETE 0 10000
+		MACRO __junk { one line }
+		do 2=1,$1 { WRITE HISTORY __junk }
+		DELETE 0 10000
+		WRITE HISTORY all
+		MACRO __junk DELETE
+for        4	## Repeat a macro while a condition is true, like C's for(;;)
+		# Syntax: for start cond end macro
+		# e.g. macro body { calc i } for i=0 i<10 i=i+1 body
+		# (note: no spaces!)
+		# In SM 2.4 and above, you can simply use a WHILE loop
+		if(!is_macro($4)) {
+		   user abort $4 is not a macro
+		}
+		set $1
+		while {$2} {
+		   $4
+		   set $3
+		}
+gripe		## complain to Robert (Unix only)
+		local define EDITOR :
+		if(!$?EDITOR) {
+		   define EDITOR vi
+		}
+		local define name :
+		define file "/tmp/gripe$!name"
+		!/bin/rm -f \"$file\"
+		echo "Please enter your message, and quit the editor when finished"
+		! sleep 2; $EDITOR $file
+		!cat $file
+		define 1 "y/n"
+		define 1 ? {Send that message to Robert in Princeton? }
+		if(substr('$1',0,1) == 'n') { return }
+		!echo >> $file; echo >> $file
+		load config
+		config 1 $file
+		! mail rhl@astro.princeton.edu < $file; /bin/rm -f $file
+		echo "Thank you"
+		#
+h         	## get help
+		if(int(whatis(help)/16) == 1) { del1 } # not overloaded
+		help
+head       02	## print the top $2 lines of file $1 (defaults current `data' file and 10)
+		# won't reset data file or lines
+		del1
+		IF($?_l1 == 0) { DEFINE 4 0 } ELSE { DEFINE 4 $_l1 }
+		IF($?_l2 == 0) { DEFINE 5 0 } ELSE { DEFINE 5 $_l2 }
+		if($?1) {
+		   if(WHATIS($1) == 0) { # a number
+		      define 2 $1
+		   } else {
+		      define 3 "$!data_file"
+		      DATA "$!1"
+		   }
+		} else {
+		   echo File: $data_file
+		}
+		if($?2 == 0) {
+		   DEFINE 2 10
+		}
+		LINES 0 $2 READ _x_ 0
+		IF($?3) { DATA "$!3" }
+		LINES $4 $5
+hm         	## Give help on the last macro edited
+		del1
+		IF($?ed_macro) {
+		   echo Macro $ed_macro:
+		   HELP $ed_macro
+		} ELSE {
+		   echo No default macro is defined
+		}
+hv         1	## help with variable
+		del1 IF($?$1) { echo $1 : $$1 } ELSE { echo $1 is not defined }
+insert	1	## insert text after line $1
+		echo Use ^X to insert insertion
+		del1 MACRO EDIT insert_text
+		DEFINE 1 ( $1+1 )
+		MACRO __save $1 10000 DELETE HISTORY $1 10000
+		WRITE HISTORY insert_text
+		WRITE HISTORY __save
+		FOREACH m ( __save insert_text ) { MACRO $m DELETE }
+lis	01	## list anything, not on history list
+		# note that if you've overloaded EDIT, DEFINE, or DEVICE
+		# you'll need to say "lis EDIT" etc.
+		del1 
+		IF($?1 == 0) {
+		   HISTORY RETURN
+		}
+		IF(WHATIS($1""1) == 0) {
+		   IF($1""1 < 0) { HISTORY - } ELSE { HISTORY }
+		   RETURN
+		}
+		LIST $1
+load       1	## load macros in default directory
+		DEFINE macro :          # get default directory
+		MACRO READ "$!macro"$1  # read macro file
+		IF($?mfiles == 0) {
+		   DEFINE mfiles $1
+		} ELSE {
+		   DEFINE 3 0
+		   FOREACH 2 ( $mfiles ) {
+		      IF('$2' == '$1') { DEFINE 3 1 }
+		   }
+		   IF($3 == 0) { DEFINE mfiles < $mfiles $1 > }
+		}
+load2	1	## load macros in (second) default directory
+		DEFINE macro2 :         # get directory
+		DEFINE macro2 <$macro2> # expand e.g. $HOME
+		IF($?macro2) {
+		   MACRO READ "$!macro2"$1 # read macro file
+		   DEFINE $1 loaded
+		} ELSE {
+		   echo Directory macro2 is not defined
+		}
+ls        	## list macros
+		del1 LIST MACRO
+lsm        1	## list macros in a file in default macro directory
+		# (unix only)
+		DEFINE verbose DELETE
+		IF($verbose == 0) {
+		   !grep '^[a-zA-Z0-9]' "$!macro"$1 | grep -v \\\#\\\# | more
+		} ELSE {
+		   !grep '^[\!-~]' "$!macro"$1 | more
+		}
+		DEFINE verbose DELETE
+lsv       	## list variables
+		del1 LIST DEFINE
+macro_error_handler 2 ## handle errors associated with macros
+		if($?missing_macro_continue) {
+		   echo $2 is not a macro
+		   RETURN
+		}
+		if('$1' == 'NOT_FOUND') {
+		   del1
+		   define 3 "$2 is not a macro; aborting. Rest of line:"
+		} else {
+		   define 3 "Unknown macro error for $2: $1"
+		}
+		USER ABORT $3
+q		## check, then quit
+		DEFINE 2 $verbose VERBOSE 0
+		del1 DEFINE 1 0     # default value
+		DEFINE 1 ? {Are you sure? Enter 1 or y to really quit}
+		IF('$1' == '1' || '$1' == 'y') { QUIT }
+		VERBOSE $2
+re         	## macro read
+		del1 MACRO READ
+reset_ctype	# Reset the default ctypes (except "default")
+		CTYPE={0 255 0 255 0 0 0 255 255} + \
+		 256*({0 255 0 0 255 0 255 0 255} + \
+		  256*{0 255 0 0 0 255 255 255 0})
+		ctype={default white black red green blue cyan magenta yellow}
+repeat     0	## Repeat a macro `name' while the condition is true
+		USER ABORT Please use the WHILE command
+sav 1		## save to a file $1, don't save from files `$mfiles'
+		_save $1
+set_overload 01	## overload a set of keywords, and provide
+		# alternative definitions. This can be risky -- if you
+		# overload help, "set name help=" won't work. And so forth
+		if($?1 == 0) {
+		   define 1 ? {Overload some variables?}
+		}
+		if($1 == 0) { 
+		   MACRO DELETE "$!macro"overload
+		}
+		FOREACH w { box data device draw erase help list \
+		       relocate quit save verbose window } {
+		   OVERLOAD $w $1
+		}
+		if($1) { 
+		   MACRO READ "$!macro"overload
+		}
+		#		So newline will end IF statement
+show		## show current values of various things
+		FOREACH 1 {angle ctype expand fx1 fx2 fy1 fy2\
+		       gx1 gx2 gy1 gy2 ltype lweight ptype\
+		       uxp uyp verbose xp yp\
+		    } { DEFINE $1 DELETE }
+		echo ==========================================================
+		echo  Current Position  user coordinates:   ($uxp, $uyp)
+		echo                    screen coordinates: ($xp, $yp)
+		echo  \n
+		echo ----------------------------------------------------------
+		echo  Limits  user coordinates:   $fx1 $fx2 $fy1 $fy2
+		echo  Limits  screen coordinates: $gx1 $gx2 $gy1 $gy2
+		if($?_nx) {
+		   echo          Window: $_nx $_ny $_ix $_iy
+		}
+		echo  ( Absolute Limits:  0 32767 0 32767 )
+		echo  \n
+		echo ----------------------------------------------------------
+		echo  Angle $angle  Ctype $ctype  Expand $expand  Ltype $ltype
+		echo  Lweight $lweight  Ptype $ptype  Verbose $verbose
+		echo  \n
+		echo ==========================================================
+startup		## macro invoked upon startup
+		FOREACH 1 { background bgipath default_font device edit file_type \
+		       filecap foreground graphcap history_char history_file HOME \
+		       macro macro2 overload printer prompt prompt2 save_file \
+		       stdmode SHELL tabsize table_type table_preserve_records\
+		       temp_dir termcap ttybaud } {
+		   DEFINE $1 :
+		}
+		DEFINE case_fold_search 1 # case insensitive by default
+		DEFINE save_read_ptr 1  # cache file positions by default
+		FOREACH 1 { TeX_strings case_fold_search fan_compress \
+		    line_up_exponents missing_macro_continue \
+		    noclobber overload \
+		    remember_history_line save_read_ptr traceback uppercase } {
+		   DEFINE $1 :
+		   IF($?$1) {
+		      IF('$$1' == '0') {
+		         DEFINE $1 DELETE
+		      }
+		   }
+		}
+		IF($?prompt) { PROMPT $prompt\n DEFINE prompt DELETE
+		} ELSE { PROMPT :}
+		IF($?device) { DEVICE $device
+		} ELSE { DEFINE device nodevice }
+		IF($?default_font && $?TeX_strings == 0) {
+		   echo You can only define a default font if you use TeX
+		}
+		IF($?history_char) {   # use $history_char as history character
+		   IF('$history_char' != '0' && '$history_char' != '1') {
+		      EDIT history_char $history_char
+		   }
+		   EDIT ^ ^
+		   DEFINE history_char DELETE
+		}
+		# load the default macros
+		DEFINE mfiles < matrix mongo stats trigd utils > # $mfiles is used by `sav'
+		FOREACH f ( savem $mfiles ) { MACRO READ "$!macro"$f }
+		DEFINE mfiles < default $mfiles >
+		FOREACH var ( x_col y_col data_file ) { DEFINE $var . }
+		# load uppercase if defined in .sm file
+		IF($?uppercase) {
+		   MACRO READ "$!macro"uppercase
+		}
+		# and overload keywords such as erase, if so desired
+		set_overload $?overload
+		# and some keymaps
+		IF($?edit) { READ EDIT "$!edit" }
+		# and an optional macro file, with macro startup2
+		IF($?macro2) {
+		   load2 default
+		   IF(is_macro(startup2)) { startup2 }  # startup2 is defined
+		}
+		# provide a \n after the IF
+undef      1	## undefine a variable
+		del1 IF($?$1) {DEFINE $1 DELETE} ELSE {echo $1 is not defined}
+undo       101	## undo [commands] : undo (i.e. erase lines drawn by) commands
+		# If no commands are specified, make a temporary macro
+		# (undo only works for those devices which support LTYPE ERASE)
+		del1 IF($?1 == 0) {
+		   DEFINE 1 _mac DEFINE 2 1     # 2 is a flag to remove _mac
+		   echo "Enter commands to delete, exit with ^X"
+		   MACRO EDIT _mac
+		   IF(is_macro(_mac) == 0) { 
+		      RETURN 
+		   }
+		}
+		LTYPE ERASE
+		$1
+		LTYPE 0 
+		IF($?2) {
+		   MACRO _mac DELETE
+		}
+unload	1	## forget macros from a file
+		MACRO DELETE "$!macro"$1
+		IF($?mfiles) {
+		   DEFINE 3 0
+		   FOREACH 2 ( $mfiles ) {
+		      IF('$2' != '$1') {
+		         IF('$3' == '0') {
+		            DEFINE 3 < $2 >
+		         } ELSE {
+		            DEFINE 3 < $3 $2 >
+		         }
+		      }
+		   }
+		   DEFINE mfiles < $3 >
+		}
+		#
+unset	1	# Delete a vector
+		DELETE $1
+v		## set verbosity
+		del1 VERBOSE
+wr         	## macro write
+		del1 MACRO WRITE
+xtcolors	#adds extra colors to the default set
+		xtcolours
+xtcolours	#adds extra colors to the default set
+		# Contributed by Christopher Homes (homes@bnl.gov)
+		add_ctype cornsilk       255 248 220
+		add_ctype seashell       255 245 238
+		add_ctype azure          240 255 255
+		add_ctype lavender       230 230 250
+		add_ctype midnightblue    25  25 112
+		add_ctype navyblue         0   0 128
+		add_ctype cornflowerblue 100 149 237
+		add_ctype slateblue      106  90 205
+		add_ctype royalblue       65 105 225
+		add_ctype dodgerblue      30 144 255
+		add_ctype skyblue        135 206 235
+		add_ctype steelblue       70 130 180
+		add_ctype powerblue      176 224 230
+		add_ctype powderblue     176 224 230
+		add_ctype turquoise       64 224 208
+		add_ctype darkturquoise    0 206 209
+		add_ctype cadetblue       95 158 160
+		add_ctype acquamarine    127 255 212
+		add_ctype darkgreen        0 100   0
+		add_ctype seagreen        46 139  87
+		add_ctype palegreen      152 251 152
+		add_ctype chartreuse     127 255   0
+		add_ctype forestgreen     34 139  34
+		add_ctype olivedrab      107 142  35
+		add_ctype khaki          240 230 140
+		add_ctype gold           255 215   0
+		add_ctype indianred      205  92  92
+		add_ctype sienna         160  82  45
+		add_ctype tan            210 180 140
+		add_ctype chocolate      210 105  30
+		add_ctype firebrick      178  34  34
+		add_ctype brown          165  42  42
+		add_ctype salmon         250 128 114
+		add_ctype orange         255 165   0
+		add_ctype darkorange     255 140   0
+		add_ctype coral          255 127  80
+		add_ctype tomato         255  99  71
+		add_ctype orangered      255  69   0
+		add_ctype maroon         176  48  96
+		add_ctype violet         238 130 238
+		add_ctype plum           221 160 221
+		add_ctype orchid         218 112 214
+		add_ctype darkviolet     148   0 211
+		add_ctype blueviolet     138  43 226
+		add_ctype purple         160  32 240
+		add_ctype thistle        216 191 216

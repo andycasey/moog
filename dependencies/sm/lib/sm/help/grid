@@ -1,0 +1,7 @@
+GRID [ INTEGER1 [ INTEGER2 ] ]
+
+  Grid draws a grid at either major (INTEGER1 = 0) or minor (INTEGER1
+= 1) tickmarks within a box.  The default is INTEGER1 = 0.  You can
+use INTEGER2 to specify only drawing an x- or y-axis grid: if INTEGER2
+is omitted or 0, draw both x and y; if it's 1 only draw x; if it's 2
+only draw y (3 is equivalent to 0).

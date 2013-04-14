@@ -1,0 +1,4 @@
+Syntax: VERSION
+
+   Return a string identifying the version of SM in use (the string is
+actually simply $version)

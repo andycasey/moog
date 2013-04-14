@@ -1,0 +1,12 @@
+Syntax: RETURN
+
+   Return from the current macro, which includes breaking out of DO
+and FOREACH loops. If you are not executing a macro, simply return to
+the prompt (this is more-or-less equivalent to typing ^C).
+
+   A RETURN can be useful while playing with history lists. Note that
+many of the commands such as playback in fact are executing a macro
+called "all". A RETURN at the very end of a macro, or the playback
+buffer, will cause a RETURN from the wrong place - beware!
+
+   If VERBOSE is 2 or more, the macro being left is reported.

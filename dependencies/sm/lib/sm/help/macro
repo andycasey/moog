@@ -1,0 +1,51 @@
+Syntax: MACRO EDIT name
+or      MACRO name [narg] { macro }
+or      MACRO name [narg] < macro >
+or      MACRO name #1 #2
+or      MACRO name DELETE
+or      MACRO READ file
+or      MACRO DELETE file
+or      MACRO WRITE file
+or      MACRO WRITE name [+] file
+or      LIST MACRO [begin end]
+
+   MACRO EDIT name allows you to edit a macro. All the commands
+available to the history editor are available (including the
+^history), except ^M inserts a line after the cursor (breaking the
+line if not at the end), and ^N and ^P get the next and previous lines
+respectively. To exit use ^X. The macro need not exist, and both its
+name and number of arguments can be changed by editing the zeroth line
+of the macro. The keybindings may be changed with READ EDIT.
+
+   MACRO name [narg] { macro } defines `name' to be `macro', where
+name is a single word, and macro may be anything. Macro is invoked by
+typing its name.  The optional `nargs' is the number of arguments the
+macro expects, default 0.  If the macro's body is defined to be
+"delete", the macro is deleted (MACRO name DELETE also deletes a
+macro).  Arguments are referred to as $1, $2, ... $n, up to a maximum
+of $9. The name of the macro is in $0. If the number of digits in the
+number arguments is more than one, it is taken to be variable, with between
+the tens digit and the ones digit permitted (e.g. 12 means 1 or 2 arguments).
+If it is
+greater than 99 the last argument extends to the end of the line.
+
+   MACRO name #1 #2 defines macro name to consist of lines #1 - #2 of
+the history buffer.  If #1 or #2 is negative it is interpreted
+relative to the current command, so saying "MACRO last2 -1 -2" will
+define a macro `last2' consisting of the last 2 commands issued.
+
+   MACRO READ FILE, reads and defines all the macros in file FILE.
+
+   MACRO DELETE FILE has the effect of deleting all of the macros
+defined in FILE.
+
+   MACRO WRITE FILE writes all currently defined macros to file FILE
+in alphabetical order.
+
+   MACRO WRITE NAME FILE writes the macro NAME to file FILE. If the
+file is the same as for the previous use of this command, or the
+optional `+' is specified, the macro is written to the bottom of the
+file, otherwise the file is created.
+
+   LIST MACRO lists all currently defined macros, or all those which
+are between begin and end alphabetically (asciily).

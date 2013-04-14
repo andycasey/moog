@@ -1,0 +1,114 @@
+#!/usr/bin/perl
+# -*- perl -*-
+#
+# Make an emacs-style TAGS file for a set of SM macros
+# Usage: make_tags file [ file ... ]
+#
+$append = 0;			# Append to file?
+$ofile = "TAGS";		# output file
+$verbose = 0;
+
+while($ARGV[0] =~ /^-/) {
+   if($ARGV[0] eq "-h" || $ARGV[0] eq "-?") {
+      &usage; exit 0;
+   } elsif($ARGV[0] eq "-a") {
+      $append = 1;
+   } elsif($ARGV[0] =~ /^-[ov]/) {
+      if(!$ARGV[1] || $ARGV[1] =~ /^-/) {
+	 die "Please specify a value with $ARGV[0]\n";
+      }
+
+      if($ARGV[0] eq "-o") {
+	 $ofile = $ARGV[1];
+      } elsif($ARGV[0] eq "-v") {
+	 $verbose = $ARGV[1];
+      }
+      
+      shift @ARGV;
+   } elsif($ARGV[0] eq "-v") {
+      $verbose = 1;
+   } else {
+      &usage; exit 1;
+   }
+
+   shift @ARGV;
+}
+
+if(!$ARGV[0]) {
+	die "You must specify at least one filename\n";
+}
+#
+# Work
+#
+if($append) {
+   $how = ">>";
+} else {
+   $how = ">";
+}
+open(TAGS, $how . "$ofile") || die "I cannot open $ofile: $!\n";
+
+$type = "unknown";		# is file macro or executable?
+
+while(<>) {
+   if($ARGV ne $oldargv) {
+      if($tags) {
+	 $TAGS .= "\014\n$oldargv," . length($tags) . "\n$tags";
+      }
+      append_tags;
+      $tags = "";
+
+      if($verbose > 1) {
+	 warn "$ARGV\n";
+      }
+
+      $oldargv = $ARGV;
+      $type = "unknown";	# macro or executable?
+      $lineno = 1; $charno = 0;
+   }
+
+   if($type eq "unknown") {
+      if(/^macro/i) {
+	 $type = "executable";
+      } elsif(/^(\t\t|\S+(\s+\d+)(\s+\#|\s*$))/) {
+	 $type = "macro";
+      }
+      if($verbose && $type ne "unknown") {
+      	 print "$ARGV: $type\n";
+      }
+   }
+
+   if(($type eq "executable" && /^(macro\s+(\S+))?(\s+\d+)?\s*\{/i) ||
+      ($type eq "macro" && /^((\S+))(\s+\d+)?(\s+\#|\s*$)/i)) {
+      $context = $1;
+      $name = $2;
+      if($verbose > 1) {
+	 print "   $name\n";
+      }
+      $tags .= "$context\177$lineno,$charno\n";
+   }
+
+   $lineno++;
+   $charno += length($_);
+}
+
+if($tags) {
+   $TAGS .= "\014\n$oldargv," . length($tags) . "\n$tags";
+}
+print TAGS $TAGS;
+
+###############################################################################
+
+sub usage
+{
+   print <<"EOT";
+Generate emacs TAGS files from sm macro or executable files
+Usage:
+    make_tags [options] file [file...]
+Options:
+    -h		Print this message
+    -a          Append to output file
+    -o file     Write to this file (default: TAGS)
+    -v		Be chatty
+EOT
+}
+	  

@@ -1,0 +1,506 @@
+## -*-SM-*- Set SM-mode in emacs
+cgauss	13	# evaluate a cumulated Gaussian : N($mean,$sig)
+		# cgauss x [ mean [ sig ] ] : defaults $mean, $sig
+		# gauss gives a differential Gaussian
+		IF($?2 == 0) {
+		   IF(!$?mean) {
+		      DEFINE 2 0
+		      echo $0: \$mean is not defined; using $2
+		   } else {
+		      DEFINE 2 $mean
+		   }
+		}
+		IF($?3 == 0) { 
+		   IF(!$?sig) {
+		      DEFINE 3 1
+		      echo $0: \$sig is not defined; using $3
+		   } else {
+		      DEFINE 3 $sig
+		   }
+		}
+		SET $0 = ($1 - $2)/(SQRT(2)*$3)
+		SET $0 = erfc($0)
+		SET $0 = 1 - $0/2
+cuniform 13	# evaluate a cumulated uniform distribution, ($mean,$sig)
+		# Usage: cuniform x [ mean [ sig ] ] : defaults $mean, $sig
+		# i.e. a uniform in $mean +- $sig*sqrt(3)
+		IF($?2 == 0) { DEFINE 2 $mean }
+		IF($?3 == 0) { DEFINE 3 $sig }
+		SET $0 = ($1 - $mean)/(sqrt(12)*$3)
+		SET $0 = ($0 < 0 ? 0 : ($0 > 1 ? 1 : $0))
+		#
+chisq	22	# Return chi^2 distribution of vector $1 with $2 dof 
+		define gamma local
+		define gamma ($2/2 - 1)
+		define gamma (log_fac($gamma))
+		set $0 = exp( -0.5*$1 + ($2/2 - 1)*ln(0.5*$1) - $gamma)/2
+		#
+draw_KS	1	# Draw a cumulated curve, for looking at KS statistics
+		# Syntax: draw_KS vector
+		# Limits are not set for you, try "limits vec 0 1 draw_KS vec"
+		SET _x = $1 SORT { _x }
+		SET _i = 0,DIMEN(_x)-1
+		SET _x = _x CONCAT _x SET _i = _i CONCAT _i+0.999
+		SORT { _i _x }
+		SET _i=_i/DIMEN($1)
+		DEFINE fx1 | DEFINE fx2 | 
+		CONNECT ($fx1 CONCAT _x CONCAT $fx2) (0 CONCAT _i CONCAT 1)
+		DEFINE fx1 DELETE DEFINE fx2 DELETE
+		DELETE _i DELETE _x
+erf	1	# calculate error function erf($1)
+		# good everwhere, to 1.2e-7! Cf Press et al.
+		SET $0 = 1 - erfc($1)
+erfc    1       # calculate complentary error function erfc($1)
+		# good everwhere, to 1.2e-7! Cf Press et al.
+		SET _z = abs($1)
+		SET _t = 1.0/(1.0 + _z/2)
+		SET $0 = _t*EXP(-_z*_z - 1.26551223 + \
+		        _t*(1.00002368 + _t*(0.37409196 + \
+		        _t*(0.09678418 + _t*(-0.18628806 + \
+		        _t*(0.27886807 + _t*(-1.13520398 + \
+		        _t*(1.48851587 + _t*(-0.82215223 + \
+		        _t*0.17087277)))))))))
+		SET $0 = ($1 >= 0) ? $0 : 2.0 - $0
+		DELETE _t DELETE _v
+factorial 1     # Use Lanczos's variant of Stirling's formula to calculate a factorial ($1)!
+		# (i.e. Gamma($1+1))
+		set $0 = exp(log_fac($1))
+gauss	13	# evaluate a Gaussian : N($mean,$sig)
+		# gauss x [ mean [ sig ] ] : defaults $mean, $sig
+		# cgauss gives a cumulative Gaussian
+		IF($?2 == 0) { DEFINE 2 $mean }
+		IF($?3 == 0) { DEFINE 3 $sig }
+		SET $0 = 1/(SQRT(2*PI)*$3)*EXP(-(($1-$2)/$3)**2/2)
+gaussdev 1	# return a set of $1 independent N(0,1) variates
+		# We use the Box-Muller transform (Numerical Recipes 7.2)
+		set dimen($0) = 0
+		if($1 < 1) { return }
+		define 2 $1
+		do 3=0,10000 {
+		   set _r1 = 2*random(1 + 2*$2/3) - 1
+		   set _r2 = 2*random(1 + 2*$2/3) - 1
+		   set _rsq = _r1**2 + _r2**2
+		   set _l   = _rsq > 0 && _rsq < 1
+		   if(dimen(_l) > 0) {
+		      set _rsq = _rsq if(_l)
+		      set _r1  = _r1  if(_l)
+		      set _r2  = _r2  if(_l)
+		      set _rsq = sqrt(-2*ln(_rsq)/_rsq)
+		      set _r1  = _rsq*_r1
+		      set _r2  = _rsq*_r2
+		      set _l = 1,dimen($0) + 2*dimen(_r1)
+		      set $0 = $0 concat _r1 concat _r2 if(_l <= $1)
+		      define 2 ( $1 - dimen($0) )
+		   }
+		   if($2 == 0) {
+		      delete _r1 delete _r2 delete _rsq delete _l
+		      return
+		   }
+		}
+KS		echo See smirnov1 or smirnov2 for KS tests, also prob_KS and draw_KS\n
+log_fac	1	# Use Lanczos' version of Stirling's formula to calculate a log factorial.
+		set s local
+		set s=1.000000000190015 + \
+		    76.18009172947146/($1 + 1) + -86.50532032941677/($1 + 2) + \
+		    24.01409824083091/($1 + 3) + -1.231739572450155/($1 + 4) + \
+		    0.1208650973867e-2/($1 + 5) + -0.539523938495e-5/($1 + 6)
+		set $0 = ($1 + 0.5)*ln($1 + 5.5) - ($1 + 5.5) + ln(2*pi)/2 + ln(s)
+		#
+lsq	25	# do a non-weighted least squares fit to a set of vectors
+		# syntax: lsq x y [ x2 y2 [rms]] Fit line y2=$a*x2+$b to x y
+		# Optionally, calculate rms residual as $rms, in which case
+		# $sig_a, $sig_b, and $CHI2 are also calculated.
+		# see rxy to find product moment correlation coeff,
+		# and spear for Spearman's corr. coeff., and significance
+		SET _S   = dimen($1)    # sum of weights ~ number of points
+		SET _Sx  = SUM($1)      # weighted sum x ~ all weights
+		SET _Sy  = SUM($2)      # weighted sum y   equal 1.0
+		SET _x   = _Sx / _S      set _y = _Sy / _S
+		SET _Sxy = SUM(($1-_x)*($2-_y)) # weighted sum xy
+		SET _Sxx = SUM(($1-_x)**2) # weighted sum xx
+		DEFINE a ( _Sxy /_Sxx )
+		DEFINE b ( _y - $a * _x )
+		IF($?3 && $?4) { SET $4=$a*$3+$b }
+		if($?5) {
+		   DEFINE CHI2 ( SUM(($2-$a*$1-$b)**2) )
+		   DEFINE $5 ( sqrt($CHI2/_S) )
+		   if(dimen($1) > 2) {
+		      DEFINE sig_a ( sqrt($CHI2/((dimen($1)-2)*_Sxx)) )
+		      DEFINE sig_b ( $sig_a*sqrt(_Sxx/_S+_x*_x) )
+		   } else {
+		      echo "I can't calculate $sig_[ab] if dimen($1) <= 2"
+		      DEFINE sig_a 0
+		      DEFINE sig_b 0
+		   }
+		}
+		FOREACH v ( _S _Sx _Sy _Sxy _Sxx _x _y ) { DELETE $v }
+olsq	25	# do a least squares fit to a set of vectors
+		# syntax: olsq x y [ x2 y2 [rms]] Fit line y2=$a*x2+$b to x y
+		# optionally, calculate rms residual as $rms
+		# see rxy to find product moment correlation coeff,
+		# and spear for Spearman's corr. coeff., and significance
+		SET _n = DIMEN($1)              # number of points
+		SET _sx = SUM($1)               # sigma x
+		SET _sy = SUM($2)               # sigma y
+		SET _sxy = SUM($1*$2)           # sigma xy
+		SET _sxx = SUM($1*$1)           # sigma xx
+		DEFINE a ( (_n*_sxy - _sx*_sy)/(_n*_sxx - _sx*_sx) )
+		DEFINE b ( (_sy - $a*_sx)/_n )
+		IF($?3 && $?4) {
+		   SET $4=$a*$3+$b
+		   IF($?5) {
+		      DEFINE $5 ( sqrt(sum(($a*$1 + $b - $2)**2)/dimen($2)) ) 
+		   }
+		}
+		FOREACH v ( _n _sx _sy _sxy _sxx ) { DELETE $v }
+lsq2	36	# do a least squares fit to a set of vectors, errors in x and y
+		# syntax: lsq2 x y lambda [ x2 y2 [rms] ]
+		# Fit line y2=$a*x2+$b to x y, assuming that the errors
+		# in x and y are uncorrelated and sigma_y^2/sigma_x^2 = lambda.
+		# Optionally, calculate rms residual as $rms
+		# See lsq for the case where all the errors are in x or y,
+		# rxy to find product moment correlation coeff,
+		# and spear for Spearman's corr. coeff. and significance
+		SET _n = DIMEN($1)              # number of points
+		SET _mx = SUM($1)/_n            # x bar
+		SET _my = SUM($2)/_n            # y bar
+		SET $0$1 = $1 - _mx             # relative to mean
+		SET $0$2 = $2 - _my
+		SET _sxx = SUM($0$1*$0$1)       # sigma xx
+		SET _sxy = SUM($0$1*$0$2)       # sigma xy
+		SET _syy = SUM($0$2*$0$2)       # sigma yy
+		DEFINE a ( (_syy - $3*_sxx + \
+		    sqrt((_syy - $3*_sxx)**2 + 4*$3*_sxy**2))/(2*_sxy) )
+		DEFINE b ( _my - $a*_mx )
+		IF($?4 && $?5) {
+		   SET $5=$a*$4+$b
+		   IF($?6) {
+		      DEFINE $6 ( sqrt(sum(($a*$1 + $b - $2)**2)/dimen($2)) )
+		   }
+		}
+		FOREACH v ( _n _mx _my _sxx _sxy _syy ) { DELETE $v }
+linfit	34	# linear least squares fit
+		# $1 : list of vectors of the linear system
+		# $2 : right side vector
+		# $3 : unknown vector
+		# $4 : variance on $3 (optional)
+		# D_$2 : differences between $2 and $2_calculated
+		# the normal equation matrix is in EN (EN_0 EN_1 etc)
+		#
+		# For example, given  Y = a0 + a1 X + a2 U + a3 sin(V) + e, 
+		# a is obtained by:
+		#
+		# set sV = sin(v)
+		# set ONE = 1
+		# set vec = { ONE X U sV }
+		# linfit vec Y a var_a
+		# set e = D_Y
+		# set sig_a = sqrt(var_a)
+		#
+		# Note: vectors in $1 may be zero, in which case they are
+		# their elements of $3 are set to zero too, which can be useful
+		#
+		if(!$?4) {
+		   define 4 variance
+		   set $4 local
+		}
+
+		local set vecs = $1
+		define i local
+		foreach i vecs {
+		   if(dimen($i) == 1) {
+		      local set $i = 0*$2 + $i
+		   }
+		}
+		local define n (dimen(vecs))
+
+		set dimen($3) = $n
+		set dimen($4) = $n
+		do i=0, $n - 1 { 
+		   set $4[$i] = sum( $(vecs[$i])*$2 ) 
+		}
+
+		do i=0, $n - 1 {
+		   set EN_$i local
+		}
+		
+		eqnorm vecs EN
+		qminv EN
+		do i=0, $n - 1 {
+		   set $3[$i] = sum( EN_$i*$4 ) 
+		}
+		local set D_$2 = $2
+		do i=0, $n - 1 {
+		   set D_$2 = D_$2 - $3[$i]*$(vecs[$i])
+		}
+		local set D2 = sum( D_$2 * D_$2 )/dimen( D_$2 )
+		do i=0, $n - 1 {
+		   set $4[$i] = D2 * EN_$i[$i] 
+		}
+		#
+prob_chisq 3	# probability of getting a given value of chi^2 $1, with $2
+		# degrees of freedom. Return answer in $$3
+		define $3 ( GAMMA($2/2,$1/2) )
+		#
+prob_KS    2    # probability of getting a given value of the KS statistic
+		# the probability of getting a value > $1 is returned in $$2
+		IF($1 < 0.1) {
+		   DEFINE $2 1 RETURN
+		}
+		if($1 > 5) {
+		   DEFINE $2 0 RETURN
+		}
+		DEFINE $2 0 DEFINE _lam ( -2*$1*$1 )
+		DO 3=1,100,2 {
+		   DEFINE _term ( EXP($_lam*$3**2) - EXP($_lam*($3+1)**2) )
+		   DEFINE $2 ($$2 + $_term)
+		   IF($_term < 1e-8*$$2) {
+		      DEFINE $2 (2*$$2)
+		      FOREACH _v (_lam _term) {DEFINE $_v DELETE}
+		      RETURN
+		   }
+		}
+		DEFINE $2 1     # failed to converge
+		FOREACH _v (_lam _term ) {DEFINE $_v DELETE}
+prob_wilc   2	# return probability in $$2 that $1 from Wilcoxon didn't occur by chance
+		# so "prob_wilc 1.96 p echo $p" prints 0.95
+		# (i.e for an N(0,1) distribution, valid for largish samples)
+		# (assumes a 2-tailed test, for 1-sided use (1 + $p)/2)
+		SET _x = abs($1)/SQRT(2)
+		SET _x = erfc(_x)
+		DEFINE $2 (1 - 2*(_x/2)) DELETE _x
+rxy        3	# find Correlation Coefficient for two vectors 
+		# syntax: rxy x y val   find rxy for x and y in $$3
+		SET _x = $1 - SUM($1)/DIMEN($1)
+		SET _y = $2 - SUM($2)/DIMEN($2)
+		DEFINE $3 ( SUM(_x*_y)/SQRT(SUM(_x**2)*SUM(_y**2)) )
+		FOREACH v ( _x _y ) { DELETE $v }
+smirnov1   3	# calculate Kolmogorov-Smirnov statistic for vector and model
+		# syntax: smirnov1 x func val, where D_{n} is returned as $val
+		# $func is a macro with one argument to evaluate the
+		# theoretical cumulative probability at each point in x
+		#
+		# the probability that D is greater than observed can be found
+		# using macro prob_KS,
+		# the cumulative curve can be drawn with draw_KS.
+		# e.g. smirnov1 dat cgauss ans prob_KS $ans p echo $p
+		#
+		SET _i = 1,DIMEN($1)
+		SET _val = $1 SORT < _val >
+		SET _val = $2(_val)
+		SET _d = ABS(_val - _i/DIMEN($1))
+		SORT { _d } DEFINE $3 ( _d[DIMEN($1)-1] )
+		SET _d = ABS(_val - (_i - 1)/DIMEN($1))
+		SORT { _d } SET _d = _d[DIMEN($1)-1]
+		SET _d = ($$3 > _d) ? $$3 : _d DEFINE $3 (_d)
+		DEFINE $3 ($$3*(SQRT(DIMEN($1))+0.12+0.11/SQRT(DIMEN($1))))
+		FOREACH _v ( _i _d _val ) { DELETE $_v }
+
+smirnov2   3	# calculate Kolmogorov-Smirnov statistic for two vectors
+		# syntax: smirnov2 x y val, where D_{n,m} is returned as $val
+		# the probability that D is greater than observed can be found
+		# using macro prob_KS.
+		# the cumulative curve can be drawn with draw_KS.   Author: TRQ
+		SET _both = $1 CONCAT $2
+		SET _index = 0*$1 CONCAT (0*$2+1)
+		SORT { _both _index }
+		DEFINE $3 0.0 SET _diff = 0.0
+		DO 4 = 0, DIMEN(_both) - 1 {
+		   IF(_index[$4] == 0) {
+		      SET _diff = _diff + 1/DIMEN($1)
+		   } ELSE {
+		      SET _diff = _diff - 1/DIMEN($2)
+		   }
+		   IF(ABS(_diff) > $$3) { # find maximum
+		      DEFINE $3 (ABS(_diff))
+		   }
+		}
+		DEFINE $3 ($$3*(SQRT((DIMEN($1)*DIMEN($2))/  \
+		    (DIMEN($1) + DIMEN($2)))+0.12+ \
+                    0.11/SQRT((DIMEN($1)*DIMEN($2))/(DIMEN($1) + DIMEN($2)))))
+		DELETE _both DELETE _index DELETE _diff
+spear      4	# calculate Spearman rank correlation coefficient for 2 vectors
+		# syntax: spear x y var t, $var is correlation .coeff,
+		# and $t is t-distributed with DIMEN($1) - 2 degrees of freedom
+		DEFINE _n (DIMEN($1))
+		SET _x = $1 SET _i = 1,$_n SORT { _x _i }
+		SET _rank1 = 1,$_n SORT { _i _rank1 }
+		SET _x = $2 SET _i = 1,$_n SORT { _x _i }
+		SET _rank2 = 1,$_n SORT { _i _rank2 }
+		SET _rank1 = _rank1 - ($_n + 1)/2     # subtract means
+		SET _rank2 = _rank2 - ($_n + 1)/2
+		DEFINE $3 ( SUM(_rank1*_rank2)/SQRT(SUM(_rank1**2)*SUM(_rank2**2)) )
+		DEFINE $4 ( $$3*SQRT(($_n-2)/(1-$$3**2)) )
+		FOREACH _v (_i _rank1 _rank2 _x ) { DELETE $_v }
+		DEFINE _n DELETE
+stats      4    # stats vector mean sigma kurtosis : calculate $mean $sigma etc
+		DEFINE _n ( DIMEN($1) )
+		DEFINE $2 ( SUM($1)/$_n )                               # mean
+		DEFINE $3 ( SQRT(SUM(($1 - $$2)**2)/($_n - 1)) )        # sigma
+		DEFINE $4 ( SUM(($1 - $$2)**4)/($_n - 1)/$$3**4 - 3) # kurtosis
+		DEFINE _n DELETE
+stats2     5	# stats2 vector weights mean sigma kurtosis
+		# calculate $mean $sigma etc
+		DEFINE _n ( SUM($2) )
+		DEFINE _d ($_n - ((SUM($2**2))/$_n))
+		DEFINE $3 ( SUM($2*$1)/$_n )                        # mean
+		DEFINE $4 ( SQRT(SUM($2*($1 - $$3)**2)/($_d)) )     # sigma
+		DEFINE $5 ( SUM($2*($1 - $$3)**4)/($_d)/$$4**4 - 3) # kurtosis
+stats_med   3   # stats_med vector median SIQR : calc $median $SIQR from vector
+		SET __temp = $1
+		SORT { __temp }
+		DEFINE $2 (__temp[DIMEN(__temp)/2])     # median
+		DEFINE _q1 (__temp[0.25*DIMEN(__temp)]) # lower quartile
+		DEFINE _q3 (__temp[.75*DIMEN(__temp)])  # upper quartile
+		DEFINE $3 (($_q3 - $_q1)/2)        # semi interquartile range
+		FOREACH _v ( _q1 _q3 ) { DEFINE $_v DELETE } DELETE __temp
+wilcoxon   3    # calculate Wilcoxon statistic for 2 vectors
+		# syntax: wilcoxon x y var, where $var is a Normal Deviate
+		# based on the U statistic, mean 0, sigma 1.
+		# (see macro prob_wilc for probability of $3 occuring)
+		# U is calculated from the rankings of $1, and ties are
+		# not handled properly.
+		SET _both = $1 CONCAT $2
+		SET _index = 0*$1 CONCAT (0*$2+1)
+		SORT { _both _index }
+		SET _both=1,DIMEN(_both) SET _both=_both IF(_index==0)
+		DEFINE $3 ( SUM(_both) - DIMEN($1)*(1 + DIMEN($1))/2 )  # U
+		DEFINE $3 (($$3 - DIMEN($1)*DIMEN($2)/2.0)/ \
+		            SQRT(DIMEN($1)*DIMEN($2)*(DIMEN(_index) + 1)/12.0))
+		DELETE _both DELETE _index
+wlsq	36	# do a weighted least squares fit to a set of vectors
+		# syntax: lsq x y w [ x2 y2 [rms]] Fit line y2=$a*x2+$b to x y
+		# with weights w.
+		# Optionally, calculate rms residual as $rms, in which case
+		# $sig_a, $sig_b, and $CHI2 are also calculated.
+		# see rxy to find product moment correlation coeff,
+		# and spear for Spearman's corr. coeff., and significance
+		SET _S   = SUM($3)      # sum of weights
+		SET _Sx  = SUM($1*$3)   # weighted sum x
+		SET _Sy  = SUM($2*$3)   # weighted sum y
+		SET _x   = _Sx / _S      set _y = _Sy / _S
+		SET _Sxy = SUM($3*($1-_x)*($2-_y)) # weighted sum xy
+		SET _Sxx = SUM($3*($1-_x)**2) # weighted sum xx
+		DEFINE a ( _Sxy /_Sxx )
+		DEFINE b ( _y - $a * _x )
+		IF($?4 && $?5) { SET $5=$a*$4+$b }
+		if($?6) {
+		   define CHI2 ( SUM($3*($2-$a*$1-$b)**2) )
+		   DEFINE $6 ( sqrt($CHI2/_S) )
+		   IF(dimen($1) > 2) { 
+		      DEFINE sig_a ( sqrt($CHI2/((dimen($1)-2)*_Sxx)) )
+		      DEFINE sig_b ( $sig_a*sqrt(_Sxx/_S+_x*_x) )
+		   } else { 
+		      DEFINE sig_a 0
+		      DEFINE sig_b 0
+		   }
+		}
+		FOREACH v ( _S _Sx _Sy _Sxy _Sxx _x _y ) { DELETE $v }
+eqnorm	2	#  get the normal equations 
+		#  for a linear least square problem
+		#  $1 : list of vectors
+		#  $2 : matrix (no underscore) of normal equations
+		local define _n (dimen($1))
+		local define _nm ($_n-1)
+		define i local
+		do i=0,$_nm { 
+		   set dimen($2_$i) = $_n
+		   do j=0,$_nm {
+		      set $2_$i[$j] = sum($($1[$i])*$($1[$j]))
+		   }
+		}
+whisker	35	# Plot a "whisker" diagram
+		# Usage: whisker x y err [width [flags]]
+		# If width is omitted, it'll be taken to be 10% of
+		# separation between first two points.
+		# If flags is provided:
+		#   flags & 0x1        Fill whisker
+ 		#   flags & 0x2        Only draw +ve part of whisker
+		#   flags & 0x4        Only draw -ve part of whisker
+		#
+		# E.g.
+		#   set x=0,10 set y=cos(x) set e = (1+abs(y))/30*cos(y)
+		#   lim x y box poi x y
+		#   whisker x y e 0.1 0x1
+		#   whisker x y 2*e 0
+		local set x = $1
+		local set y = $2
+		local set e = $3
+		if($?4) {
+		   local set width = ($4)
+		} else {
+		   if(dimen(x) < 2) {
+		      user abort "I cannot guess width for only one point"
+		   } else {
+		      local set width = 0.1*abs(x[1] - x[0])
+		   }
+		}
+
+		if(!$?5) { define 5 0 }
+		local define fillit    ($5 & 0x1)
+ 		local define up_only   ($5 & 0x2)
+ 		local define dn_only   ($5 & 0x4)
+
+		if(dimen(x) != dimen(y)) {
+		   user abort "dimen($1) != dimen($2)"
+		}
+		if(dimen(x) != dimen(e)) {
+		   if(dimen(e) == 1) {
+		      set e = e + 0*x
+		   } else {
+		      user abort "dimen($1) != dimen($2)"
+		   }
+		}
+
+		local set i = 1, dimen(x)
+		if(width == 0) {
+		   local set xx = x concat x
+		   local set ii = i concat i + 0.2
+		        
+		   if($up_only || $dn_only) {
+		      set yy = y
+		      if($up_only) {
+		         set yy = yy concat y + e
+		      } else {
+		         set yy = yy concat y - e
+		      }
+		   } else {
+		      local set yy = y - e concat y + e
+		   }
+		} else {
+		   local set xx = x - width/2 concat x + width/2 concat \
+		    x + width/2 concat x - width/2 concat x - width/2
+		   local set ii = i concat i + 0.2 concat i + 0.4 concat \
+		        i + 0.6 concat i + 0.8
+		        
+		   if($up_only || $dn_only) {
+		      set yy = y concat y
+		      if($up_only) {
+		         set yy = yy concat y + e concat y + e concat y
+		      } else {
+		         set yy = yy concat y - e concat y - e concat y
+		      }
+		   } else {
+		      local set yy = y - e concat y - e concat \
+		       y + e concat y + e concat y - e
+		   }
+		}
+
+		if($fillit) {
+		   sort { ii xx yy }
+
+		   define i local
+		   set _x local  set _y local
+		   do i = 0, dimen(xx)/5 {
+		      set _x = xx if(int(ii) == $i)
+		      set _y = yy if(int(ii) == $i)
+		      shade 0 _x _y
+		   }
+		} else {
+		   set xx = x*0 + x[0] - 100 concat xx
+		   set yy = y concat yy
+		   set ii = ii concat i + 0.9
+		   sort { ii xx yy }
+		   
+		   con xx yy if(xx > xx[0])
+		}

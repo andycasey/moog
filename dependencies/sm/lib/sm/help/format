@@ -1,0 +1,12 @@
+Syntax: FORMAT x-format-string y-format-string
+
+   Allow the user to specify the axis tick label formats. The format
+should be given as a standard C (e.g. %.2g) or Fortran (e.g. F10.4)
+format. This format will be in effect until unset by issuing the
+FORMAT command with no argument, in which case SM will figure out the
+best format for you, or by issuing a new FORMAT command with new
+format strings.
+
+   If the format-string is ``0'', no change will be made to that
+format; if it is ``1'', the default will be reinstated for that axis.
+(So FORMAT with no arguments is equivalent to `FORMAT 1 1').

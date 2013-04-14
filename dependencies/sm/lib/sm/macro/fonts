@@ -1,0 +1,314 @@
+## -*-SM-*- Set SM-mode in emacs
+#
+# Macros to do with fonts:
+#
+# fonts : Draw the current font table
+# TeX_defs : Draw the current TeX definitions
+# make_char : Make a new character for inclusion in the font tables
+#
+fonts     	# draw the font table
+		IF($?TeX_strings) { DEFINE __TeX 1 DEFINE TeX_strings DELETE }
+		IF($?new == 0) { DEFINE new 1 }
+		#DEFINE new ? { Enter 1 if you're using the new fonts,\
+		#					0 if the old }
+		FOREACH v { gx1 gx2 gy1 gy2 verbose } { DEFINE $v | }
+		LOCATION 100 32667 100 32667	# use almost entire page
+		VERBOSE 0
+		# first the box
+		LIMITS 0 1 0 1
+		RELOCATE .05 0 DRAW .95 0 DRAW .95 1 DRAW .05 1 DRAW .05 0
+		RELOCATE .05 .95 draw .95 .95
+		RELOCATE .5 .975
+		IF($new == 0) {
+		   PUTLABEL 5 \\rSM's Old Fonts : r, i, t, g, s
+		   MACRO disp { _odisp }
+		} ELSE {
+		   PUTLABEL 5 \\rSM's Fonts : r, t, g, s, o
+		   MACRO disp { _ndisp }
+		}
+		#
+		DEFINE y0 .95 DEFINE dx 0.20 DEFINE dy -.035 DEFINE deltx 0.035
+		DEFINE x .13 DEFINE y $y0
+		#
+		disp !
+		disp \"
+		disp \#
+		disp \$
+		disp %
+		disp &
+		disp '
+		disp (
+		disp )
+		disp *
+		disp +
+		disp ,
+		disp -
+		disp .
+		disp /
+		FOREACH l ( 0 1 2 3 4 5 6 7 8 9 ) {
+		   disp $l
+		}
+		disp :
+		#
+		DEFINE x ( $x + $dx) DEFINE  y $y0
+		FOREACH l ( A B C D E F G H I J K L M N O P Q R S T U V W X Y Z ) {
+		   disp $l
+		}
+		#
+		DEFINE x ( $x + $dx) DEFINE  y $y0
+		foreach l ( a b c d e f g h i j k l m n o p q r s t u v w x y z ) {
+		   disp $l
+		}
+		#
+		DEFINE x ( $x + $dx) DEFINE  y $y0
+		disp ;
+		disp <
+		disp =
+		disp >
+		disp ?
+		disp @
+		disp [
+		disp ]
+		disp ^
+		disp _
+		disp `
+		disp {
+		disp |
+		disp }
+		disp ~
+		LOCATION $gx1 $gx2 $gy1 $gy2
+		VERBOSE $verbose
+		IF($?__TeX) { DEFINE __TeX DELETE DEFINE TeX_strings 1 }
+		FOREACH v { gx1 gx2 gy1 gy2 verbose } { DEFINE $v DELETE }
+_ndisp       1	# draw one character in \r \t \g \s \o
+		DEFINE y ( $y + $dy )
+		RELOCATE $x $y
+		PUTLABEL 5 \r$1\n				# \r
+		rel $x+$deltx $y
+		PUTLABEL 5 \t$1\n				# \t
+		rel $x+2*$deltx $y
+		PUTLABEL 5 \g$1\n				# \g
+		rel $x+3*$deltx $y
+		PUTLABEL 5 \s$1\n				# \s
+		rel $x+4*$deltx $y
+		PUTLABEL 5 \o$1\n				# \o
+_odisp       1	# draw one character in \r \i \t \g \s
+		DEFINE y ( $y + $dy )
+		RELOCATE $x $y
+		PUTLABEL 5 \r$1\n				# \r
+		rel $x+$deltx $y
+		PUTLABEL 5 \i$1\n				# \i
+		rel $x+2*$deltx $y
+		PUTLABEL 5 \t$1\n				# \t
+		rel $x+3*$deltx $y
+		PUTLABEL 5 \g$1\n				# \g
+		rel $x+4*$deltx $y
+		PUTLABEL 5 \s$1\n				# \s
+font_table 1	# write a font $1 in ascii order
+		if($?default_font) {
+		   define 2 $default_font
+		}
+		define default_font $1
+		define sexpand $expand
+		expand 2.5
+
+		rel .5 1.00
+		putlabel 5 \rm $1
+		define y0 0.95
+		do 3=32,127 {
+		   if(int($3/8) == $3/8) {
+		      define y0 ($y0 - 0.07)
+		      RELOCATE 0.65 $y0
+		      label \rm\-1$3 -- $($3 + 7)
+		      define x0 0.0
+		   }
+		   RELOCATE $x0 $y0
+		   drawchar $3
+		   define x0 ($x0 + 0.07)
+		}
+		if($?2) {
+		   define default_font $2
+		} else {
+		   define default_font delete
+		}
+		expand $sexpand
+		foreach 1 ( x0 y0 sexpand ) {
+		   define $1 delete
+		}
+drawchar 1	# usage: drawchar number
+		label "\rm{ }"
+		if($1 < 32 || $1 >= 128) {
+		   echo drawchar: $1 is out of range (use 32--127)
+		   return
+		}
+		if($1 == 34) {
+		   putl 5 "\""
+		   return
+		}
+		if($1 == 92) {          # backslash is a pain
+		   putl 5 \\\0
+		   return
+		}
+		if($1 == 94 || $1 == 95 || $1 == 123 || $1 == 125) {
+		   putl 5 "\$!(sprintf('%c',$1))"
+		   return
+		}
+		putl 5 \0$(sprintf('%c',$1))
+TeX_defs	# Write out list of `TeX' definitions
+		DEFINE verbose | VERBOSE 0
+		IF($aspect >= 1.25) {
+		   echo TeX_defs's spacing assumes an aspect ratio < 1.25
+		}
+		IF($?TeX_strings == 0) { DEFINE _no_TeX 1 }
+		DEFINE TeX_strings 1
+		FOREACH v { expand gx1 gx2 gy1 gy2 } { DEFINE $v | }
+		LOCATION 100 32667 100 32667	# use almost entire page
+		LIMITS 0 1 0 1
+		RELOCATE 0 0 DRAW 1 0 DRAW 1 1 DRAW 0 1 DRAW 0 0
+		RELOCATE 0 .96 draw 1 .96
+		RELOCATE .5 .98
+		EXPAND 1
+		PUTLABEL 5 SM's ``\TeX'' definitions:
+		DATA "$!macro"TeX_defs.dat
+		DEFINE _n 1
+		DO _i=0,100 {           # actually, only room for `0,3'
+		   DO _j=1,39 {
+		      DEFINE _n ($_n + 1) 
+		      DEFINE _line READ $_n
+		      IF($?_line == 0) {
+		         EXPAND $expand
+		         LOCATION $gx1 $gx2 $gy1 $gy2
+		         VERBOSE $verbose
+		         FOREACH v { _n expand gx1 gx2 gy1 gy2 verbose } {
+		            DEFINE $v DELETE
+		         }	
+		         IF($?_no_TeX) {
+		            DEFINE TeX_strings DELETE DEFINE _no_TeX DELETE
+		         }
+		         RETURN
+		      }
+		      rel 0.03+0.24*$_i (0.96-0.024*$_j)
+		      LABEL \ti $_line
+		      DEFINE _line DELETE
+		   }
+		}
+jTeX_defs	# Write out list of `TeX' definitions
+		DEFINE verbose | VERBOSE 0
+		IF($aspect >= 1.25) {
+		   echo jTeX_defs's spacing assumes an aspect ratio < 1.25
+		}
+		IF($?TeX_strings == 0) {
+		   echo JTeX only works with TeX_strings defined
+		   return
+		}
+		FOREACH v { expand gx1 gx2 gy1 gy2 } { DEFINE $v | }
+		LOCATION 100 32667 100 32667	# use almost entire page
+		LIMITS 0 1 0 1
+		RELOCATE 0 0 DRAW 1 0 DRAW 1 1 DRAW 0 1 DRAW 0 0
+		RELOCATE 0 .96 draw 1 .96
+		RELOCATE .5 .98
+		EXPAND 1
+		putl 0 "\def\symbol#1{{\-1\smash{\\#1:}\phantom{AAA} }}"
+		PUTLABEL 5 SM's Japanese ``\TeX'' definitions:
+		DATA "$!macro"jTeX_defs.dat
+		DEFINE _n 1
+		DO _i=0,100 {           # actually, only room for `0,3'
+		   DO _j=1,39 {
+		      DEFINE _n ($_n + 1) 
+		      DEFINE _line READ $_n
+		      IF($?_line == 0) {
+		         EXPAND $expand
+		         LOCATION $gx1 $gx2 $gy1 $gy2
+		         VERBOSE $verbose
+		         FOREACH v { _n expand gx1 gx2 gy1 gy2 verbose } {
+		            DEFINE $v DELETE
+		         }	
+		         IF($?_no_TeX) {
+		            DEFINE TeX_strings DELETE DEFINE _no_TeX DELETE
+		         }
+		         RETURN
+		      }
+		      rel 0.03+0.24*$_i (0.96-0.024*$_j)
+		      LABEL \ti $_line
+		      DEFINE _line DELETE
+		   }
+		}
+make_char	# Draw a character, and spit out the answer in a form
+		# (nearly) acceptable to read_fonts. Specifically:
+		# 1/ The string will have an unwanted trailing ' ', and
+		# all occurences of `\' will have been replaced by '|'.
+		# 2/ No attention is paid to lines that are too long to
+		# fit on one line, you'll have to do that yourself.
+		#
+		# Output is to the terminal, and to file `newchar'
+		#
+		lim -30 30 -30 30 ti 1 5 1 5 box
+		ctype blue lt 0 grid 1 lt 0 ctype default
+		box ti 0 0 0 0 
+		rel -100 0 draw 100 0 rel 0 -100 draw 0 100
+		#
+		# Set up mapping from numbers to letters:
+		# use string vectors to avoid special characters
+		#
+		define _lett_offset 34          # index of `R'
+		set _lett = { '0' 1 2 3 4 5 6 7 8 9 : ; < = > ? @ \
+		       A B C D E F G H I J K L M N O P Q R S T U V W X Y Z \
+		    [ | ] ^ _ ` a b c d e f g h i j k l m n o p q r s t u }
+		#
+		set _lett[0] = 0
+		echo Use cursor to mark each connected part of character,
+		echo end with an empty segment
+		define nchar 0
+		read_segments
+		echo Now mark the left and right spacings:
+		cursor x y
+		if(dimen(x) < 2) {
+		   bell
+		   echo You really should specify spacings for me...
+		   set x={0 0} set y=x
+		}
+		rel x[0] -4 dra x[0] 4
+		rel x[1] -4 dra x[1] 4
+		set y = x[1] < 0 ? int(-x[1] + 0.5) : -int(x[1] + 0.5)
+		set x = x[0] < 0 ? -int(-x[0] + 0.5) : int(x[0] + 0.5)
+		make_str seg
+		define nchar (sprintf('%3d',$nchar))
+		echo .....$nchar"$!seg""$!str"
+		write newchar .....$nchar"$!seg""$!str"
+read_segments   ##
+		define str DELETE
+		do i=1,1000 {
+		   cursor x y
+		   if(dimen(x) == 0) { return }
+		   do i=0,dimen(x)-1 {
+		      foreach v ( x y ) {
+		         if($v[$i] < 0) {
+		            set $v[$i] = -int(-$v[$i] + 0.5)
+		         } else {
+		            set $v[$i] = int($v[$i] + 0.5)
+		         }
+		      }
+		   }
+		   con x y
+		   make_str seg
+		   if($?str == 0) {
+		      define str "$!seg"
+		   } else {
+		      define str <"$!str"" R$!seg">
+		   }
+		   define nchar ($nchar + dimen(x) + 1)
+		}
+make_str 1	## Make a string from vectors x and y
+		# make_str variable
+		define $1 DELETE
+		set y = -y              # y-coordinates are inverted
+		do i=0,dimen(x)-1 {
+		   foreach v ( x y ) { 
+		      define $v (_lett[$v[$i] + $_lett_offset])
+		   }
+		   if($?$1 == 0) {
+		      define $1 "$!x""$!y"
+		   } else {
+		      define $1 "$!$!1""$!x""$!y"
+		   }
+		}

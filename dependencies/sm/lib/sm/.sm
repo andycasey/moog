@@ -1,0 +1,10 @@
+fonts		//fonts.bin
+history_file	.smhist
+history		80
+temp_dir	/tmp/
++graphcap	//graphcap.local
+filecap		//filecap
+graphcap		//graphcap
+termcap		//termcap
+help		//help/
+macro		//macro/

@@ -1,0 +1,921 @@
+## -*-SM-*- Set SM-mode in emacs
+alpha_poi  3    # alpha_poi x y z. Like poi x y, but use z as labels for points
+		# Symbols are drawn 1.73 times reduced, in the `tiny' font
+		# Rewritten to use string vectors RHL, Feb 1993.
+		IF($?TeX_strings) {
+		   SET _pt = '\\t\\-3' + STRING($3)
+		} ELSE {
+		   SET _pt = '\\\\t\\\\-3' + STRING($3)
+		}
+		DEFINE ptype | PTYPE _pt
+		POINTS $1 $2
+		PTYPE $ptype DEFINE ptype DELETE
+		DELETE _pt
+add_ctype 4	# define a new colour $1 with (r,g,b) = ($2, $3, $4)
+		# Values should be in range 0:255
+		IF(SUM(CTYPE(STRING) == '$1') > 0) {
+		   del_ctype $1
+		}
+		CTYPE = CTYPE() CONCAT $2 + 256*($3 + 256*$4)
+		CTYPE = CTYPE(STRING) CONCAT '$1'
+		#
+del_ctype 1	# undefine a ctype named $1
+		IF(SUM(CTYPE(STRING) == '$1') == 0) {
+		   echo I cannot find a colour called $1
+		} else {
+		   DEFINE t LOCAL  SET ct LOCAL
+		   FOREACH t {"" STRING} {
+		      SET ct=CTYPE($t) IF(CTYPE(STRING) != '$1')
+		      CTYPE = ct
+		   }
+		}
+arc        2	# the arclength along the curve ($1,$2), e.g. set v=arc(x,y)
+		IF(DIMEN($1) != DIMEN($2)) {
+		   echo $1 and $2 have different dimensions
+		   RETURN
+		}
+		SET _i=1,DIMEN($1)-1
+		FOREACH 3 ( $1 $2 ) {
+		   SET _d$3 = ($3[_i] CONCAT 0) - $3
+		   SET _d$3 = ($3[_i] CONCAT 0) - $3
+		}
+		SET _i = _i CONCAT -1 
+		SET $0 = SQRT(_d$1**2 + _d$2**2) IF(_i >= 0)
+		SET _t = 0 CONCAT $0
+		SET $0=cumulate(_t)
+arrow           # use the cursor to define an arrow.
+		# the last two points specified with `p' are used,
+		# use `q' to exit, ^C to quit
+		# Use `draw_arrow' to draw an arrow non-interactively
+		echo "Use cursor to mark the tail then the head of the arrow"
+		DEFINE ptype | PTYPE 1 1
+		CURSOR _x _y del1
+		DEFINE _d ( dimen(_x) )
+		IF($_d < 2) {
+		   echo I need two ends to define an arrow
+		   PTYPE $ptype
+		   DELETE _x DELETE _y
+		   DEFINE ptype DELETE DEFINE _d DELETE
+		   RETURN
+		}
+		DEFINE _x0 ( _x[($_d)-2] )      # deleted in draw_arrow
+		DEFINE _x1 ( _x[($_d)-1] )
+		DEFINE _y0 ( _y[($_d)-2] )
+		DEFINE _y1 ( _y[($_d)-1] )
+		MACRO _arrow {draw_arrow $!!_x0 $!!_y0 $!!_x1 $!!_y1 }
+		_arrow WRITE HISTORY _arrow
+		PTYPE $ptype
+		MACRO _arrow DELETE DELETE _x DELETE _y
+		DEFINE ptype DELETE DEFINE _d DELETE
+barhist    23	# draw a bar histogram
+		# syntax: barhist [%] x y
+		# where % is the percentage width of the bars (optional)
+		IF($?3 == 0) {            # % isn't provided
+		   DEFINE 3 $2 DEFINE 2 $1 DEFINE 1 50
+		}
+		DEFINE _w ($1*($2[1] - $2[0])/200)   # half width of bars
+		SET _x = ($2 - $_w) CONCAT ($2 - $_w) CONCAT \
+			 ($2 + $_w) CONCAT ($2 + $_w)
+		SET _y = 0*$3 CONCAT $3 CONCAT $3 CONCAT 0*$3
+		SET _i = 1,DIMEN($2)
+		SET _i = _i CONCAT (_i + .1) CONCAT (_i + .2) CONCAT (_i + .3)
+		SORT { _i _x _y }
+		CONNECT _x _y
+		FOREACH _v ( _i _x _y ) { DELETE $_v }
+boundary 4	# Shade the boundary of region with edge ($1,$2),
+		# the `edge' is $3 (screen) wide (below if positive),
+		# and the lines are spaced at $4 and at the curent ANGLE
+		SHADE $4 ($1 CONCAT reverse($1)) \
+		    ($2 CONCAT reverse($2) - ($3/($gy2-$gy1)*($fy2-$fy1)))
+boxit		# use the cursor to define a box, and draw it
+		# see shade_box for how to shade the interior
+		# the last two points specified with `p' are used,
+		# use `q' to exit, ^C to quit
+		echo Mark opposite corners of box with p, exit with q
+		DEFINE ptype | PTYPE 1 1
+		CURSOR _x _y del1
+		DEFINE _d ( dimen(_x) )
+		IF($_d < 2) {
+		   echo I need two corners to define a box
+		   PTYPE $ptype
+		   DELETE _x DELETE _y
+		   DEFINE ptype DELETE DEFINE _d DELETE
+		   RETURN
+		}
+		DEFINE _x0 ( _x[($_d-2)] ) # deleted in draw_box
+		DEFINE _x1 ( _x[($_d-1)] )
+		DEFINE _y0 ( _y[($_d-2)] )
+		DEFINE _y1 ( _y[($_d-1)] )
+		MACRO _boxit {draw_box $!!_x0 $!!_y0 $!!_x1 $!!_y1 }
+		_boxit WRITE HISTORY _boxit
+		PTYPE $ptype
+		MACRO _boxit DELETE DELETE _x DELETE _y
+		FOREACH _v { ptype _d _x0 _x1 _y0 _y1 } {
+		   DEFINE $_v DELETE
+		}
+circle     3    # draw a circle, centre ($1,$2) radius $3
+		SET _ang local set _x local set _y local
+		SET _ang = 0,2*PI,PI/30
+		SET _x = $1 + $3*COS(_ang)
+		SET _y = $2 + $3*SIN(_ang)
+		CONNECT _x _y
+		#
+cumulate   12	# cumulate a vector $1, returning the value as $0. For example,
+		# set x=0,1000  set c=cumulate(x). Note that, because
+		# this routine is recursive, you might get messages about
+		# `Extending i/o stack'. These are normal.
+		if(dimen($1) < 10) {    # do it the brute force way
+		   DEFINE sum 0 SET $0=0*$1
+		   DO 3=0,DIMEN($1)-1 {
+		      DEFINE sum ( $sum + $1[$3] )
+		      SET $0[$3] = $sum
+		   }
+		   DEFINE sum DELETE
+		   return
+		}
+		
+		if($?2) {               # recursion level
+		   define 2 ( $2+1 )
+		} else {
+		   define 2 0
+		}
+		
+		if($2 > 32) {
+		   user abort Too deep recursion in $0; aborting
+		}
+		#
+		# Split the vector into four, depending on the index mod 4
+		# Adjust them to all have the same length
+		#
+		set _i$2 = 0,dimen($1)-1
+		set _i$2 = _i$2 - 4*int(_i$2/4)
+		do 3=0,3 {
+		   set _x$3$2 = $1 if(_i$2 == $3)
+		   if($3 > 0) {
+		      if(dimen(_x$3$2) != dimen(_x0$2)) {
+		         set _x$3$2 = _x$3$2 concat 0
+		      }
+		   }
+		}
+		#
+		# Here we do the work; the vector operations cumulate 4 element
+		# runs of the input vector, and we call cumulate recursively
+		# to cumulate the ends of the runs
+		#
+		set _x1$2 = _x0$2 + _x1$2
+		set _x2$2 = _x1$2 + _x2$2
+		set _x3$2 = _x2$2 + _x3$2
+		set _xn$2 = cumulate(_x3$2,$2)
+		#
+		# Assemble the answer. _xn$2 is the cumulation of the end
+		# of the runs, and it has to be added to each of them. Then
+		# we have to rearrange them into the proper order
+		#
+		set _xn$2 = 0 concat _xn$2
+		set dimen($0) = $(4*dimen(_xn$2))
+		do 3=0,3 {
+		   set _j = $3,dimen($0)-1,4
+		   set $0[_j] = (_x$3$2 concat 0) + _xn$2
+		}
+		delete _j
+		#
+		# If we added some 0s to make the _x?? vectors the same size,
+		# trim them from the answer
+		#
+		if(dimen($0) != dimen($1)) {
+		   set _i$2 = 0,dimen($0)-1
+		   set $0 = $0 if(_i$2 < dimen($1))
+		}
+		#
+		# clean up
+		#
+		foreach 3 ( _i _x0 _x1 _x2 _x3 _xn ) { DELETE $3$2 }
+		#
+draw_arrow 4    # draw an arrow from ($1,$2) to ($3,$4)
+		# plot pointer is left at ($3,$4)
+		# the size of the head is set by the value of expand
+		# see `arrow' for interactively drawing an arrow
+		DEFINE _phi 0.2           # opening angle of head
+		DEFINE vars { expand fx1 fx2 fy1 fy2 gx1 gx2 gy1 gy2 }
+		foreach v { $!!vars } { DEFINE $v | }
+		DEFINE expand | DEFINE _len (1000*$expand)
+		DEFINE gx2 ( ($gx2 - $gx1)/($fx2 - $fx1) )
+		DEFINE gx1 ( $gx1 - $gx2*$fx1 )
+		DEFINE gy2 ( ($gy2 - $gy1)/($fy2 - $fy1) )
+		DEFINE gy1 ( $gy1 - $gy2*$fy1 )
+		DEFINE _x0 ( ($1)*$gx2 + $gx1 )
+		DEFINE _x1 ( ($3)*$gx2 + $gx1 )
+		DEFINE _y0 ( ($2)*$gy2 + $gy1 )
+		DEFINE _y1 ( ($4)*$gy2 + $gy1 )
+		IF($_x0 == $_x1) {
+		   IF($_y1 > $_y0) { DEFINE _theta (PI/2)
+		   } ELSE { DEFINE _theta (-PI/2) }
+		} else {
+		   DEFINE _theta ( ATAN(($_y1-$_y0)/($_x1-$_x0)) )
+		}
+		IF($_x1 < $_x0) { DEFINE _len ( -$_len ) }
+		RELOCATE ( $_x0 $_y0 ) DRAW ( $_x1 $_y1 )
+		DEFINE _x0 ( $_x1 - $_len*COS($_theta - $_phi) )
+		DEFINE _y0 ( $_y1 - $_len*SIN($_theta - $_phi) )
+		DRAW ( $_x0 $_y0 )
+		DEFINE _x0 ( $_x1 - 0.15*$_len*COS($_theta) )
+		DEFINE _y0 ( $_y1 - 0.15*$_len*SIN($_theta) )
+		DRAW ( $_x0 $_y0 )
+		DEFINE _x0 ( $_x1 - $_len*COS($_theta + $_phi) )
+		DEFINE _y0 ( $_y1 - $_len*SIN($_theta + $_phi) )
+		DRAW ( $_x0 $_y0 ) DRAW ( $_x1 $_y1 )
+		FOREACH _v { _len _phi _theta _x0 _x1 _y0 _y1 $!!vars vars } {
+		   DEFINE $_v DELETE
+		}
+draw_box 4	# draw a box, defined by two corners
+		CONNECT (<$1 $3 $3 $1 $1>) (<$2 $2 $4 $4 $2>)
+error_x    3    # draw x-error bars: error x y size
+		FOREACH _dir ( 1 3 ) { ERRORBAR $1 $2 $3 $_dir }
+error_y    3    # draw y-error bars: error x y size
+		FOREACH _dir ( 2 4 ) { ERRORBAR $1 $2 $3 $_dir }
+frelocate 22	# Usage: frelocate frac-x  frac-y
+		# Like relocate, but arguments are fractions of current window.
+		# E.g.
+		#   frelocate 0.1 0.9
+		# relocates to the top left corner of the box
+		RELOCATE $($fx1 + $1*($fx2 - $fx1))  $($fy1 + $2*($fy2 - $fy1))
+fputlabel 22	# Usage: fputlabel frac-x  frac-y  [putlabel-arguments]
+		# Like putlabel, but first position within the current window. 
+		# E.g.
+		#   fputlabel 0.1 0.9 5 Top Left Corner
+		RELOCATE $($fx1 + $1*($fx2 - $fx1))  $($fy1 + $2*($fy2 - $fy1))
+		PUTLABEL#
+get_hist   6    # get_hist input output-x output-y base top width
+		# given $1, get a histogram in $3, with the centres of the
+		# bins in $2. Bins go from $4 to $5, with width $6.
+		SET $2 = $4+$6/2,$5+$6/2,$6
+		SET HELP $2 X-vector for $3
+		SET $3=HISTOGRAM($1:$2)
+		SET HELP $3 Histogram from $1, base $4 width $5
+get        2    # syntax: get i j.  Read a column from a file.
+		# name of vector is jth word of line i.
+		DEFINE 3 READ $1 $2 echo reading $3\n
+		READ $3 $2
+		SET HELP $3 Column $2 from $data_file
+glevels		# Set grey levels. Usage: glevels expr
+		SET glevel_vec=
+greyscale 04	# Draw a grey-scale image. Usage: greyscale [npx npy maxweight dmargin]
+		# where npx and npy are the number of points in x and y,
+		# and maxweight is the largest lweight to use. dmargin is used
+		# to fiddle how close the points get to the edge of the box
+		# The greylevels to use are set by glevels
+		# Say  "load demos grey_sincos" for an example
+		if(!is_vector(glevel_vec)) {
+		   echo Please set levels with the `glevels' command
+		   return
+		}
+		if(dimen(glevel_vec) < 1) {
+		   echo You need at least one level
+		   return
+		}
+		define NX image
+		if(!$?NX) {
+		   echo Image is not defined
+		   return
+		}
+		if(!$?1){ define 1 137 }
+		if(!$?2){ define 2 137 }
+		if(!$?3){ define 3 10 }
+		if(!$?4){ define 4 0.25 }
+		set _npx=$1
+		set _npy=$2
+		set _maxweight=$3
+		define lweight |
+		set _pxy=0,_npx*_npy-1
+		set _py=int((_pxy+0.000001)/_npx)
+		set _px=_pxy-_npx*_py
+		define X0 image define X1 image define Y0 image define Y1 image
+		if($fx1 > $fx2) {
+		   define 5 $fx1  define fx1 $fx2  define fx2 $5
+		}
+		if($fy1 > $fy2) {
+		   define 5 $fy1  define fy1 $fy2  define fy2 $5
+		}
+		if($X0<$fx1){ define X0 $fx1 }
+		if($X1>$fx2){ define X1 $fx2 }
+		if($Y0<$fy1){ define Y0 $fy1 }
+		if($Y1>$fy2){ define Y1 $fy2 }
+		set _px=($X1 - $X0)/(_npx + 2*$4 - 0.5)*\
+		    ((_px+$4) concat (_px+0.5+$4)) + $X0
+		set _py=($Y1 - $Y0)/(_npy + 2*$4 - 0.5)*\
+		    ((_py+$4) concat (_py+0.5+$4)) + $Y0
+		set _pz=image(_px,_py)
+		ptype 0 0
+		minmax _Min _Max
+		set _lev=glevel_vec
+		sort{_lev}
+		if(_lev[0]<$_Min){
+		   set _lev=$_Min concat _lev concat $_Max
+		}else{
+		   set _lev=_lev concat $_Max
+		}
+		set _lev=_lev if(_lev>=$_Min&&_lev<=$_Max)
+		if(dimen(_lev)>2){
+		   set _weight=0.51,_maxweight,(_maxweight-0.51)/(dimen(_lev)-1)
+		}else{
+		   set _weight=(0.51+_maxweight)/2
+		}
+		# lweights < 0.5 are special
+		do i=0,dimen(_lev) - 2 {
+		   lweight $(_weight[$i])
+		   points _px _py if($(_lev[$i+1]) > _pz && _pz >= $(_lev[$i]))
+		}
+		lweight $lweight
+		foreach 0 {_px _py _pxy _pz _npx _npy _maxweight _lev _weight}{
+		   delete $0
+		}
+		foreach 0 {X0 X1 Y0 Y1 _Max _Min lweight fx1 fx2 fy1 fy2}{
+		   define $0 delete
+		}
+info	1	# Get help about a command from SM's info files
+		!info -f sm commands $1\n
+interp     4	# Linearily interpolate $3 into ($1,$2), giving $4
+		# $1 must be uniformly spaced. See also interp2
+		set _$3 = ($3 - $1[0])/($1[1] - $1[0])
+		set _$20=$2[_$3] set _$21=$2[_$3 + 1]
+		set $4=_$20 + (_$3 - int(_$3))*(_$21-_$20)
+		DELETE _$20 DELETE _$21 DELETE _$3
+interp2	4	# Linearily interpolate $3 into ($1,$2), giving $4
+		# Note that x must be increasing. Points beyond the range of x
+		# are interpolated linearily
+		if(dimen($1) < 2) {
+		   user abort Please use vectors with at least 2 elements
+		}
+		if(dimen($1) != dimen($2)) {
+		   user abort $1 and $2 have different dimensions
+		}
+		#
+		set _index = ifloor($1,$3)
+		#
+		set _x1 = $1[(_index < 0 ? 0 : _index >= dimen($1) - 1 ? \
+		    dimen($1) - 2 : _index)]
+		set _y1 = $2[(_index < 0 ? 0 : _index >= dimen($1) - 1 ? \
+		    dimen($1) - 2 : _index)]
+		set _x2 = $1[(_index < 0 ? 1 : _index >= dimen($1) - 1 ? \
+		    dimen($1) - 1 : _index + 1)]
+		set _y2 = $2[(_index < 0 ? 1 : _index >= dimen($1) - 1 ? \
+		    dimen($1) - 1 : _index + 1)]
+		set $4 = _y1 + ($3 - _x1)*(_y2 - _y1)/(_x1 == _x2 ? 1 : _x2 - _x1)
+		#
+		echo delete _index delete _x1 delete _y1 delete _x2 delete _y2
+ifloor 2	# return the indices of the largest points in $1 that
+		# don't exceed $2 (-1 if off left of array). Uses _ifloor.
+		set _left = -1
+		set _right = dimen($1)
+		set $0 = _ifloor($1,$2)
+_ifloor 2	# Working routine for ifloor; algorithm is binary search
+		set $0 = int((_left + _right)/2)
+		if(sum($0 != _left && $0 != _right) == 0) {
+		   set $0 = _left >= dimen($1) ? dimen($1)-1 : _left
+		   return
+		}
+		set _left = ($2 < $1[$0]) ? _left : $0
+		set _right = ($2 <= $1[$0]) ? $0 : _right
+		_ifloor $1 $2
+is_file	1	# Return true if file $1 exists, for example:
+		# if(is_file($file)) { echo true }
+		DEFINE exit_status DELETE
+		!test -f $1
+		set $0 = ($exit_status == 0)
+is_macro 1	# Return 1 if $1 is a macro
+		define 1 ( whatis($1) )
+		set $0 = is_set($1,1)
+is_vector 1	# Return 1 if $1 is a vector
+		define 1 ( whatis($1) )
+		set $0 = is_set($1,3)
+is_set	2	# Return 1 if the $2'nd bit is set in $1.
+		set $0 = (($1 & (1 << $2)) != 0)
+logerr     3    # syntax: logerr x y error, where y is logged, and error isn't
+		SET _y = 10**$2
+		SET d_y = LG(_y + $3) - $2 ERRORBAR $1 $2 d_y 2
+		SET d_y = $2 - LG(_y - $3) ERRORBAR $1 $2 d_y 4
+		DELETE _y DELETE d_y
+mconcat	23	# Concatenate 2 macros, optionally renaming result
+		# Syntax: mconcat macro1 macro2 [ macro3 ]
+		# Concatenate macro1 and macro2, putting the answer in
+		# $1 (or $3 if specified)
+		IF($?3 == 0) {
+		   DEFINE 3 $1
+		}
+		MACRO $0_all 0 10000
+		DELETE HISTORY 0 100000
+		WRITE HISTORY $1
+		WRITE HISTORY $2
+		MACRO $3 0 1000
+		DELETE HISTORY 0 10000
+		WRITE HISTORY $0_all
+		MACRO $0_all DELETE 
+modulo     2    ## find $1 modulo $2; obsolete; use % instead
+		SET $0 = $1 % $2
+		#
+number	1	# Convert a string vector to an arithmetic one. Note that
+		# invalid elements (e.g. 'NaN') can be handled by saying
+		# SET NaN = -1e10  SET x = number(s)
+		# or SET x = (s == 'NaN') ? -1e10 : number(s)
+		set $0=1,dimen($1)
+		do 2=0,dimen($1)-1 { set $0[$2] = $($1[$2]) }
+pairs      4	# pairs x1 y1 x2 y2. connect (x1,y1) to (x2,y2)
+		DEFINE 6 { ptype angle expand aspect }
+		FOREACH 5 { $!!6 } { DEFINE $5 | }
+		FOREACH 5 {fx1 fx2 fy1 fy2 gx1 gx2 gy1 gy2} { DEFINE $5 DELETE}
+		ASPECT 1
+		SET _dx$0=($3-$1!=0)?(($3-$1)*($gx2-$gx1)/($fx2-$fx1)):1.e-34
+		SET _dy$0=($4 - $2)*($gy2 - $gy1)/($fy2 - $fy1)
+		PTYPE 2 0
+		SET _a$0=_dy$0 > 0 ? ATAN(_dy$0/_dx$0) : ATAN(_dy$0/_dx$0)+PI
+		ANGLE 180/pi*_a$0
+		EXPAND SQRT(1e-5 + _dx$0**2 + _dy$0**2)/(2*128)
+		POINTS (($1 + $3)/2) (($2 + $4)/2)
+		FOREACH 5 { $!!6 } { $5 $$5 DEFINE $5 DELETE }
+		FOREACH 5 ( _a _dx _dy ) { DELETE $5$0 }
+old_pairs 4	# pairs x1 y1 x2 y2. connect (x1,y1) to (x2,y2)
+		# this is MUCH slower!
+		DO 5=1,4 {
+		   SET _$0$5 = $$5
+		}
+		DO 5=0,DIMEN($1)-1 {
+		   DEFINE _x (_$01[$5]) DEFINE _y (_$02[$5])
+		   RELOCATE $_x $_y
+		   DEFINE _x (_$03[$5]) DEFINE _y (_$04[$5])
+		   DRAW $_x $_y
+		}
+		FOREACH v ( _x _y ) { DEFINE $v DELETE }
+		DO 5=1,4 {
+		   DELETE _$0$5
+		}
+polar      3	# draw a circle as an `axis' for polar coordinates, 
+		# Syntax: polar r theta1 theta2
+		# radius $1, ticked every $2 degrees, labeled every $3
+		IF($?TeX_strings) {
+		   DEFINE _deg "^\circ"
+		} ELSE {
+		   DEFINE _deg "\u\s`"
+		}
+		DEFINE angle |
+		DEFINE expand |
+		DEFINE _b_tick (0.05*$expand) # big ticks
+		DEFINE _s_tick (0.02*$expand) # small ticks
+		SET _ang = 0,2*PI,PI/30       # Draw circle
+		SET _x = $1*COS(_ang) SET _y = $1*SIN(_ang)
+		LIMITS _x _y CONNECT _x _y
+		SET _ang = 0,359,$2           # Mark (small) ticks
+		SET _x = $1*COS(PI/180*_ang) SET _y = $1*SIN(PI/180*_ang)
+		DO 4 = 0,DIMEN(_ang)-1 {
+		   DEFINE _x ((1-$_s_tick)*_x[$4])
+		   DEFINE _y ((1-$_s_tick)*_y[$4])
+		   RELOCATE $_x $_y
+		   DEFINE _x (_x[$4]) DEFINE _y (_y[$4])
+		   DRAW $_x $_y
+		}
+		SET _ang = 0,359,$3           # label (large) ticks
+		SET _x = $1*COS(PI/180*_ang) SET _y = $1*SIN(PI/180*_ang)
+		DO 4 = 0,DIMEN(_ang)-1 {
+		   DEFINE _x ((1-$_b_tick)*_x[$4])
+		   DEFINE _y ((1-$_b_tick)*_y[$4])
+		   RELOCATE $_x $_y
+		   DEFINE _x (_x[$4]) DEFINE _y (_y[$4])
+		   DRAW $_x $_y
+		   DEFINE _x ((1+$_s_tick)*_x[$4])
+		   DEFINE _y ((1+$_s_tick)*_y[$4])
+		   RELOCATE $_x $_y
+		   DEFINE _ang (_ang[$4]) angle $_ang-90
+		   PUTLABEL 8 $_ang""$_deg
+		}
+		ANGLE $angle
+		FOREACH _v ( _ang _x _y ) { DELETE $_v }
+		FOREACH _v { _ang _x _y _deg angle expand _b_tick _s_tick } {
+		   DEFINE $_v DELETE
+		}
+puts	111	# Draw a line of text, then move to the start of the next line
+		if($?1) {label \smash{$1}}
+		RELOCATE ($xp $(int($yp-$cheight)))
+quote      2	# Replace all occurences of $2 in $1 with \$2 -- FUNCTION
+		# if you want to quote _ say set s=quote(s,'_').
+		set $0 = ''
+		local set _s = $1  set _i local
+		while {1} {
+		   set _i=index(_s,$2)
+		   if(sum(_i) == -dimen(_i)) { break }
+		   if(sum(_i == 0) > 0) { # at least one leading $2 char
+		      set $0 = $0 + (_i == 0 ? '\\' + $2 : '')
+		      set _s = (_i == 0 ? substr(_s,1,0) : _s)
+		      set _i = index(_s,$2)
+		   }
+		   set $0 = $0 + (_i < 0 ? _s : substr(_s,0,_i) + '\\' + $2)
+		   set _s = (_i < 0 ? '' : substr(_s,_i+1,0))
+		}
+		set $0 = $0 + _s
+		#
+quote 2 # Replace all occurrences of $2 in $1 with \$2 -- FUNCTION
+  # if you want to quote _ say set s=quote(s,'_').
+  set $0 = ''
+  set _i local
+  set JL local
+  set JN local
+  set sl local
+  local set _s = $1
+  local set J  = 0,dimen($1)-1
+  local set SS = $1
+  while {1} {
+     set _i=index(_s,$2)
+     if(sum(_i) == -dimen(_i)) { break }
+     set $0 = _quote_leading(_s, $2, _i, $0)
+     set sl = strlen(_s)
+     set JL = J if(sl > 0)
+     set SS[JL] = substr(_s[JL],0,_i[JL])
+     set $0 = $0 + (_i < 0 ? _s : SS + '\\' + $2)
+     set JL = J if( sl > 0 && sl > _i+1 )
+     set _s[JL] = (_i[JL] < 0 ? '' : substr(_s[JL],_i[JL]+1,0))
+     set dimen(JN) = 0.i
+     if( sum( sl == 0 || sl <= _i+1 ) > 0 ) { set JN = J if( sl == 0 || sl <= _i+1 ) }
+     if( dimen(JN) > 0 ) { set _s[JN] = '' }
+  }
+  set $0 = $0 + _s
+  #
+_quote_leading 4
+  set KT1 local
+  set KT2 local
+  set sl  local
+  set $0 = $4
+  local set K = 0,dimen($1)-1
+  while{ sum($3 == 0) > 0 } {  # at least one leading $2 char
+    set $0 = $0 + ( $3 == 0 ? '\\' + $2 : '' )
+    set dimen(KT1) = 0.i
+    set dimen(KT2) = 0.i
+    set sl = strlen($1)
+    if( sum( $3 == 0 && sl >  1 ) ) { set KT1 = K if( $3 == 0 && sl  > 1 ) }
+    if( sum( $3 == 0 && sl == 1 ) ) { set KT2 = K if( $3 == 0 && sl == 1 ) }
+    set $1[KT1] = substr($1[KT1],1,0)
+    if( dimen(KT2) > 0 ) { set $1[KT2] = '' }
+    set $3 = index($1,$2)
+  }
+  #
+quote_TeX 1	# quote all characters special to SM-TeX (^_{}\) FUNCTION
+		set $0 = $1
+		foreach 1 { \\ _ ^ } {
+		   set $0=quote($0,'$!1')
+		}
+		set $0=quote($0,'{')
+		set $0=quote($0,'}')
+repeated 1	# Return an array that is true for repeated elements in $1
+		# e.g. set r=repeated(x,0). The first of a run of values is
+		# set to 1, the rest are set to -1. See also uniq
+		set $0 = $1
+		set _$00 = $0 concat $0[dimen($0)-1]
+		set _$01 = 1+2*$0[0] concat $0
+		set $0 = (_$00 == _$01) ? 1 : 0 # 1 if a repeated value
+		set $0[dimen($0)-1] = 0
+		set _$01=1,dimen(_$01)
+		set _$00 = $0 if(_$01 != 1)
+		set $0 = $0 if(_$01 != dimen(_$01))
+		set $0 = (_$00 || $0) ? ((_$00 && !$0) ? 1 : -1) : 0
+		DELETE _$00 DELETE _$01
+reverse    1	# reverse the order of a vector, e.g. set vec = reverse(x)
+		SET $0=$1 SET _i = DIMEN($0),1,-1 SORT < _i $0 > DELETE _i
+save_vec   1    # put the definition of a vector onto the history list
+		del1 DEFINE _temp ( $1[0] )
+		DO 2=1,DIMEN($1)-1 {
+		   DEFINE _temp < $_temp $($1[$2]) >
+		}
+		MACRO temp { SET $!!1 = { $!!_temp } }
+		WRITE HISTORY temp
+		MACRO temp DELETE DEFINE _temp DELETE 
+set_window 03	# Cycle through all available windows of the form window $1 $2.
+		# $3 selects which window is desired; $3 = 0,.... If omitted,
+		# select the next window (can be reset with set_window 1 1 or
+		# set_window)
+		if(!$?1) { define 1 1 }
+		if(!$?2) { define 2 1 }
+
+		define 4 " " if($?3) {  # only grab $3 if it's a number
+		   if(whatis($3) != 0) { # not a number
+		      define 4 $3
+		      define 3 DELETE
+		   }
+		}
+		define nx local define nx ( abs($1) )
+		define ny local define ny ( abs($2) )
+		if($nx == 1 && $ny == 1) { # be sure to reset in this case
+		   define 3 0
+		}
+		if(!$?3) {
+		   if(!$?_set_wind) {
+		      define _set_wind -1
+		   }
+		   if($_set_wind >= $nx*$ny) {
+		      define _set_wind -1
+		   }
+		   define 3 ($_set_wind + 1)
+		}
+		define ix local define iy local
+		define iy ( 1 + int($3/$nx) )
+		define ix ( 1 + $3 - $nx*($iy - 1) )
+		wind $1 $2 $ix $iy      # sets _ix etc.
+		if($ix == $nx && $iy == $ny) {
+		   DEFINE _set_wind DELETE
+		} else {
+		   define _set_wind $3
+		}
+		# now push any arguments we didn't really want
+		$4
+superwindow 45	# Like WINDOW, but you can use WINDOW "within" a superwindow
+		# If extra is provided and true, enough room will be left for
+		# axis labels
+		#
+		# Usage: superwindow NX NY X Y [extra]
+		WINDOW 1 1 1 1
+		
+		local define nx $(abs($1))
+		local define ny $(abs($2))
+		local define x  $3
+		local define y  $4
+		if ($?5 AND $5) {
+		   local define extra 0.3
+		} else {
+		   local define extra 0.0
+		}
+		local define fac ( length('-0.666') )
+		
+		if ($1 > 0) {
+		   local define xfac ( (1 + $extra)*$fac )
+		} else {
+		   local define xfac 0
+		}
+		
+		if ($2 > 0) {
+		   local define yfac ( (1 + $extra)*$fac )
+		} else {
+		   local define yfac 0
+		}
+		
+		local define GZ1 3500  local define GZ2 31000
+		if ($1 == 1 && $2 == 1) {
+		   LOCATION $GZ1 $GZ2 $GZ1 $GZ2
+		   return
+		}
+		
+		LOCATION $(int($GZ1 + ($x - 1)*($GZ2 + $xfac - $GZ1)/$nx)) \
+		    $(int($GZ1 - $xfac + $x*($GZ2 + $xfac - $GZ1)/$nx)) \
+		    $(int($GZ1 + ($y - 1)*($GZ2 + $yfac - $GZ1)/$ny)) \
+		    $(int($GZ1 - $yfac + $y*($GZ2 + $yfac - $GZ1)/$ny))
+shed	5	# shade region between x y and x2 y2 with n lines
+		# syntax: shed x y x2 y2 n
+		SET _x = reverse($3) SET _x = $1 CONCAT _x
+		SET _y = reverse($4) SET _y = $2 CONCAT _y
+		DEFINE _n (INT(32767/$5))
+		SHADE $_n _x _y
+		FOREACH v ( _x _y ) { DELETE $v }
+		DEFINE _n DELETE
+simp       3    # Simpson's rule integration: simp answer x y
+		# x must be at uniformly spaced
+		IF(2*INT(DIMEN($3)/2) == DIMEN($3)) {
+		   echo $3 has even number of elements, please try again
+		   RETURN
+		}
+		SET _$1=0,DIMEN($3)-1
+		DEFINE $1 ( ($2[1] - $2[0])/3* \
+		    (SUM(2*$3 + 2*(_$1 - 2*INT(_$1/2) == 1 ? $3 : 0)) \
+		    - $3[0] - $3[DIMEN($3)-1]) )
+		DELETE _$1
+shade_box 5	# shade a box, spacing $1, defined by two corners
+		# see also draw_box and boxit
+		SHADE $1 (<$2 $4 $4 $2 $2>) (<$3 $3 $5 $5 $3>)
+smooth     3	# boxcar smooth a vector
+		# Syntax: smooth vector answer filter_size
+		# See also vsmooth
+		IF($3 <= 1) {
+		   SET $2 = $1
+		   RETURN
+		}
+		LOCAL SET mean = sum($1)/dimen($1)
+		SET DIMEN(_end2) = $3
+		SET $2 = $1 CONCAT _end2 + $1[DIMEN($1)-1]
+		DO 4 = 1,$3-1 {
+		   DEFINE 5 ($3 - $4)
+		   SET DIMEN(_end1) = $4 SET DIMEN(_end2) = $5
+		   SET _end1=0*_end1+mean  SET _end2=0*_end2+mean
+		   SET $2 = $2 + (_end1 CONCAT $1 CONCAT _end2)
+		}
+		SET _i = 1,DIMEN($2)
+		SET $2 = $2/$3 IF(_i >= $3/2 && _i < $3/2 + DIMEN($1))
+		SET HELP $2 $1 smoothed with $3-point boxcar filter
+		FOREACH _v ( _end1 _end2 _i ) { DELETE $_v }
+vsmooth	2	# boxcar smooth a vector
+		# Usage:   set sy = vsmooth(y, 5)
+		define 2 ($2)           # expand any expressions
+		smooth $1 $0 $2
+		#
+smooth2    3	# smooth a vector with a given filter
+		# Syntax: smooth2 vector answer filter
+		SET DIMEN(_end2) = DIMEN($3)
+		SET $2 = $3[0]*($1 CONCAT _end2 + $1[DIMEN($1)-1])
+		DO 4 = 1,DIMEN($3)-1 {
+		   SET DIMEN(_end1) = $4 SET DIMEN(_end2) = $(DIMEN($3) - $4)
+		   SET _end1=0*_end1+$1[0]  SET _end2=0*_end2+$1[DIMEN($1)-1]
+		   SET $2 = $2 + $3[$4]*(_end1 CONCAT $1 CONCAT _end2)
+		}
+		SET _i = 1,DIMEN($2)
+		SET $2 = $2/SUM($3) IF(_i >= DIMEN($3)/2 && \
+					_i < DIMEN($3)/2 + DIMEN($1))
+		SET HELP $2 $1 smoothed with filter $3
+		FOREACH _v ( _end1 _end2 _i ) { DELETE $_v }
+smooth3    4	# smooth a vector with a given filter, using only those
+		# elements for which accept is true
+		# Syntax: smooth3 vector answer filter accept
+		SET DIMEN(_end2) = DIMEN($3)
+		SET $2 = $3[0]*($1 CONCAT _end2 + $1[DIMEN($1)-1])*0
+		SET DIMEN(_weight) = dimen($2)
+		DO 5 = 0,DIMEN($3)-1 {
+		   SET DIMEN(_end1) = $5 SET DIMEN(_end2) = $(DIMEN($3) - $5)
+		   SET _end1=0*_end1+$1[0]  SET _end2=0*_end2+$1[DIMEN($1)-1]
+		   SET _$1 = (_end1 CONCAT $1 CONCAT _end2)
+		   SET _end1=0*_end1+$4[0]  SET _end2=0*_end2+$4[DIMEN($4)-1]
+		   SET _$4 = (_end1 CONCAT $4 CONCAT _end2)
+		   SET $2 = $2 + (_$4 ? $3[$5]*_$1 : 0)
+		   SET _weight = _weight + (_$4 ? $3[$5] : 0)
+		}
+		SET _i = 1,DIMEN($2)
+		SET $2 = $2/_weight IF(_i >= DIMEN($3)/2 && \
+		                        _i < DIMEN($3)/2 + DIMEN($1))
+		SET HELP $2 $1 smoothed with filter $3 (omitting $4)
+		FOREACH _v ( _end1 _end2 _i _weight ) { DELETE $_v }
+2dhistogram 02	# convert the current image to a 2-d histogram by expanding
+		# each point to a $1x$1 square (default: 2x2). If $2 is
+		# present and true, set the limits on the new image from the
+		# initial ones.
+		define n local  define n 2
+		if($?1) { define n $1 }
+		if(!$?2) { define 2 0 }
+		set I local set i local  
+		set ix local set iy local
+		set x local set y local
+		define i local
+		foreach i (NX NY X0 X1 Y0 Y1) {
+		   define $i IMAGE
+		}
+		set i=0,$NX*$NY - 1
+		set iy=int(i/$NX) set ix=i-iy*$NY
+		set x=$X0 + ix*($X1 - $X0)/($NX - 1)
+		set y=$Y0 + iy*($Y1 - $Y0)/($NY - 1)
+		set I=image(y,x)
+		set dimen(Inew) = $($n**2*dimen(I))
+		define j local
+		do i=0,$n - 1 {
+		   do j=0,$n - 1 {
+		      set Inew[$n*ix + $j + $n*$NX*($n*iy + $i)] = I
+		   }
+		}
+		set i=0,dimen(Inew) - 1
+		set y=int(i/($n*$NY)) set x=i-y*$n*$NY
+		if($2) {
+		   image($($n*$NY),$($n*$NX)) \
+		    $($X0-($X1-$X0)/(2*$NX)) $($X1+($X1-$X0)/(2*$NX)) \
+		    $($Y0-($Y1-$Y0)/(2*$NY)) $($Y1+($Y1-$Y0)/(2*$NY))
+		} else {
+		   image($($n*$NY),$($n*$NX))
+		}
+		set image[y,x] = Inew
+thin  2 	# create a "thinned" version of a vector for plotting points
+		# thin  x n
+		# return a vector containing every n'th element of x
+		set _i local
+		set _i=0,int((dimen($1)-1)/$2)
+		set $0=$1[_i]
+		#
+thin2  3 	# "thin" the latter portion of a vector for plotting points
+		# set y=thin2(x,m,n)
+		# return a vector containing the first m elements of x and
+		# every n'th element of x thereafter
+		define _i local
+		set _i = 0,dimen($1)-1
+		set _i = _i if(_i < $2 - 1 || \
+		    _i == $3*int((_i - ($2 - 1))/$3) + $2 - 1)
+		set $0 = $1[_i] 
+		#
+thin3	3	# "thin" the central portion of a vector for plotting points
+		# set y=thin3(x,m,n)
+		# return a vector containing the first m elements of x, the
+		# last m elements of x, and every n'th element of x in between
+		define _i local
+		set _i = 0,dimen($1)-1
+		set _i = _i if(_i < $2 - 1 || dimen($1) - _i <= $2 || \
+		    _i == $3*int((_i - ($2 - 1))/$3) + $2 - 1)
+		set $0 = $1[_i]
+		#
+uniq 1          # Remove duplicate elements of $1, e.g. u = uniq(x)
+		# If you sort first, you'll get one element for each distinct
+		# value in the original vector (c.f. unix's uniq command)
+		set $0 = $1
+		set _$00 = $0 concat $0[dimen($0)-1]
+		set _$01 = $0[0]+$0[0] concat $0
+		# ensure that the first elem is uniq; this isn't true if $1[0]
+		# is arithmetic and 0, but then it's safe to simply set it to 1
+		if('$(_$01[0])' == '0') { set _$01[0] = 1 }
+		set $0 = _$00 if(_$00 != _$01)
+		DELETE _$00 DELETE _$01
+unique		# See uniq
+upper		# define a variable giving an `upper limit' symbol
+		# e.g. ptype $upper points x y
+		DEFINE upper {{m -100 0 100 0 \
+		        m 0 0 0 -300 -100 -130 0 -260 100 -130 0 -300 }} 
+vecminmax 3	# find the minimum and maximum of a vector
+		# usage: vecminmax vec min max
+		# the minimum and maximum are returned as $min $max
+		if(dimen($1) == 0) {
+		   USER ABORT "$!0: vector $!1 has no elements"
+		} else { if(dimen($1) == 0) {
+		   define 2 ($1) define 3 $2
+		} else {
+		   SET _$1 LOCAL
+		   SET _$1 = $1 SORT < _$1 >
+		   DEFINE $2 ( _$1[0] )
+		   DEFINE $3 ( _$1[DIMEN(_$1) - 1] )
+		}}
+		#
+version		# print the version string
+		echo $version
+		#
+vfield     4	# plot a vector field: vfield x y len angle
+		# len is length of vector (in units of 600 SCREEN pixels)
+		# angle is in +ve direction from +x axis
+		# See also vfield[234]
+		DEFINE ptype | PTYPE { -300 0 300 0 m 150 100 300 0 150 -100 }
+		DEFINE angle | ANGLE $4
+		DEFINE expand | EXPAND $3
+		POINTS $1 $2
+		FOREACH v { angle expand ptype } { $v $$v DEFINE $v DELETE }
+vfield2	4	# plot a vector field: vfield x y len angle
+		# len is length of vector (in x-axis user units)
+		# angle is in +ve direction from +x axis
+		# arrows start at (x,y)
+		DEFINE ptype | PTYPE { 600 0 m 450 100 600 0 450 -100 }
+		DEFINE angle | ANGLE $4
+		DEFINE v LOCAL
+		foreach v {gx1 gx2 fx1 fx2} {DEFINE $v |}
+		DEFINE _cfav local DEFINE _cfac (($gx2-$gx1)/(600*($fx2-$fx1)))
+		DEFINE expand | EXPAND ($_cfac*$3)
+		POINTS $1 $2
+		FOREACH v { angle expand ptype } {$v $$v DEFINE $v DELETE}
+vfield3	4	# plot a vector field: vfield x y len angle
+		# len is length of vector (in y-axis user units)
+		# angle is in +ve direction from +x axis
+		# arrows start at (x,y)
+		DEFINE ptype | PTYPE { 600 0 m 450 100 600 0 450 -100 }
+		DEFINE angle | ANGLE $4
+		foreach v {gy1 gy2 fy1 fy2} {DEFINE $v |}
+		DEFINE _cfac LOCAL DEFINE _cfac (($gy2-$gy1)/(600*($fy2-$fy1)))
+		DEFINE expand | EXPAND ($_cfac*$3)
+		POINTS $1 $2
+		FOREACH v { angle expand ptype } {$v $$v DEFINE $v DELETE}
+vfield4	4	#vfield4 x y vx vy Vector field at points x, y, 
+		#arrows are defined by vx, vy (in units of x axis)
+		local set _amp = sqrt($3**2 + $4**2)
+		local set _angle = $3/_amp
+		set _angle = acosd(_angle)
+		set _angle = (($4 > 0) ? (_angle) : (360. - _angle))
+		vfield2 $1 $2 _amp _angle
+		#
+vfield5 5       #vfield5 x y vx vy fl Vector field at points x, y,
+		#arrows are defined by vx, vy (in units of fl*units of x axis)
+		local set _amp = sqrt($3**2 + $4**2)
+		local set _angle = $3/_amp
+		set _amp = $5*_amp
+		set _angle = acosd(_angle)
+		set _angle = (($4 > 0) ? (_angle) : (360. - _angle))
+		vfield2 $1 $2 _amp _angle
+		#
+cross_axes 24	# Draw axes in a cross, crossing at the origin
+		# Usage: cross_axes small big [small_y [big_y]]
+		local define small_x $1
+		local define big_x $2
+		if ($?3) {
+		   local define small_y $3
+		} else {
+		   local define small_y $small_x
+		}
+		if ($?4) {
+		   local define big_y $4
+		} else {
+		   local define big_y $big_x
+		}
+
+		if(0) {
+		   axis $fx1 $fx2 $small_x $big_x \
+		    $gx1 $($gx1 + 0.5*($gx2-$gx1)) $($gx2-$gx1) 1 0
+		    angle 90
+		    axis $fy1 $fy2 $small_y $big_y \
+		        $($gy1 + 0.5*($gx2-$gx1)) $gy1 $($gy2-$gy1) 2 1
+		    angle 0
+		 } else {
+		    relocate 0 0
+		    axis $fx1 $fx2 $small_x $big_x $gx1 $yp $($gx2-$gx1) 1 0
+		    angle 90
+		    relocate 0 0
+		    axis $fy1 $fy2 $small_y $big_y $xp $gy1 $($gy2-$gy1) 2 1
+		    angle 0
+		 }

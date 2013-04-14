@@ -1,0 +1,83 @@
+Syntax: SET HELP WORD
+or      SET DIMEN(name) = expr
+or      SET name = expr, expr [ ,expr ]
+or      SET name = { list }
+or      SET name = < list >
+or      SET name = expr
+or      SET name = expr IF ( expr )
+or      SET name = expr1 ? expr2 : expr3
+or      SET name[expr] = expr
+or      SET name LOCAL
+or      SET name = WORD( [ WORD , WORD ... ] )
+or      SET IMAGE(expr1, expr2) = expr3
+or      SET RANDOM s_expr
+
+   SET HELP word sets the help string for a vector; the rest of the
+line is read, and will be returned in response to a HELP WORD request,
+or in the string-valued expression HELP(name).
+
+   SET DIMEN(name) = expr declares name to be vector of size expr, and
+initialises it to zero. This is only needed if a vector first appears
+in an expression as a component, e.g. set x[3] = 10. Optionally you
+can specify a type qualifier on the dimension, just like the ones
+used to read columns: SET DIMEN(s) = 10.s will create a vector of
+10 strings.
+
+   SET name = expr1, expr2 [ ,expr3 ] initialises vector name to have
+values running from expr1 to expr2, with an increment of expr3
+(default: 1). This is essentially a DO loop, and could be written
+as SET name = do(expr1, expr2) or SET name = do(expr1, expr2, expr3);
+these forms having the advantage of being usable as parts of expressions.
+
+   SET name = { list } or SET name = < list > set vector name to have
+the values on the list, (e.g. SET x = < 1 2 3 4 132 >). Actually, the
+{ list } is just an expression like any other, so SET x = 2*{1 2 3} +
+4 is valid too. If the first item of the list is not a number the
+vector is taken to be a string.
+
+   SET name = expr sets the vector name to be equal to the expression
+expr.  (See ARITHMETIC and LOGICAL). For string-valued vectors, the
+only allowable expressions are a string enclosed in single quotes,
+e.g. SET s='hello, world', or the CONCATenation of two string vectors.
+
+   SET name = expr IF(expr) is similar, but only those elements of
+expr which satisfy the IF clause are used. The resulting vector is
+usually shorter than the starting expr.
+
+   SET name = expr1 ? expr2 : expr3 is a little different. The
+resulting vector is the same length as expr2 and expr3 (unless one is
+a scaler), but consists of elements of expr2 and expr3 chosen
+according as to whether expr1 is `true' (non-zero) or not.
+
+   SET name[expr] = expr sets an element of a (pre-existing)
+vector. Numerical expressions are converted to strings before being
+assigned to string-valued vectors.
+
+If your range of indices is contiguous you can say
+        SET x[0,10] = y
+instead of
+        set x[do(0,10)] = y
+The vector x will be expanded as needed to accomodate the new elements.
+If you have pre-allocated x to be large enough, this is an efficient way
+of concatenating vectors.
+
+   SET name LOCAL makes name local, that is, it is visible only in the
+current macro and macros called from it. If a vector of the same name
+already exists it will be invisible until you leave the macro containing
+the LOCAL command. You cannot set vectors to be LOCAL except in macros.
+
+   SET name = WORD ( [ arg , arg ... ] ) calls the macro WORD with the
+args in parentheses as its arguments (they are separated by commas and
+can be words or numbers); The vector name is referred to as $0, (e.g.
+SET $0=$1**2).
+
+   SET IMAGE(expr1, expr2) = expr3 is used for setting elements of an image
+(which must have been declared previously; see IMAGE). Expr1 and expr2 are
+taken to be the (0-based) x- and y-indices of the desired points.
+
+   SET RANDOM number sets the seed of the random number generator used
+by the RANDOM operator; if you don't set it yourself it'll be set to
+some value based on the time since 1970.
+
+   See also CURSOR (for defining vectors using the cursor), DELETE for
+deleting vectors, and LIST for listing vectors.
