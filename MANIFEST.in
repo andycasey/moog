@@ -1,3 +1,4 @@
 README.rst
 include moog
 recursive-include lib
+prune moog/*.o moog/MOOG moog/MOOGSILENT moog/*.original
