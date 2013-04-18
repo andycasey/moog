@@ -3,10 +3,14 @@ import os
 import sys
 import fileinput
 import logging
-from platform import system as platform
+import platform
 
+from platform import system as current_platform
 from shutil import copyfile, move
 from glob import glob
+
+# Identify the platform
+platform = current_platform()
 
 # Check for platform first
 if platform not in ('Darwin', 'Linux'):
