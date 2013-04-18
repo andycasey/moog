@@ -14,9 +14,7 @@ Background
 `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ was written by `Chris
 Sneden <mailto:chris@verdi.as.utexas.edu>`_ and has -- and continues to be
 -- an
-invaluable contribution to modern stellar astrophysics.
-
-From the `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ website:
+invaluable contribution to modern stellar astrophysics. From the `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ website:
 
 *MOOG is a code that performs a variety of LTE line analysis and spectrum
 synthesis tasks. The typical use of MOOG is to assist in the determination
@@ -38,7 +36,3 @@ Or,
 ``easy_install smh``
 
 And that's it. Happy spectroscopy-ing!
-
-If you think this was easy, you should `email the author
-<mailto:andy@the.astrowizici.st>`_ and ask about 'Spectroscopy Made Hard'.
-
