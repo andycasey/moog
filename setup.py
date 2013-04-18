@@ -52,4 +52,6 @@ if os.getuid() == 0:
     copyfile(os.path.join(srcdir, 'MOOGSILENT'), '/usr/local/bin/MOOGSILENT')
 
 else:
-    logging.warn("Permission denied: Could not move MOOG and MOOGSILENT (in %s) to /usr/local/bin -- you should run setup.py as sudo" % srcdir)
+    logging.warn(" Permission denied!\n\t Could not copy MOOG and MOOGSILENT (in %s) " % srcdir \
+                +"to /usr/local/bin\n\t You should re-run as sudo to remove this message, or "  \
+                +"copy MOOG and MOOGSILENT to somewhere on your $PATH")
