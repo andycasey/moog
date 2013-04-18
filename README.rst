@@ -20,6 +20,8 @@ invaluable contribution to modern stellar astrophysics. From the `MOOG <http://w
 synthesis tasks. The typical use of MOOG is to assist in the determination
 of the chemical composition of a star.*
 
+The current `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ version
+hosted by this repository is the February, 2013 version.
 
 Installation
 ------------
