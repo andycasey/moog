@@ -26,7 +26,7 @@ hosted by this repository is the February, 2013 version.
 Installation
 ------------
 
-Classically, `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ has been difficult to install. Or at least, it has been
+Classically, MOOG has been difficult to install. Or at least, it has been
 for me because I'm bad at computers. Now it's easy!
 
 Just open a terminal and type:
@@ -39,9 +39,9 @@ Or,
 
 And that's it. Happy spectroscopy-ing!
 
-**NB**: You don't `have` to be ``sudo`` to have MOOG compile correctly. You
+**Note:** You don't `have` to be ``sudo`` to have MOOG compile correctly. You
 can install MOOG without these priviledges. However, if you don't have
-sudo access you will need to copy the ``MOOG`` and ``MOOGSILENT`` files to
+``sudo`` access you will need to copy the ``MOOG`` and ``MOOGSILENT`` files to
 a folder somewhere on your ``$PATH`` to make your life easier.
 
 Uninstall
