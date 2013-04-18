@@ -50,15 +50,16 @@ Uninstall
 Just remove the following files to uninstall MOOG:
 
 ``/usr/local/bin/MOOG``
+
 ``/usr/local/bin/MOOGSILENT``
 
 Additional Information
 ----------------------
 
 This will compile MOOG and MOOGSILENT and place them in the
-/usr/local/bin directory so that they are accessible on your ``$PATH``. If you
+``/usr/local/bin`` directory so that they are accessible on your ``$PATH``. If you
 don't install the code as sudo then you will get an error telling you that
-MOOG and MOOGSILENT could not be copied to /usr/local/bin. In that case,
+MOOG and MOOGSILENT could not be copied to ``/usr/local/bin``. In that case,
 just copy the MOOG and MOOGSILENT files from the folder specified in the
 error message and place them somewhere on your ``$PATH``.
 
