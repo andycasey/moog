@@ -39,7 +39,18 @@ Or,
 
 And that's it. Happy spectroscopy-ing!
 
-**NB**: You don't have to be ``sudo`` to have MOOG compile correctly. You
+**NB**: You don't `have` to be ``sudo`` to have MOOG compile correctly. You
 can install MOOG without these priviledges. However, if you don't have
 sudo access you will need to copy the ``MOOG`` and ``MOOGSILENT`` files to
 a folder somewhere on your ``$PATH`` to make your life easier.
+
+
+Additional Information
+----------------------
+
+This will compile MOOG and MOOGSILENT and place them in the
+/usr/local/bin directory so that they are accessible on your ``$PATH``. If you
+don't install the code as sudo then you will get an error telling you that
+MOOG and MOOGSILENT could not be copied to /usr/local/bin. In that case,
+just copy the MOOG and MOOGSILENT files from the folder specified in the
+error message and place them somewhere on your ``$PATH``.
