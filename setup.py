@@ -93,7 +93,6 @@ setup(
     +'analysis and spectrum synthesis tasks. The typical use of MOOG is to' \
     +'assist in the determination of the chemical composition of a star.',
     keywords='high-resolution, stellar, spectroscopy, astronomy, astrophysics',
-    bugtrack_url='http://github.com/andycasey/moog/issues',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: MacOS X',
