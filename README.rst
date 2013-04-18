@@ -71,5 +71,7 @@ Just type the following files to uninstall MOOG:
 
 ``rm -f /usr/local/bin/MOOG /usr/local/bin/MOOGSILENT``
 
+And if you used ``pip`` to install MOOG:
+
 ``pip uninstall moog``
 
