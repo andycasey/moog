@@ -30,11 +30,11 @@ for me because I'm bad at computers. Now it's easy!
 
 Just open a terminal and type:
 
-``sudo pip install smh``
+``sudo pip install moog``
 
 Or,
 
-``sudo easy_install smh``
+``sudo easy_install moog``
 
 And that's it. Happy spectroscopy-ing!
 
