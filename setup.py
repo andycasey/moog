@@ -14,7 +14,7 @@ smlib = os.path.join(repository_dir, 'lib/smlib')
 srcdir = os.path.join(repository_dir, 'moog')
 
 # Update the makefiles with the proper SMLIB and AQLIB
-hardcoded_moog_files = (os.path.join(repository_dir, 'moog', filename) for filename in ('Moog.f', 'Moogsilent.f'))
+hardcoded_moog_files = [os.path.join(repository_dir, 'moog', filename) for filename in ('Moog.f', 'Moogsilent.f')]
 make_files = glob(os.path.join(repository_dir, 'moog/Makefile*'))
 
 # Setup: Create copies of the original
