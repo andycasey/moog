@@ -44,6 +44,13 @@ can install MOOG without these priviledges. However, if you don't have
 sudo access you will need to copy the ``MOOG`` and ``MOOGSILENT`` files to
 a folder somewhere on your ``$PATH`` to make your life easier.
 
+Uninstall
+---------
+
+Just remove the following files to uninstall MOOG:
+
+``/usr/local/bin/MOOG``
+``/usr/local/bin/MOOGSILENT``
 
 Additional Information
 ----------------------
