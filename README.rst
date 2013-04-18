@@ -61,3 +61,9 @@ don't install the code as sudo then you will get an error telling you that
 MOOG and MOOGSILENT could not be copied to /usr/local/bin. In that case,
 just copy the MOOG and MOOGSILENT files from the folder specified in the
 error message and place them somewhere on your ``$PATH``.
+
+If you are on a Mac then you will need to ensure you have `Xcode
+<https://developer.apple.com/xcode/>`_ installed
+as well as the `Command Line Tools
+<http://stackoverflow.com/a/9329325/424731>`_ first. If you don't, then none of this will
+work.
