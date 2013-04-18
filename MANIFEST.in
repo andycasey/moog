@@ -1,0 +1,3 @@
+README.rst
+include moog
+recursive-include lib
