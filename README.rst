@@ -26,8 +26,13 @@ hosted by this repository is the February, 2013 version.
 Installation
 ------------
 Classically, MOOG has been difficult to install. Or at least, it has been
-for me because I'm bad at computers. Now it's easy!
+for me because I'm bad at computers. Now it's easy-ier!
 
+If you are on a Mac then you will need to ensure you have `Xcode
+<https://developer.apple.com/xcode/>`_ installed
+as well as the `Command Line Tools
+<http://stackoverflow.com/a/9329325/424731>`_ first. MOOG uses `g77
+<http://hpc.sourceforge.net/>`_ to compile, so you will need that too.
 Just open a terminal and type:
 
 ``sudo pip install moog``
@@ -38,7 +43,10 @@ If you don't have ``pip``, you can easily install it with:
 
 ``sudo easy_install pip``
 
-And try installing MOOG again.
+And try installing MOOG again, **or** you can download this repository and
+type:
+
+``sudo python setup.py install``
 
 This will compile MOOG and MOOGSILENT and place them in the
 ``/usr/local/bin`` directory so that they are accessible on your
@@ -48,13 +56,6 @@ MOOG and MOOGSILENT could not be copied to ``/usr/local/bin``. In that
 case,
 just copy the MOOG and MOOGSILENT files from the folder specified in the
 error message and place them somewhere on your ``$PATH``.
-
-If you are on a Mac then you will need to ensure you have `Xcode
-<https://developer.apple.com/xcode/>`_ installed
-as well as the `Command Line Tools
-<http://stackoverflow.com/a/9329325/424731>`_ first, and `g77 <http://hpc.sourceforge.net/>`_ so that you can compile MOOG. If you don't, then
-none of this will
-work.
 
 
 Uninstall
