@@ -17,6 +17,7 @@ if platform not in ('Darwin', 'Linux'):
     logging.critical("Platform '%s' not recognised!" % platform)
     sys.exit()
 
+# Get our directories relative to the current path
 repository_dir = os.path.dirname(os.path.realpath(__file__))
 
 aqlib = os.path.join(repository_dir, 'lib/aqlib')
@@ -56,11 +57,9 @@ elif platform == 'Linux':
     else:
         run_make_files = ('Makefile.rh', 'Makefile.rhsilent')
 
-
 # Run the appropriate make files
 for run_make_file in run_make_files:
     os.system('cd moog;make -f %s' % run_make_file)
-
 
 # Cleanup files: Replace with original files
 [move(make_file + '.original', make_file) for make_file in make_files if os.path.exists(make_file + '.original')]
