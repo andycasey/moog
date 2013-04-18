@@ -48,6 +48,22 @@ if platform not in ('Darwin', 'Linux'):
     sys.stderr.write("Platform '%s' not recognised!" % platform)
     sys.exit()
 
+# Which system are we on?
+if platform == 'Darwin':
+    run_make_files = ('Makefile.mac', 'Makefile.macsilent')
+    machine = 'mac'
+
+elif platform == 'Linux':
+
+    machine = 'pcl'
+    is_64bits = sys.maxsize > 2**32
+
+    if is_64bits:
+        run_make_files = ('Makefile.rh64', 'Makefile.rh64silent')
+
+    else:
+        run_make_files = ('Makefile.rh', 'Makefile.rhsilent')
+
 # Get our directories relative to the current path
 repository_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -72,21 +88,8 @@ for line in fileinput.input(make_files, inplace=True):
 # Update the MOOG files
 for line in fileinput.input(hardcoded_moog_files, inplace=True):
     line = line.replace('$SRCDIR', srcdir)
+    line = line.replace('$MACHINE', machine)
     sys.stdout.write(line)
-
-# Which system are we on?
-if platform == 'Darwin':
-    run_make_files = ('Makefile.mac', 'Makefile.macsilent')
-
-elif platform == 'Linux':
-
-    is_64bits = sys.maxsize > 2**32
-
-    if is_64bits:
-        run_make_files = ('Makefile.rh64', 'Makefile.rh64silent')
-
-    else:
-        run_make_files = ('Makefile.rh', 'Makefile.rhsilent')
 
 # Run the appropriate make files
 for run_make_file in run_make_files:
