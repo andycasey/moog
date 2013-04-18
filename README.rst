@@ -50,7 +50,8 @@ If you don't have ``pip``, you have two options:
 
 **or**
 
-**2)** Download this repository. extract the files and type:
+**2)** `Download this repository
+<https://github.com/andycasey/moog/archive/master.zip>`_, extract the files and type:
 
 ``sudo python setup.py install``
 
