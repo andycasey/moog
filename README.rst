@@ -14,9 +14,9 @@ Background
 
 From the `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ website:
 
-`MOOG is a code that performs a variety of LTE line analysis and spectrum
+*MOOG is a code that performs a variety of LTE line analysis and spectrum
 synthesis tasks. The typical use of MOOG is to assist in the determination
-of the chemical composition of a star.`_
+of the chemical composition of a star.*
 
 `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ was written by `Chris Sneden <mailto:chris@verdi.as.utexas.edu>`_ and has -- and continues to be -- an
 invaluable contribution to modern stellar astrophysics.
@@ -26,8 +26,9 @@ Installation
 ------------
 
 Classically, `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ has been difficult to install. Or at least, it has been
-for me because I'm bad at computers. Now it's easy. Just open a terminal
-and type:
+for me because I'm bad at computers. Now it's easy!
+
+Just open a terminal and type:
 
 ``pip install smh``
 
