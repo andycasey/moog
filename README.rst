@@ -3,11 +3,23 @@ Installing MOOG the Easy Way
 =======
 
 :Info: See the `GitHub repository <http://www.github.com/andycasey/moog>`_ for the latest source
-:Author: `Andy Casey, ANU <mailto:andy@the.astrowizici.st>`_
-(andy@the.astrowizici.st)
+:Author: `Andy Casey, ANU <mailto:andy@the.astrowizici.st>`_ (andy@the.astrowizici.st)
 :Website: `the.astrowizici.st <http://the.astrowizici.st>`_
 :License: Distribute to anyone you see fit, as long as you adhere to the
 licenses set by the dependencies (`SuperMongo <http://www.astro.princeton.edu/~rhl/sm/>`_, `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_, etc). Improvements are welcome!
+
+
+Background
+----------
+
+From the `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ website:
+
+`MOOG is a code that performs a variety of LTE line analysis and spectrum
+synthesis tasks. The typical use of MOOG is to assist in the determination
+of the chemical composition of a star.`_
+
+`MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ was written by `Chris Sneden <mailto:chris@verdi.as.utexas.edu>`_ and has -- and continues to be -- an
+invaluable contribution to modern stellar astrophysics.
 
 
 Installation
@@ -22,3 +34,9 @@ and type:
 Or,
 
 ``easy_install smh``
+
+And that's it. Happy spectroscopy-ing!
+
+If you think this was easy, you should `email the author
+<mailto:andy@the.astrowizici.st>`_ and ask about 'Spectroscopy Made Hard'.
+
