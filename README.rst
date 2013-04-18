@@ -1,5 +1,5 @@
 =======
-Installing MOOG the Easy Way
+Installing MOOG the Easy Way™
 =======
 
 :Info: See the `GitHub repository <http://www.github.com/andycasey/moog>`_ for the latest source
