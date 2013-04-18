@@ -40,16 +40,21 @@ If you have these, just open a terminal and type:
 
 And that's it. Happy spectroscopy-ing!
 
-If you don't have ``pip``, you can easily install it with:
+If you don't have ``pip``, you have two options:
+
+**1)** Install ``pip`` and try re-installing MOOG:
 
 ``sudo easy_install pip``
 
-And try installing MOOG again, **or** you can download this repository and
-type:
+``sudo pip install moog``
+
+**or**
+
+**2)** Download this repository. extract the files and type:
 
 ``sudo python setup.py install``
 
-This will compile MOOG and MOOGSILENT and place them in the
+The installer will compile MOOG and MOOGSILENT and place them in the
 ``/usr/local/bin`` directory so that they are accessible on your
 ``$PATH``. If you
 don't install the code as sudo then you will get an error telling you that
