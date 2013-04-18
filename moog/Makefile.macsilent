@@ -37,17 +37,6 @@ AQLIB = $AQLIB
 
 #        here are the compilation and linking commands
 all: MOOGSILENT ;
-	@echo -----------------------------------------------------------------
-	@echo 
-	@echo make sure that you have entered the proper parameters
-	@echo for MOOGSILENT into the FORTRAN source driver
-	@echo routine Moogsilent.f !!!!!!!!!!!!
-	@echo
-	@echo NOTE: the isotop driver has been eliminated;
-	@echo your synthesis needs for elemental and isotopic
-	@echo abundances now can be handled with the synth driver
-	@echo
-	@echo -----------------------------------------------------------------
 
 MOOGSILENT:  $(OBJECTS);
 	$(FC) $(OBJECTS) -o MOOGSILENT -L$(X11LIB) -lX11 \
