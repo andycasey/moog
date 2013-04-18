@@ -1,8 +1,0 @@
-Syntax: ERASE
-
-   ERASE erases the graphics screen. The macro "era"
-erases the screen without appearing on the history buffer.
-
-   You may be able to erase individual lines with LTYPE ERASE.
-
-   See PAGE for starting a new page on a hardcopy device.

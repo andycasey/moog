@@ -1,8 +1,0 @@
-   To replay the list use the macro `playback' (or `play'). This will
-repeat all the commands that you can see with the command HISTORY (or
-`lis'). A common way of getting hard copies of plots would be to say
-`dev hard_copy_device' then `playback' then `dev other_device', or to
-use the `hcopy' macro.
-
-   Playback is one of a number of commands which manipulate the special
-macro `all', HELP all describes others.

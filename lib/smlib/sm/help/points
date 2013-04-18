@@ -1,9 +1,0 @@
-Syntax: POINTS pexpr pexpr [ IF (expr) ]
-
-   (`Pexpr' is the name of a vector, or an expression in parentheses,
-e.g. POINTS x (lg(y)) )
-
-   POINTS makes points of the current style (PTYPE), linetype (LTYPE),
-colour (CTYPE), size (EXPAND), and rotation (ANGLE) at the points in
-vectors WORD1 and WORD2.  If the IF clause is present, only use those
-points for which expr (see ARITHMETIC) is non-zero.

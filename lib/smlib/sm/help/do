@@ -1,4 +1,0 @@
-Syntax: DO variable = start, end [ , incr ] { commands }
-
-   While the value of $variable runs from `start' to `finish', the
-commands are executed. The optional increment defaults to 1.

@@ -1,8 +1,0 @@
-Syntax: OVERLOAD keyword INTEGER
-
-   Allow "keyword" (in lowercase) to be used as a macro name if
-integer is non-zero. For example "overload set 1 overload define 1
-macro set { DEFINE } macro define { SET }" would interchange the
-meanings of the "SET" and "DEFINE" commands. The uppercase forms of
-the keywords retain their usual meanings. Beware that, if you overload
-help, "set help x help_string" won't work.

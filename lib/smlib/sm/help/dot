@@ -1,5 +1,0 @@
-Syntax: DOT
-
-   Draw a point at the current location (set by RELOCATE, DRAW, etc.)
-in the style determined by PTYPE. The point's size and rotation are
-governed by EXPAND and ANGLE.

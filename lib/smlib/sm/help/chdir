@@ -1,7 +1,0 @@
-Syntax : CHDIR WORD
-
-   Change to a new directory. From now on, commands such as DATA or
-MACRO WRITE will refer to WORD. It might be wise to enclose WORD in
-double quotes. If the first character of WORD is `~' it is replaced by
-your home directory. The macro `cd' provides the quotes automatically,
-e.g. `cd ../data'

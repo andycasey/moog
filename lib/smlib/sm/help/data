@@ -1,8 +1,0 @@
-Syntax: DATA file
-
-   Use file "file" as the source of data read with the READ command.
-The file is assumed to have numerical data in columns separated by
-spaces, tabs or commas. The range of lines specified by LINES is
-reset. If the file can't be opened for read, you will be warned.
-Lines starting with # or ! are comments, # lines are echoed to the
-terminal if VERBOSE is 2 or more, ! lines are always echoed.

@@ -1,6 +1,0 @@
-Syntax: DRAW #1 #2
-or      DRAW ( #1 #2 )
-
-   Draw a line from the current position (set with, for example
-RELOCATE) to (#1,#2) in user coordinates. DRAW with parentheses draws
-in screen coordinates.

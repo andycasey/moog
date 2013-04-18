@@ -1,6 +1,0 @@
-Syntax: ABORT
-
-   ABORT closes the current device without producing any hardcopy. If
-you are writing an output file it will be removed. You are left
-talking to the null device, so you probably want to follow ABORT with
-a DEVICE command.

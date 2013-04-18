@@ -1,6 +1,0 @@
-Syntax: LINES INTEGER INTEGER
-
-   Use only lines INTEGER1 to INTEGER2 from the current data file
-(specified with the DATA command). If VERBOSE is greater than 0, the
-lines actually read will be reported. LINES 0 0 will use the entire
-file.

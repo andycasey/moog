@@ -1,2 +1,0 @@
-Date is a special variable that expands to the current date and time, try
-	echo $date

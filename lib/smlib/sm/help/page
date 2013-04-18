@@ -1,7 +1,0 @@
-Syntax: PAGE
-
-   PAGE starts a new page for a hardcopy plot (n.b. the device driver for
-raster plots is unable to suport multiple page plots).
-
-On window systems (X11, SunView) page will raise the window and refresh
-it if necessary.

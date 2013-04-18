@@ -1,8 +1,0 @@
-Borland Graphics on a PC
-
-Syntax: DEVICE win
-
-   SM works on a PC running DOS either by using Borland's graphics
-(try HELP bgi) or windows; this section describes the latter.
-
-   At this point, this is all that I know about the windows driver; sorry.
