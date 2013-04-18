@@ -8,6 +8,38 @@ from platform import system as current_platform
 from shutil import copyfile, move
 from glob import glob
 
+# Distutils setup information
+setup(
+    name='moog',
+    version='2013.02',
+    author='Chris Sneden',
+    author_email='chris@verdi.as.utexas.edu',
+    maintainer='Andy Casey',
+    maintainer_email='andy@the.astrowizici.st',
+    url='http://www.as.utexas.edu/~chris/moog.html',
+    download_url='http://github.com/andycasey/moog',
+    description='Spectrum synthesis and LTE line analysis.',
+    long_description='MOOG is a code that performs a variety of LTE line '  \
+    +'analysis and spectrum synthesis tasks. The typical use of MOOG is to' \
+    +'assist in the determination of the chemical composition of a star.',
+    keywords='high-resolution, stellar, spectroscopy, astronomy, astrophysics',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: MacOS X',
+        'Environment :: X11 Applications',
+        'Intended Audience :: Science/Research',
+        'Natural Language :: English',
+        'Operating System :: MacOS',
+        'Operating System :: POSIX',
+        'Operating System :: Unix',
+        'Programming Language :: Fortran',
+        'Programming Language :: Python :: 2.5',
+        'Topic :: Scientific/Engineering :: Astronomy',
+        'Topic :: Scientific/Engineering :: Physics',
+    ]
+    )
+
+
 # Identify the platform
 platform = current_platform()
 
@@ -78,33 +110,3 @@ else:
 
 
 
-# Distutils setup information
-setup(
-    name='moog',
-    version='2013.02',
-    author='Chris Sneden',
-    author_email='chris@verdi.as.utexas.edu',
-    maintainer='Andy Casey',
-    maintainer_email='andy@the.astrowizici.st',
-    url='http://www.as.utexas.edu/~chris/moog.html',
-    download_url='http://github.com/andycasey/moog',
-    description='Spectrum synthesis and LTE line analysis.',
-    long_description='MOOG is a code that performs a variety of LTE line '  \
-    +'analysis and spectrum synthesis tasks. The typical use of MOOG is to' \
-    +'assist in the determination of the chemical composition of a star.',
-    keywords='high-resolution, stellar, spectroscopy, astronomy, astrophysics',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: MacOS X',
-        'Environment :: X11 Applications',
-        'Intended Audience :: Science/Research',
-        'Natural Language :: English',
-        'Operating System :: MacOS',
-        'Operating System :: POSIX',
-        'Operating System :: Unix',
-        'Programming Language :: Fortran',
-        'Programming Language :: Python :: 2.5',
-        'Topic :: Scientific/Engineering :: Astronomy',
-        'Topic :: Scientific/Engineering :: Physics',
-    ]
-    )
