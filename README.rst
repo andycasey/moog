@@ -32,11 +32,13 @@ Just open a terminal and type:
 
 ``sudo pip install moog``
 
-Or,
-
-``sudo easy_install moog``
-
 And that's it. Happy spectroscopy-ing!
+
+If you don't have ``pip``, you can easily install it with:
+
+``sudo easy_install pip``
+
+And try installing MOOG again.
 
 This will compile MOOG and MOOGSILENT and place them in the
 ``/usr/local/bin`` directory so that they are accessible on your
