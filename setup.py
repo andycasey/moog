@@ -106,6 +106,5 @@ setup(
         'Programming Language :: Python :: 2.5',
         'Topic :: Scientific/Engineering :: Astronomy',
         'Topic :: Scientific/Engineering :: Physics',
-    ],
-    data_files=[('libs')]
+    ]
     )
