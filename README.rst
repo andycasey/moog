@@ -31,10 +31,15 @@ for me because I'm bad at computers. Now it's easy!
 
 Just open a terminal and type:
 
-``pip install smh``
+``sudo pip install smh``
 
 Or,
 
-``easy_install smh``
+``sudo easy_install smh``
 
 And that's it. Happy spectroscopy-ing!
+
+**NB**: You don't have to be ``sudo`` to have MOOG compile correctly. You
+can install MOOG without these priviledges. However, if you don't have
+sudo access you will need to copy the ``MOOG`` and ``MOOGSILENT`` files to
+a folder somewhere on your ``$PATH`` to make your life easier.
