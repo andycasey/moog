@@ -35,7 +35,7 @@ as well as the `Command Line Tools
 operating system, you will need either `gfortran
 <http://gcc.gnu.org/wiki/GFortran>`_ (recommended) or `g77
 <http://hpc.sourceforge.net/>`_ to compile MOOG.
-If you have these, just open a terminal and type:
+If you have either of these, just open a terminal and type:
 
 ``sudo pip install moog``
 
