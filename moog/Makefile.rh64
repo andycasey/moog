@@ -1,3 +1,4 @@
+#$CONFIGURATION
 #     makefile for MOOG with all of the common block assignments;
 #     this is for a  64-bit linux machine
 
@@ -28,11 +29,9 @@ COMMON =  Atmos.com Dummy.com Equivs.com Factor.com Kappa.com Linex.com \
         Quants.com Multimod.com Dampdat.com
 
 CC = cc
-FC = f77 -Wall
 
 # the following lines point to some needed libraries
 X11LIB = /usr/X11R6/lib64
-SMLIB = $SMLIB
 
 #        here are the compilation and linking commands
 all: MOOG ;
