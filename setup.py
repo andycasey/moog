@@ -152,13 +152,28 @@ for make_file in run_make_files:
 [move(moog_file + '.original', moog_file) for moog_file in hardcoded_moog_files if os.path.exists(moog_file + '.original')]
 [move(make_file + '.original', make_file) for make_file in run_make_files if os.path.exists(make_file + '.original')]
 
+# Copy the AquaTerm framework
+try:
+    copytree(os.path.join(repository_dir, 'lib/AquaTerm.framework'), '/Library/Frameworks/AquaTerm.framework')
+
+except:
+    sys.stdout.write("AquaTerm framework could not be installed to /Library/Frameworks/AquaTerm.framework\n")
+
+else:
+    sys.stdout.write("AquaTerm framework copied to /Library/Frameworks/AquaTerm.framework\n")
+
 # Copy the MOOG & MOOGSILENT to /usr/local/bin/
-copy(os.path.join(src_dir, 'MOOG'), '/usr/local/bin/MOOG')
-copy(os.path.join(src_dir, 'MOOGSILENT'), '/usr/local/bin/MOOGSILENT')
-copytree(os.path.join(repository_dir, 'lib/AquaTerm.framework'), '/Library/Frameworks/AquaTerm.framework')
+try:
+    copy(os.path.join(src_dir, 'MOOG'), '/usr/local/bin/MOOG')
+    copy(os.path.join(src_dir, 'MOOGSILENT'), '/usr/local/bin/MOOGSILENT')
 
-system_call('chmod 755 /usr/local/bin/MOOG')
-system_call('chmod 755 /usr/local/bin/MOOGSILENT')
+    system_call('chmod 755 /usr/local/bin/MOOG')
+    system_call('chmod 755 /usr/local/bin/MOOGSILENT')
 
+except:
+    sys.stdout.write("Could not copy MOOG and MOOGSILENT to /usr/local/bin/ and/or make them executable\n")
+
+else:
+    sys.stdout.write("MOOG and MOOGSILENT installed to /usr/local/bin/\n")
 
 
