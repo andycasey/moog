@@ -32,8 +32,9 @@ If you are on a Mac then you will need to ensure you have `Xcode
 <https://developer.apple.com/xcode/>`_ installed
 as well as the `Command Line Tools
 <http://stackoverflow.com/a/9329325/424731>`_ first. Regardless of your
-operating system, MOOG uses `g77
-<http://hpc.sourceforge.net/>`_ to compile so you will need that too.
+operating system, you will need either `gfortran
+<http://gcc.gnu.org/wiki/GFortran>_` (recommended) or `g77
+<http://hpc.sourceforge.net/>`_ to compile MOOG.
 If you have these, just open a terminal and type:
 
 ``sudo pip install moog``
@@ -57,19 +58,16 @@ If you don't have ``pip``, you have two options:
 
 The installer will compile ``MOOG`` and ``MOOGSILENT`` and place them in the
 ``/usr/local/bin`` directory so that they are accessible on your
-``$PATH``. If you
-don't install the code as sudo then you will get an error telling you that
-``MOOG`` and ``MOOGSILENT`` could not be copied to ``/usr/local/bin``. In that
-case,
-just copy the ``MOOG`` and ``MOOGSILENT`` files from the folder specified in the
-error message and place them somewhere on your ``$PATH``.
+``$PATH``. It will also install the required AquaTerm framework to
+``/Library/Frameworks/AquaTerm.framework/``.
 
 
 Uninstall
 ---------
 Just type the following files to uninstall MOOG:
 
-``rm -f /usr/local/bin/MOOG /usr/local/bin/MOOGSILENT``
+``rm -Rf /usr/local/bin/MOOG /usr/local/bin/MOOGSILENT
+/Library/Frameworks/AquaTerm.framework/``
 
 And if you used ``pip`` to install MOOG:
 
