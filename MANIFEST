@@ -9,8 +9,8 @@ lib/AquaTerm.framework/Resources/Info.plist
 lib/AquaTerm.framework/Versions/A/AquaTerm
 lib/AquaTerm.framework/Versions/A/Headers/AQTAdapter.h
 lib/AquaTerm.framework/Versions/A/Headers/aquaterm.h
-lib/AquaTerm.framework/Versions/A/AquaTerm.framework-Info.plist
-lib/AquaTerm.framework/Versions/A/Info.plist
+lib/AquaTerm.framework/Versions/A/Resources/AquaTerm.framework-Info.plist
+lib/AquaTerm.framework/Versions/A/Resources/Info.plist
 lib/AquaTerm.framework/Versions/Current/AquaTerm
 lib/AquaTerm.framework/Versions/Current/Headers/AQTAdapter.h
 lib/AquaTerm.framework/Versions/Current/Headers/aquaterm.h
