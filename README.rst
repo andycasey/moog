@@ -65,7 +65,7 @@ Uninstall
 ---------
 Just type the following files to uninstall MOOG:
 
-``pip uninstall moog``
+``sudo pip uninstall moog``
 
 And to clean up completely:
 
