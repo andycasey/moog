@@ -155,7 +155,7 @@ for make_file in run_make_files:
 # Copy the MOOG & MOOGSILENT to /usr/local/bin/
 copy(os.path.join(src_dir, 'MOOG'), '/usr/local/bin/MOOG')
 copy(os.path.join(src_dir, 'MOOGSILENT'), '/usr/local/bin/MOOGSILENT')
-copytree(os.path.join(src_dir, 'lib/AquaTerm.framework'), '/Library/Frameworks/AquaTerm.framework')
+copytree(os.path.join(repository_dir, 'lib/AquaTerm.framework'), '/Library/Frameworks/AquaTerm.framework')
 
 system_call('chmod 755 /usr/local/bin/MOOG')
 system_call('chmod 755 /usr/local/bin/MOOGSILENT')
