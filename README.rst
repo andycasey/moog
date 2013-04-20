@@ -33,7 +33,7 @@ If you are on a Mac then you will need to ensure you have `Xcode
 as well as the `Command Line Tools
 <http://stackoverflow.com/a/9329325/424731>`_ first. Regardless of your
 operating system, you will need either `gfortran
-<http://gcc.gnu.org/wiki/GFortran>_` (recommended) or `g77
+<http://gcc.gnu.org/wiki/GFortran>`_ (recommended) or `g77
 <http://hpc.sourceforge.net/>`_ to compile MOOG.
 If you have these, just open a terminal and type:
 
