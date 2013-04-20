@@ -77,8 +77,6 @@ moog/Lineabund.f
 moog/Lineinfo.f
 moog/Linex.com
 moog/Linlimit.f
-moog/MOOG
-moog/MOOGSILENT
 moog/Makefile.mac
 moog/Makefile.macsilent
 moog/Makefile.rh
