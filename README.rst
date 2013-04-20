@@ -56,20 +56,18 @@ If you don't have ``pip``, you have two options:
 
 ``sudo python setup.py install``
 
-The installer will compile ``MOOG`` and ``MOOGSILENT`` and place them in the
-``/usr/local/bin`` directory so that they are accessible on your
-``$PATH``. It will also install the required AquaTerm framework to
-``/Library/Frameworks/AquaTerm.framework/``.
-
+The installer will compile ``MOOG`` and ``MOOGSILENT`` and place them in
+your ``$PATH``. It will also install the required AquaTerm framework to
+``/Library/Frameworks/AquaTerm.framework/``, and create a ``~/.moog``
+directory to contain data files.
 
 Uninstall
 ---------
 Just type the following files to uninstall MOOG:
 
-``sudo rm -Rf /usr/local/bin/MOOG /usr/local/bin/MOOGSILENT
-/Library/Frameworks/AquaTerm.framework/``
-
-And if you used ``pip`` to install MOOG:
-
 ``pip uninstall moog``
+
+And to clean up completely:
+
+``sudo rm -Rf ~/.moog /Library/Frameworks/AquaTerm.framework/``
 
