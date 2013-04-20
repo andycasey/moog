@@ -66,7 +66,7 @@ Uninstall
 ---------
 Just type the following files to uninstall MOOG:
 
-``rm -Rf /usr/local/bin/MOOG /usr/local/bin/MOOGSILENT
+``sudo rm -Rf /usr/local/bin/MOOG /usr/local/bin/MOOGSILENT
 /Library/Frameworks/AquaTerm.framework/``
 
 And if you used ``pip`` to install MOOG:
