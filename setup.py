@@ -10,7 +10,7 @@ from platform import system as current_platform
 from shutil import copy, move, copytree
 from glob import glob
 
-__version__ = '2013.02.45'
+__version__ = '2013.02'
 
 # We need to build MOOG and MOOGSILENT before they get moved to the scripts/
 # directory so that they can be moved into the $PATH
@@ -92,7 +92,6 @@ if 'install' in sys.argv:
 
     # Copy files to data directory
     src_dir = os.path.join(repository_dir, 'moog')
-
     data_files = glob('%s/*.dat' % src_dir)
     [copy(data_file, '%s/%s' % (data_dir, os.path.basename(data_file), )) for data_file in data_files]
     
