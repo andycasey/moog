@@ -1,4 +1,5 @@
 from distutils.core import setup
+from distutils.sysconfig import get_python_lib
 import os
 import sys
 import fileinput
@@ -9,37 +10,10 @@ from platform import system as current_platform
 from shutil import copy, move, copytree
 from glob import glob
 
-# Distutils setup information
-setup(
-    name='moog',
-    version='2013.02',
-    author='Chris Sneden',
-    author_email='chris@verdi.as.utexas.edu',
-    maintainer='Andy Casey',
-    maintainer_email='andy@the.astrowizici.st',
-    url='http://www.as.utexas.edu/~chris/moog.html',
-    download_url='http://github.com/andycasey/moog',
-    description='Spectrum synthesis and LTE line analysis.',
-    long_description='MOOG is a code that performs a variety of LTE line '  \
-    +'analysis and spectrum synthesis tasks. The typical use of MOOG is to' \
-    +'assist in the determination of the chemical composition of a star.',
-    keywords='high-resolution, stellar, spectroscopy, astronomy, astrophysics',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: MacOS X',
-        'Environment :: X11 Applications',
-        'Intended Audience :: Science/Research',
-        'Natural Language :: English',
-        'Operating System :: MacOS',
-        'Operating System :: POSIX',
-        'Operating System :: Unix',
-        'Programming Language :: Fortran',
-        'Programming Language :: Python :: 2.5',
-        'Topic :: Scientific/Engineering :: Astronomy',
-        'Topic :: Scientific/Engineering :: Physics',
-    ]
-    )
+__version__ = '2013.02.45'
 
+# We need to build MOOG and MOOGSILENT before they get moved to the scripts/
+# directory so that they can be moved into the $PATH
 if 'install' in sys.argv:
 
     # Identify the platform
@@ -111,8 +85,17 @@ if 'install' in sys.argv:
     # Get our directories relative to the current path
     repository_dir = os.path.dirname(os.path.realpath(__file__))
 
-    # Write the configure file
+    # We need a moog data directory
+    data_dir = os.path.expanduser('~/.moog')
+    if not os.path.exists(data_dir):
+        system_call('mkdir %s' % data_dir)
+
+    # Copy files to data directory
     src_dir = os.path.join(repository_dir, 'moog')
+
+    data_files = glob('%s/*.dat' % src_dir)
+    [copy(data_file, '%s/%s' % (data_dir, os.path.basename(data_file), )) for data_file in data_files]
+    
     aqlib = "AQLIB = %s" % os.path.join(repository_dir, 'lib/aqlib')
     smlib = "SMLIB = %s" % os.path.join(repository_dir, 'lib/smlib')
 
@@ -120,7 +103,7 @@ if 'install' in sys.argv:
 
     # Update the makefiles with the proper SMLIB and AQLIB
     run_make_files = [os.path.join(repository_dir, 'moog', filename) for filename in run_make_files]
-    hardcoded_moog_files = [os.path.join(repository_dir, 'moog', filename) for filename in ('Moog.f', 'Moogsilent.f')]
+    hardcoded_moog_files = [os.path.join(repository_dir, 'moog', filename) for filename in ('Begin.f', 'Moog.f', 'Moogsilent.f')]
 
     # Setup: Move and create copies of the original
     for make_file in run_make_files:
@@ -131,7 +114,6 @@ if 'install' in sys.argv:
         move(moog_file, moog_file + '.original')
         copy(moog_file + '.original', moog_file)
 
-
     # Update the run make files with the configuration
     for line in fileinput.input(run_make_files, inplace=True):
         line = line.replace('#$CONFIGURATION', configuration)
@@ -141,6 +123,7 @@ if 'install' in sys.argv:
     # Update the MOOG files
     for line in fileinput.input(hardcoded_moog_files, inplace=True):
         line = line.replace('$SRCDIR', src_dir)
+        line = line.replace('$DATADIR', data_dir)
         line = line.replace('$MACHINE', machine)
 
         sys.stdout.write(line)
@@ -164,18 +147,35 @@ if 'install' in sys.argv:
         else:
             sys.stdout.write("AquaTerm framework copied to /Library/Frameworks/AquaTerm.framework\n")
 
-    # Copy the MOOG & MOOGSILENT to /usr/local/bin/
-    try:
-        copy(os.path.join(src_dir, 'MOOG'), '/usr/local/bin/MOOG')
-        copy(os.path.join(src_dir, 'MOOGSILENT'), '/usr/local/bin/MOOGSILENT')
 
-        system_call('chmod 755 /usr/local/bin/MOOG')
-        system_call('chmod 755 /usr/local/bin/MOOGSILENT')
-
-    except:
-        sys.stdout.write("Could not copy MOOG and MOOGSILENT to /usr/local/bin/ and/or make them executable\n")
-
-    else:
-        sys.stdout.write("MOOG and MOOGSILENT installed to /usr/local/bin/\n")
-
-
+# Distutils setup information
+setup(
+    name='moog',
+    version=__version__,
+    author='Chris Sneden',
+    author_email='chris@verdi.as.utexas.edu',
+    maintainer='Andy Casey',
+    maintainer_email='andy@the.astrowizici.st',
+    url='http://www.as.utexas.edu/~chris/moog.html',
+    download_url='http://github.com/andycasey/moog',
+    description='Spectrum synthesis and LTE line analysis.',
+    long_description='MOOG is a code that performs a variety of LTE line '  \
+    +'analysis and spectrum synthesis tasks. The typical use of MOOG is to' \
+    +' assist in the determination of the chemical composition of a star.',
+    keywords='high-resolution, stellar, spectroscopy, astronomy, astrophysics',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: MacOS X',
+        'Environment :: X11 Applications',
+        'Intended Audience :: Science/Research',
+        'Natural Language :: English',
+        'Operating System :: MacOS',
+        'Operating System :: POSIX',
+        'Operating System :: Unix',
+        'Programming Language :: Fortran',
+        'Programming Language :: Python :: 2.5',
+        'Topic :: Scientific/Engineering :: Astronomy',
+        'Topic :: Scientific/Engineering :: Physics',
+    ],
+    scripts=['moog/MOOG', 'moog/MOOGSILENT'],
+    )
