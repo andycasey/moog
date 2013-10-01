@@ -3,7 +3,7 @@ Installing MOOG the Easy Way™
 =======
 
 :Info: See the `GitHub repository <http://www.github.com/andycasey/moog>`_ for the latest source
-:Author: Andy Casey, Australian National University (andy@the.astrowizici.st)
+:Author: Andy Casey, Australian National University (andy@astrowizici.st)
 :Website: `astrowizici.st <http://astrowizici.st>`_
 :License: Distribute to anyone you see fit, as long as you adhere to the licenses set by the dependencies (`SuperMongo <http://www.astro.princeton.edu/~rhl/sm/>`_, `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_, etc). Improvements are welcome!
 
