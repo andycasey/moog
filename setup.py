@@ -24,13 +24,6 @@ if 'install' in sys.argv:
         sys.stderr.write("Platform '%s' not recognised!\n" % platform)
         sys.exit()
 
-
-    if os.getuid() != 0:
-        sys.stderr.write("Permission denied: Sudo access is required!\n")
-        sys.exit()
-
-    # We are sudo; with great power comes great responsibility.
-
     # By default, we will use 32bit 
     is_64bits = False
 
@@ -85,22 +78,12 @@ if 'install' in sys.argv:
     # Get our directories relative to the current path
     repository_dir = os.path.dirname(os.path.realpath(__file__))
 
-    # We need a moog data directory
-    data_dir = os.path.expanduser('~/.moog')
-    if not os.path.exists(data_dir):
-        system_call('mkdir %s' % data_dir)
-
-    # Copy files to data directory
+    data_dir = "../moog/" # Relative to where MOOG will live. Is this right?? If not Barklem* will fail
     src_dir = os.path.join(repository_dir, 'moog')
-    data_files = glob('%s/*.dat' % src_dir)
-    [copy(data_file, '%s/%s' % (data_dir, os.path.basename(data_file), )) for data_file in data_files]
     
-    aqlib = "AQLIB = %s" % os.path.join(repository_dir, 'lib/aqlib')
-    smlib = "SMLIB = %s" % os.path.join(repository_dir, 'lib/smlib')
+    configuration = fortran_vars
 
-    configuration = "\n".join([fortran_vars, aqlib, smlib])
-
-    # Update the makefiles with the proper SMLIB and AQLIB
+    # Update the makefiles with the proper configuration 
     run_make_files = [os.path.join(repository_dir, 'moog', filename) for filename in run_make_files]
     hardcoded_moog_files = [os.path.join(repository_dir, 'moog', filename) for filename in ('Begin.f', 'Moog.f', 'Moogsilent.f')]
 
@@ -132,19 +115,11 @@ if 'install' in sys.argv:
         os.system('cd moog;make -f %s' % make_file)
 
     # Cleanup files: Replace with original files
-    #[move(moog_file + '.original', moog_file) for moog_file in hardcoded_moog_files if os.path.exists(moog_file + '.original')]
-    #[move(make_file + '.original', make_file) for make_file in run_make_files if os.path.exists(make_file + '.original')]
+    [move(moog_file + '.original', moog_file) for moog_file in hardcoded_moog_files if os.path.exists(moog_file + '.original')]
+    [move(make_file + '.original', make_file) for make_file in run_make_files if os.path.exists(make_file + '.original')]
 
-    # Copy the AquaTerm framework
-    if not os.path.exists('/Library/Frameworks/AquaTerm.framework/'):
-        try:
-            system_call('cp -R %s /Library/Frameworks/AquaTerm.framework/' % os.path.join(repository_dir, 'lib/AquaTerm.framework/'))
-
-        except:
-            sys.stdout.write("AquaTerm framework could not be installed to /Library/Frameworks/AquaTerm.framework\n")
-
-        else:
-            sys.stdout.write("AquaTerm framework copied to /Library/Frameworks/AquaTerm.framework\n")
+    # Remove *.o files
+    os.system('cd moog;rm -f *.o')
 
 
 # Distutils setup information
@@ -176,5 +151,6 @@ setup(
         'Topic :: Scientific/Engineering :: Astronomy',
         'Topic :: Scientific/Engineering :: Physics',
     ],
-    scripts=['moog/MOOG', 'moog/MOOGSILENT'],
+    data_files=[('moog', ['moog/Barklem.dat', 'moog/BarklemUV.dat']),],
+    scripts=['moog/MOOGSILENT'],
     )
