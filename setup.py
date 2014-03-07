@@ -124,7 +124,7 @@ if 'install' in sys.argv:
 
 # Distutils setup information
 setup(
-    name='moog',
+    name='moogsilent',
     version=__version__,
     author='Chris Sneden',
     author_email='chris@verdi.as.utexas.edu',
