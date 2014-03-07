@@ -78,9 +78,17 @@ if 'install' in sys.argv:
     # Get our directories relative to the current path
     repository_dir = os.path.dirname(os.path.realpath(__file__))
 
-    data_dir = "../moog/" # Relative to where MOOG will live. Is this right?? If not Barklem* will fail
+    data_dir = os.path.expanduser("~/.moog/")
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+        
     src_dir = os.path.join(repository_dir, 'moog')
-    
+    # Copy files from src dir to data dir
+    for filename in ('Barklem.dat', 'BarklemUV.dat'):
+        os.system("cp {0} {1}".format(
+            os.path.join(src_dir, filename),
+            os.path.join(data_dir, filename))) 
+ 
     configuration = fortran_vars
 
     # Update the makefiles with the proper configuration 
@@ -151,6 +159,6 @@ setup(
         'Topic :: Scientific/Engineering :: Astronomy',
         'Topic :: Scientific/Engineering :: Physics',
     ],
-    data_files=[('moog', ['moog/Barklem.dat', 'moog/BarklemUV.dat']),],
+    #data_files=[('moog', ['moog/Barklem.dat', 'moog/BarklemUV.dat']),],
     scripts=['moog/MOOGSILENT'],
     )
