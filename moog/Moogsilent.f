@@ -52,11 +52,7 @@ c*****invoke the overall starting routine
 
 
 c*****use one of the standard driver routines ("isotop" is obsolete): 
-      if     (control .eq. 'synplot') then
-         call plotit
-      elseif (control .eq. 'isoplot') then
-         call plotit
-      elseif (control .eq. 'synth  ') then
+      if     (control .eq. 'synth  ') then
          call synth
       elseif (control .eq. 'cogsyn ') then
          call cogsyn  
@@ -104,8 +100,8 @@ c*****or else you are out of luck!
 
 c*****format statements
 1001  format (60(' '))
-1017  format ('x11 -bg black -title MOOGplot -geom 700x800+650+000')
-1018  format ('x11 -bg black -title MOOGplot -geom 1200x400+20+450')
+1017  format ('x11 -bg black -title MOOG -geom 700x800+650+000')
+1018  format ('x11 -bg black -title MOOG -geom 1200x400+20+450')
 
 
       end

@@ -210,7 +210,7 @@ c*****now plot the spectrum
       endif
       if (plotopt .ne. 0) then
          nf2out = nf9out
-         call pltspec (lscreen,ncall)
+c         call pltspec (lscreen,ncall)
       endif
 
             pause

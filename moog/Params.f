@@ -410,7 +410,7 @@ c smooth-type  FWHM-Gauss  vsini     L.D.C.    FWHM-Macro     FWHM-Loren
          read (nfparam,*) smtype, fwhmgauss, vsini, limbdark, vmac,
      .                   fwhmloren
          linecount = linecount + 1
-         call plotremember (1)
+c         call plotremember (1)
 
 
 c  keyword 'pscale    ' is an old version of 'plotpars  '; if you use

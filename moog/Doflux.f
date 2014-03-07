@@ -68,7 +68,7 @@ c*****compute the flux curve
       write (nf2out,1001) wave, flux, waveinv, fluxlog
       wave = wave + step
       if (wave .le. sstop) go to 1
-      call pltflux
+c      call pltflux
 
 
 c****end the computations

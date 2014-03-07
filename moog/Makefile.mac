@@ -16,8 +16,8 @@ OBJECTS = Abfind.o Abpop.o Abunplot.o Batom.o Begin.o Binary.o \
 	Nansi.o Nearly.o Number.o Obshead.o \
 	Oneline.o Opaccouls.o OpacHelium.o OpacHydrogen.o \
 	Opacit.o Opacmetals.o Opacscat.o Params.o Partfn.o \
-	Partnew.o Plotit.o Plotremember.o Pltabun.o Pltcog.o \
-	Pltflux.o Pltspec.o Pointcurs.o Prinfo.o Putasci.o Readobs.o \
+	Partnew.o  \
+	Pointcurs.o Prinfo.o Putasci.o Readobs.o \
 	Rinteg.o Smooth.o Specplot.o Stats.o Sunder.o Synpop.o Synspec.o \
 	Synth.o Taukap.o Total.o Trudamp.o Ucalc.o Vargauss.o \
 	Vmacro.o Voigt.o Wavecalc.o Weedout.o Writenumber.o
@@ -25,7 +25,7 @@ OBJECTS = Abfind.o Abpop.o Abunplot.o Batom.o Begin.o Binary.o \
 
 #     here are the common files
 COMMON =  Atmos.com Dummy.com Equivs.com Factor.com Kappa.com Linex.com \
-	Mol.com Multistar.com Obspars.com Plotval.com Pstuff.com \
+	Mol.com Multistar.com Obspars.com Pstuff.com \
 	Quants.com Multimod.com Dampdat.com
 
 CC = cc

@@ -127,9 +127,6 @@ c*****now plot the spectrum
      .                   fobs,lscreen)
          endif
       endif
-      if (plotopt .ne. 0) then
-         call pltspec (lscreen,ncall)
-      endif
 
 
 c*****if the syntheses need to be redone: first rewind the output files,

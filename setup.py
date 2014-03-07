@@ -36,7 +36,7 @@ if 'install' in sys.argv:
 
     # Which system are we on?
     if platform == 'Darwin':
-        run_make_files = ('Makefile.mac', 'Makefile.macsilent')
+        run_make_files = ('Makefile.macsilent', )
         machine = 'mac'
 
     elif platform == 'Linux':
@@ -45,10 +45,10 @@ if 'install' in sys.argv:
         is_64bits = sys.maxsize > 2**32
 
         if is_64bits:
-            run_make_files = ('Makefile.rh64', 'Makefile.rh64silent')
+            run_make_files = ('Makefile.rh64silent', )
 
         else:
-            run_make_files = ('Makefile.rh', 'Makefile.rhsilent')
+            run_make_files = ('Makefile.rhsilent', )
 
 
     # Check for gfortran or g77
@@ -132,8 +132,8 @@ if 'install' in sys.argv:
         os.system('cd moog;make -f %s' % make_file)
 
     # Cleanup files: Replace with original files
-    [move(moog_file + '.original', moog_file) for moog_file in hardcoded_moog_files if os.path.exists(moog_file + '.original')]
-    [move(make_file + '.original', make_file) for make_file in run_make_files if os.path.exists(make_file + '.original')]
+    #[move(moog_file + '.original', moog_file) for moog_file in hardcoded_moog_files if os.path.exists(moog_file + '.original')]
+    #[move(make_file + '.original', make_file) for make_file in run_make_files if os.path.exists(make_file + '.original')]
 
     # Copy the AquaTerm framework
     if not os.path.exists('/Library/Frameworks/AquaTerm.framework/'):

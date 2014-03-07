@@ -88,7 +88,7 @@ c*****do the syntheses
          pecabund(iatom,1) = pecabund(iatom,1) + rwstep
          go to 20
       endif
-      call pltcog
+c      call pltcog
 
          
 c*****finish
