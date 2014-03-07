@@ -1,4 +1,5 @@
-#$CONFIGURATION
+FC = gfortran
+FFLAGS = -Wall -O4 -ffixed-line-length-72 -ff2c
 #     makefile for MOOGSILENT with all of the common block assignments;
 #     this is for a mac machine
 
@@ -32,11 +33,11 @@ CC = cc
 # the following lines point to some needed libraries
 X11LIB = /usr/X11R6/lib
 
-#        here are the compilation and linking commands
-all: MOOGSILENT ;
+#       here are the compilation and linking commands
+all: MOOGSILENT;
 
 MOOGSILENT:  $(OBJECTS);
-        $(FC) $(OBJECTS) -o MOOGSILENT
+	$(FC) $(OBJECTS) -o MOOGSILENT
 
 $(OBJECTS): $(COMMON)
 
