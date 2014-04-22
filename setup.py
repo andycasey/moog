@@ -86,7 +86,7 @@ if 'install' in sys.argv:
     repository_dir = os.path.dirname(os.path.realpath(__file__))
 
     # We need a moog data directory
-    data_dir = os.path.expanduser('~/.moog')
+    data_dir = os.path.expanduser('/.moog')
     if not os.path.exists(data_dir):
         system_call('mkdir %s' % data_dir)
 
