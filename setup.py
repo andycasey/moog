@@ -78,7 +78,7 @@ if 'install' in sys.argv:
     # Get our directories relative to the current path
     repository_dir = os.path.dirname(os.path.realpath(__file__))
 
-    data_dir = os.path.expanduser("~/.moog/")
+    data_dir = os.path.expanduser("/.moog/")
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
         
