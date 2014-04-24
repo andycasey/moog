@@ -1,5 +1,6 @@
 README.rst
 setup.py
+moog.py
 moog/Abfind.f
 moog/Abpop.f
 moog/Abunplot.f
