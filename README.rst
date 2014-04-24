@@ -3,7 +3,7 @@ Installing MOOG the Easy Way™
 =======
 
 :Info: See the `GitHub repository <http://www.github.com/andycasey/moog>`_ for the latest source
-:Author: Andy Casey, Australian National University (andy@astrowizici.st)
+:Author: Andy Casey, University of Cambridge (andy@astrowizici.st)
 :Website: `astrowizici.st <http://astrowizici.st>`_
 :License: Distribute to anyone you see fit, as long as you adhere to the licenses set by `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_. Improvements are welcome!
 
@@ -56,16 +56,16 @@ directory to contain data files.
 Python Context Manager FTW
 --------------------------
 
-I've included a Python context manager with this version. That means you can do the following:
+I've included a Python context manager with this version. That means you can do the following in Python::
 
-````
-import moog
 
-with moog.instance("/tmp/") as moogsilent:
-    abundances = moogsilent.abfind(...)
+    import moog
 
-    dispersion, fluxes = moogsilent.synth(...)
-```
+    with moog.instance("/tmp/") as moogsilent:
+        abundances = moogsilent.abfind(...)
+
+        dispersion, intensities = moogsilent.synth(...)
+
 
 and get native Python objects returned to you. *Sick*, right?
 
