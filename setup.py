@@ -10,7 +10,7 @@ from platform import system as current_platform
 from shutil import copy, move, copytree
 from glob import glob
 
-__version__ = '2013.02'
+__version__ = '2013.02.1'
 
 # We need to build MOOG and MOOGSILENT before they get moved to the scripts/
 # directory so that they can be moved into the $PATH
@@ -78,7 +78,7 @@ if 'install' in sys.argv:
     # Get our directories relative to the current path
     repository_dir = os.path.dirname(os.path.realpath(__file__))
 
-    data_dir = os.path.expanduser("/.moog/")
+    data_dir = os.path.expanduser("~/.moog/")
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
         

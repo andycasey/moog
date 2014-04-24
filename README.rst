@@ -49,7 +49,7 @@ And that's it. Happy spectroscopy-ing!
 ``python setup.py install``
 
 The installer will compile ``MOOGSILENT`` and place it in
-your ``$PATH``. It will also create a ``/.moog``
+your ``$PATH``. It will also create a ``~/.moog``
 directory to contain data files.
 
 
