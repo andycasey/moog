@@ -11,9 +11,7 @@ Installing MOOG the Easy Way™
 Background
 ----------
 `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ was written by `Chris
-Sneden <mailto:chris@verdi.as.utexas.edu>`_ and has -- and continues to be
--- an
-invaluable contribution to modern stellar astrophysics. From the `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ website:
+Sneden <mailto:chris@verdi.as.utexas.edu>`_. It's an invaluable contribution to modern stellar astrophysics. From the `MOOG <http://www.as.utexas.edu/~chris/moog.html>`_ website:
 
 *MOOG is a code that performs a variety of LTE line analysis and spectrum
 synthesis tasks. The typical use of MOOG is to assist in the determination
@@ -25,7 +23,7 @@ hosted by this repository is the February, 2013 version.
 
 Installation
 ------------
-Classically, MOOG has been difficult to install. Or at least, it has been
+Historically MOOG has been difficult to install. Or at least it has been
 for me because I'm bad at computers. Now it's easy-ier!
 
 If you are on a Mac then you will need to ensure you have `Xcode
@@ -37,13 +35,11 @@ operating system, you will need either `gfortran
 <http://hpc.sourceforge.net/>`_ to compile MOOG.
 If you have either of these, just open a terminal and type:
 
-``pip install moogsilent``
+``pip install moogsilent`` (or if you must, ``easy_install moogsilent``)
 
 And that's it. Happy spectroscopy-ing!
 
-**or**
-
-`Download this repository
+Alternatively you can `download this repository
 <https://github.com/andycasey/moog/archive/master.zip>`_, extract the files and type:
 
 ``python setup.py install``
@@ -55,7 +51,6 @@ directory to contain data files.
 
 Python Context Manager FTW
 --------------------------
-
 I've included a Python context manager with this version. That means you can do the following in Python::
 
 
