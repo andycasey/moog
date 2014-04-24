@@ -138,6 +138,7 @@ setup(
     author_email='chris@verdi.as.utexas.edu',
     maintainer='Andy Casey',
     maintainer_email='andy@the.astrowizici.st',
+    py_modules=["moog"],
     url='http://www.as.utexas.edu/~chris/moog.html',
     download_url='http://github.com/andycasey/moog',
     description='Spectrum synthesis and LTE line analysis.',
