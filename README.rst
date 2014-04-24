@@ -78,5 +78,5 @@ Just type the following files to uninstall MOOG:
 
 And to clean up completely:
 
-``sudo rm -Rf ~/.moog``
+``rm -Rf ~/.moog``
 
