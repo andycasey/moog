@@ -15,6 +15,7 @@ c******************************************************************************
       integer*2 int2(1440)
       integer*4 int4(720)
       real*4 real4(720)
+      real*4 xtemp, ytemp
       equivalence (int1,int2,int4,real4)
       character head*2880
 
@@ -102,6 +103,12 @@ c     next read the flux array from the file
       enddo     
 
 
+c     now adjust the continuum, if desired
+      do j=1,lount
+         yobs(j) = yobs(j)*contnorm
+      enddo
+
+
 c     now fill in the wavelength array
       do j=1,lount
          xobs(j) = sngl(wavecalc(sngl(dfloat(j)),lount,disp))
@@ -163,6 +170,12 @@ c*****here is a MONGO-style input array
             yobs(lount+1-j) = ytemp
          enddo
       endif
+
+
+c     now adjust the continuum, if desired
+      do j=1,lount
+         yobs(j) = yobs(j)*contnorm
+      enddo
       return
 
 

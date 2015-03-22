@@ -133,7 +133,7 @@ c  initialize some quantities for each new model atmosphere
       if (modelnum .ne. modcount) then
          modcount = modelnum
          do i=1,ntau
-            n = max0(min0(6,int(t(i)/1000.)-3),1)
+            n = max0(min0(6,nint(t(i)/1000.)-3),1)
             nt(i) = n
             dt(i) = (tlog(i)-tlg(n))/(tlg(n+1)-tlg(n))
          enddo
@@ -299,7 +299,7 @@ c  initialize some quantities for each new model atmosphere
       if (modelnum .ne. modcount) then
          modcount = modelnum
          do i=1,ntau
-            n = max0(min0(8,int(t(i)/1000.)-3),1)
+            n = max0(min0(8,nint(t(i)/1000.)-3),1)
             nt(i) = n
             dt(i) = (tlog(i)-tlg(n))/(tlg(n+1)-tlg(n))
          enddo
@@ -376,7 +376,7 @@ c  set up some data upon first entrance with a new model atmosphere
       if (modelnum .ne. modcount) then
          modcount = modelnum
          do i=1,ntau
-            n = max0(min0(5,int(t(i)/2000.)-4),1)
+            n = max0(min0(5,nint(t(i)/2000.)-4),1)
             nt(i) = n
             dt(i) = (tlog(i)-tlg(n))/(tlg(n+1)-tlg(n))
          enddo
@@ -496,7 +496,7 @@ c******************************************************************************
       include 'Kappa.com'
       freqratio = freq0/freq
       seaton = xsect*(a + freqratio*(1.0-a))*
-     .         dsqrt(freqratio**(int(2.*power+0.01)))
+     .         dsqrt(freqratio**(nint(2.*power+0.01)))
 
       return
       end

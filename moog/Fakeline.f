@@ -9,28 +9,31 @@ c******************************************************************************
       implicit real*8 (a-h,o-z)
       include 'Atmos.com'
       include 'Linex.com'
-      include 'Dummy.com'
       include 'Quants.com'
-      include 'Factor.com'
-      include 'Pstuff.com'
+      include 'Dampdat.com'
 
 
-c*****specify the input parameters of the fake line
-      wave1(1) = 5000.0
-      atom1(1) = 26.0
-      e(1,1)    = 2.00
-      gf(1)    = 1.0e-3
-      iatom = atom1(1)
-      charge(1) = 1.0
-      e(1,2) =  e(1,1) + 1.239d+4/wave1(1)
-      amass(1) = xam(iatom)
-      chi(1,1) = xchi1(iatom)
-      chi(1,2) = xchi2(iatom)
-      chi(1,3) = xchi3(iatom)
+c*****specify the input parameters of a representative "fake" line; 
+c*****here we use a real Fe I line because it has Barklem damping data
+      wave1(1)   = 5006.126
+      atom1(1)   = 26.0
+      e(1,1)     = 2.833
+      e(1,2)     = 5.308
+      gf(1)      = 1.0e-3
+      iatom      = atom1(1)
+      charge(1)  = 1.0
+      amass(1)   = xam(iatom)
+      chi(1,1)   = xchi1(iatom)
+      chi(1,2)   = xchi2(iatom)
+      chi(1,3)   = xchi3(iatom)
+      gammabk(1) = -7.280
+      alphabk(1) = 0.238
+      gambark(1) = 10.**gammabk(1)             
+      alpbark(1) = (1.-alphabk(1))/2. 
       if     (dampingopt .eq. 0) then
          damptype(1) = 'UNSLDc6'
       elseif (dampingopt .eq. 1) then
-         damptype(1) = 'UNSLDc6'
+         damptype(1) = 'BKgamma'
       elseif (dampingopt .eq. 2) then
          damptype(1) = 'BLKWLc6'
       else
@@ -56,7 +59,7 @@ c*****setting some counting parameters and do a curve-of-growth
       lim1     = 1
       lim2     = 1
       rwlow    = -6.7
-      rwhigh   = -2.5
+      rwhigh   = -3.7
       rwstep   =  0.15
       call curve
       nf2out = idump

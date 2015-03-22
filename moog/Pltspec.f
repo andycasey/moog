@@ -12,9 +12,8 @@ c******************************************************************************
       include 'Pstuff.com'
       include 'Equivs.com'
       real*8 xnum
-      real*4 yyadd,xxadd,vveladd,yymult
+      real*4 yyadd, xxadd, vveladd, yymult
       integer ncall
-
 
 
 c*****initialize some variables, or re-set them to old values
@@ -24,8 +23,6 @@ c*****initialize some variables, or re-set them to old values
          else
             choice = '1'
          endif
-         call plotremember (0)
-         call plotremember (1)
       else
          call plotremember (4)
       endif
@@ -40,7 +37,7 @@ c*****postscript files if desired
 
 
 c*****begin by reading in an observed spectrum
-      if (specfileopt.ge.1 .and. plotopt.ge.2 .and. ncall.eq.1) then
+      if (specfileopt.ge.1 .and. plotopt.eq.2 .and. ncall.eq.1) then
          call readobs (line)
          if (lount .eq. -1) then
             array = 'OBSERVED SPECTRUM FILE PROBLEM!  I QUIT.'
@@ -96,7 +93,6 @@ c----------------------------------------------------------------------------
                ylo = 0.
                yhi = 1.1
             endif
-            call plotremember (1)
          endif
          call boxit
       endif
@@ -135,7 +131,9 @@ c*****or the observations may be rescaled
          array = 'MULTIPLY THE OBSERVED POINTS BY WHAT FACTOR? '
          nchars = 45
          call getnum (nchars,13,xnum,yymult)
-         ymult = ymult + yymult
+c                    write (*,*) ymult, yymult
+c                    pause
+         ymult = ymult*yymult
          do i=1,lount
             yobs(i) = yymult*yobs(i)
          enddo
@@ -159,9 +157,11 @@ c*****or the observations may be shifted by a constant wavelength
          array = 'SHIFT THE OBSERVED POINTS BY WHAT WAVELENGTH? '
          nchars = 46
          call getnum (nchars,13,xnum,xxadd)
-         xadd = xadd + xxadd
+         wfactor = xxadd/((start+sstop)/2.)
+         veladd = veladd + wfactor*2.99795d+5
+         vfactor = 1.0 + wfactor
          do i=1,lount
-            xobs(i) = xxadd + xobs(i)
+            xobs(i) = vfactor*xobs(i)
          enddo
       endif
 
@@ -171,10 +171,10 @@ c*****or the observations may be shifted by a constant velocity
          array = 'SHIFT THE OBSERVED POINTS BY WHAT VELOCITY (KM/S)? '
          nchars = 51
          call getnum (nchars,13,xnum,vveladd)
-         veladd = veladd * vveladd
-         vfactor = 1.0 + veladd/2.99795e+5
+         veladd = veladd + vveladd
+         vfactor = 1.0 + vveladd/2.99795d+5
          do i=1,lount
-            xobs(i) = vveladd*xobs(i)/2.99795e+5 + xobs(i)
+            xobs(i) = vfactor*xobs(i)
          enddo
       endif
 
@@ -236,8 +236,7 @@ c*****or the title of the model can be changed
          array = 'ENTER THE NEW TITLE'
          istat = ivcleof(21,1)
          istat = ivwrite (13,3,array,19)
-         read (*,33) moditle
-33       format(a80)
+         read (*,1005) moditle
       endif
    
 
@@ -410,6 +409,7 @@ c*****format statements
 1002     format ('RIGHT WAVELENGTH (',f9.2,'): ')
 1003     format ('BOTTOM RELATIVE FLUX (',f9.2,'): ')
 1004     format ('TOP RELATIVE FLUX (',f9.2,'): ')
+1005     format(a80)
 
 
       end

@@ -58,7 +58,7 @@ c*****do the syntheses
       isynth = 1
       isorun = 1
       ncurve = 0
-      iatom = int(cogatom)
+      iatom =nint(cogatom)
       pec(iatom) = 1
       numpecatom = 1
       pecabund(iatom,1) = 0.
@@ -88,7 +88,7 @@ c*****do the syntheses
          pecabund(iatom,1) = pecabund(iatom,1) + rwstep
          go to 20
       endif
-c      call pltcog
+      call pltcog
 
          
 c*****finish

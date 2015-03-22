@@ -94,6 +94,7 @@ c*****open the line list file and the strong line list file
 c*****do the syntheses
       if (numpecatom .eq. 0 .or. numatomsyn .eq. 0) then
          isorun = 1
+         isynth = 1
          nlines = 0
          mode = 3
          call inlines (1)
@@ -103,11 +104,12 @@ c*****do the syntheses
       else
          do n=1,numatomsyn
             isynth = n
-            isorun = 1
+            isorun = n
             start = oldstart
             sstop = oldstop
             mode = 3
             call inlines (1)
+            molopt = 2
             call eqlib
             call nearly (1)
             call synspec
@@ -132,7 +134,7 @@ c*****now plot the spectrum
       endif
       if (plotopt .ne. 0) then
          ncall = 1
-c         call pltspec (lscreen,ncall)
+         call pltspec (lscreen,ncall)
       endif
 
 

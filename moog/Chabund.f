@@ -59,7 +59,7 @@ c     the parameter file can be altered
             if(newpec(i) .eq. 1) then
                line = line + 1
                write (array,1001) i,(newpecabund(i,j),j=1,newnumatomsyn)
-               istat = ivwrite(line,1,array,52)
+               istat = ivwrite(line,1,array,57)
             endif
          enddo
          array = 'Options: c = change abundances '
@@ -77,7 +77,9 @@ c     the parameter file can be altered
         
 c*****for the "synth" driver, present the user with the current abundance 
 c     alterations, and the options; find out what is desired
-1     if (control .eq. 'synth' .or. control .eq. 'isotop') then
+1     if (control .eq. 'synth'  .or. 
+     .    control .eq. 'isotop' .or.
+     .    control .eq. 'synpop') then
          line = 4
          istat = ivcleof(line,1)
          write (array,1006)
@@ -88,7 +90,7 @@ c     alterations, and the options; find out what is desired
             if(newpec(i) .eq. 1) then
                line = line + 1
                write (array,1001) i,(newpecabund(i,j),j=1,newnumatomsyn)
-               istat = ivwrite(line,1,array,52)
+               istat = ivwrite(line,1,array,57)
             endif
          enddo
          if (newnumiso .gt. 0) then
@@ -96,7 +98,7 @@ c     alterations, and the options; find out what is desired
                line = line + 1
                write (array,1002) i, newisotope(i), 
      .                            (newisoabund(i,j),j=1,newnumisosyn)
-               istat = ivwrite(line,1,array,62)
+               istat = ivwrite(line,1,array,68)
             enddo
          endif
          write (array,1007)
@@ -120,7 +122,7 @@ c*****for "synth", change elemental abundances
          nchars = 25
          call getnum (nchars,line+1,xnum,shortnum)
          if (xnum.lt.2.0 .or. xnum.gt.95.) go to 20
-         j = idint(xnum+0.0001)
+         j = nint(xnum)
          if (newpec(j) .eq. 1) then
 25          array = 'n = new abundances, or z = zero offsets? '
             nchars = 41
@@ -164,7 +166,7 @@ c*****for "synth", change isotopic factors
             array =  'Which isotope number from the list? '
             nchars = 36
             call getnum (nchars,line+1,xnum,shortnum)
-            j = idint(xnum+0.0001)
+            j = nint(xnum)
             if (j.lt.1 .or. j.gt.newnumiso) go to 35
             istat = ivcleof(line+2,1)
             array = 'What are the new division factors? '
@@ -191,7 +193,7 @@ c*****for "synth", change the number of syntheses
          nchars = 17
          call getnum (nchars,line+5,xnum,shortnum)
          if (xnum .gt. 5.) go to 55
-         newnumatomsyn = idint(xnum+0.0001)
+         newnumatomsyn = nint(xnum)
          go to 1
 
 
@@ -235,8 +237,8 @@ c*****loop back and print out the main menu again
 
 
 c*****format statements
-1001  format (i3, 4x, 5(f7.2, 2x))
-1002  format (i2, 2x, f10.5, 5(3x, f7.2))
+1001  format (i3, 4x, 5(f8.3, 2x))
+1002  format (i2, 2x, f10.5, 5(3x, f8.3))
 1004  format ('Enter the new offsets on the line below:')
 1006     format ('element, abundance offsets   OR   ',
      .            'isotope number, isotope name, factors')

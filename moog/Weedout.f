@@ -86,7 +86,7 @@ c*****calculate continuum quantities at the line list wavelength middle
 
 c*****divide the lines into keepers and discards
       do j=1,nlines
-         residual = 10.*atom1(j) - dble(int(10.*(atom1(j)+0.000001)))
+         residual = 10.*atom1(j) - dble(nint(10.*(atom1(j))))
          if (strength(j)/kaplam(jtau5) .ge. xratio) then
             if (atom1(j) .lt. 100.) then
                if (residual .gt. 0.) then

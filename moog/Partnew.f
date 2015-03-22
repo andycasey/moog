@@ -18,7 +18,7 @@ c******************************************************************************
       include 'Quants.com'
 
 
-      iatom = int(atom+0.01)
+      iatom = nint(atom)
       iarray = partflag(iatom,k)
 
       if (level .gt. 500) then

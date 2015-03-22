@@ -74,7 +74,9 @@ c*****open data files carried with the source code: Barklem damping
          num = num + 1
          moogpath(num:num) = '/'
       endif
-      open (nfbarklem,file='$DATADIR/Barklem.dat')
+      fbarklem(1:num) = moogpath(1:num)
+      fbarklem(num+1:num+11) = 'Barklem.dat'
+      open (nfbarklem,file=fbarklem)
 
  
 c*****open data files carried with the source code: Barklem UV damping
@@ -85,7 +87,9 @@ c*****open data files carried with the source code: Barklem UV damping
          num = num + 1
          moogpath(num:num) = '/'
       endif
-      open (nfbarklemUV,file='$DATADIR/BarklemUV.dat')
+      fbarklemUV(1:num) = moogpath(1:num)
+      fbarklemUV(num+1:num+13) = 'BarklemUV.dat'
+      open (nfbarklemUV,file=fbarklemUV)
  
 
 c  write a header and find the appropriate parameter file, and exit normally
@@ -116,7 +120,7 @@ c*****format statements
 1001  format (79('*'))
 1002  format (a7)
 1003  format (22x,'MOOG IS CONTROLLED BY DRIVER ',a7)
-1004  format (25(' '),'MOOG LTE VERSION (FEB 2013)',26(' '))   
+1004  format (25(' '),'MOOG LTE VERSION (JUN 2014)',26(' '))   
 1010  format (a80)
 1011  format (i3)
 

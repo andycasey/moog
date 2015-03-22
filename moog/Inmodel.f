@@ -268,39 +268,31 @@ c     default list. The molecular equilibrium routine is then called.
 c     Certain species are important for continuous opacities and damping
 c     calculations - these are read from the equilibrium solution and 
 c     saved.
-c
-c*****Here is the default list of ions and molecules.  These names are 
-c     kept in a data statement in "Bmolec.com"
-c
-c     P(H)  = p(H) + p(H+) + 2p(H_2) + p(CH) + p(NH) + p(OH) + p(MgH) + p(AlH)
-c                  + p(SiH) + p(PH) + p(SH) + p(ClH) + p(CaH) + p(CrH) 
-c                  + p(FeH) + 2p(CH_2) + 2p(NH_2) + 2p(H_2O) + 2p(PH_2) 
-c                  + 2p(SH_2) + p(HCO) + p(MgOH) + p(AlOH) + p(CaOH)
-c     P(He) = p(He) + p(He+)
-c     P(C)  = p(C) + p(C+) + p(CO) + p(CH) + 2p(CH_2) + p(HCO) + p(CN)
-c                  + p(CS) + p(CO_2)
-c     P(N)  = p(N) + p(N+) + 2p(N_2) + p(NH) + p(NH_2) + p(CN) + p(NO) 
-c                  + p(SiO) + p(PN) + p(SN) 
-c     P(O)  = p(O) + p(O+) + p(CO) + p(OH) + p(H_2O) + p(HCO) + p(MgOH) 
-c                  + p(AlOH) + p(CaOH) + 2p(CO_2) + p(NO) + 2p(O_2)
-c                  + p(MgO) + p(SiO) + p(PO) + p(SO) + p(TiO) + p(VO) + p(FeO)
-c     P(Mg) = p(Mg) + p(Mg+) + p(MgH) + p(MGOH) + p(MgO)
-c     P(Al) = p(Al) + p(Al+) + p(AlH) + p(AlOH) 
-c     P(Si) = p(Si) + p(Si+) + p(SiH) + p(SiO) + p(SiS)
-c     P(P)  = p(P) + p(P+) + p(PH) + p(PH_2) + p(PN) + p(PO)
-c     P(S)  = p(S) + p(S+) + p(SH) + p(SH_2) + p(SC) + p(SN) + P(SO) + p(SiS)
-c     P(Cl) = p(Cl) + p(Cl+) + p(ClH) 
-c     P(Ca) = p(Ca) + P(Ca+) + p(CaH) + p(CaOH) 
-c     P(Ti) = p(Ti) + p(Ti+) + p(TiO)
-c     P(V)  = p(V) + p(V+) + p(VO)
-c     P(Cr) = p(Cr) + p(Cr+) + p(CrH) 
-c     p(Fe) = p(Fe) + p(Fe+) + p(FeH) + p(FeO)
-c
-c
+
+
+c*****Set up the default molecule list
+      if (molset .eq. 0) then
+         nmol = 21
+      else
+         nmol = 57
+      endif
+      if     (molset .eq. 0) then
+         do i=1,110
+            amol(i) = smallmollist(i)
+         enddo
+      elseif (molset .eq. 1) then
+         do i=1,110
+            amol(i) = largemollist(i)
+         enddo
+      else
+         array = 'molset = 0 or 1 only; I quit!'
+         call putasci (29,6)
+         stop
+      endif
+
+
 c*****Read in the names of additional molecules to be used in 
 c     molecular equilibrium if needed.
-      nmol = 56
-
       read (nfmodel,2002,end=101) list
       list2 = list(11:)
       read (list2,*) moremol
@@ -309,7 +301,7 @@ c     molecular equilibrium if needed.
          append = 1
          do k=1,moremol
             do l=1,nmol
-               if (int(bmol(k)+0.0000001) .eq. int(amol(l)+0.0000001)) 
+               if (nint(bmol(k)) .eq. nint(amol(l))) 
      .         append = 0  
             enddo
             if (append .eq. 1) then 
@@ -451,7 +443,7 @@ c*****format statements
      .        (i4, 0pf6.2, 1pd11.4, 0pf9.1, f8.3, 1pd11.4, 0pf8.3,
      .        1pd11.4, d11.2))
 1004  format (/'INPUT ABUNDANCES: (log10 number densities, log H=12)'/
-     .       '      Default solar abundances: Anders and Grevesse 1989')
+     .       '      Default solar abundances: Asplund et al. 2009')
 1005  format (5(3x,a2, '(',i2,')=', f5.2))
 1006  format (/'OPTIONS: atmosphere = ', i1, 5x, 'molecules  = ', i1/
      .        '         lines      = ', i1, 5x, 'flux/int   = ', i1)

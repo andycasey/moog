@@ -14,7 +14,7 @@ c******************************************************************************
       if     (lognum .ge. 6.) then
          write (errmess,1002) 
       elseif (lognum .ge. 0.) then 
-         numdec = 5 - int(lognum)
+         numdec = 5 - nint(lognum)
          write (errmess,1001) numdec
       else   
          write (errmess,1003)

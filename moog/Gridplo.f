@@ -70,7 +70,7 @@ c*****now plot the spectrum
       if (plotopt .ne. 0) then
          line = 10
          ncall = 1
-c         call pltspec (line,ncall)
+         call pltspec (line,ncall)
       endif
 
 

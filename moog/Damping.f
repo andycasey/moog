@@ -11,62 +11,49 @@ c******************************************************************************
 
 
       j = linnumber
-      iwave = idnint(wave1(j))
-      iatom = idnint(atom1(j))
+      iwave = int(wave1(j))
+      iatom10 = nint(10.*atom1(j))
       if (dampnum(j) .lt. 0.) dampnum(j) = 10.**dampnum(j)
-
-
-c*****here is a totally empirical set of (large) damping parameters
-c     for autoionization lines
-      if (iatom.eq.20 .and. 
-     .    (iwave.eq.6318 .or. iwave.eq.6343. or. iwave.eq.6361)) then
-         if     (iwave .eq. 6318) then
-            afactor = 20.
-         elseif (iwave .eq. 6343) then
-            afactor = 15.
-         elseif (iwave .eq. 6361) then
-            afactor = 28.
-         endif
-         do i=1,ntau
-            a(j,i) = afactor
-         enddo
-         return
-      endif
 
 
 c*****for a few lines, explicit detailed broadening terms have 
 c     appeared in the literature, and so do these lines with a 
 c     sepaarate subroutine
-      if (itru .eq. 1) then
+      if (itru .eq. 0) then
 c     Ca II
-         if (idnint(10.*atom1(j)) .eq. 201) then
+         if (iatom10 .eq. 201) then
             if (iwave .eq. 8498 .or.
      .          iwave .eq. 8542 .or.
-     .          iwave .eq. 8662) then
+     .          iwave .eq. 8662 .or.
+     .          iwave .eq. 3933) then
                call trudamp (j)
                damptype(j) = 'TRUEgam'
                return
             endif
 c     CH
-         elseif(idnint(10.*atom1(j)) .eq. 1060) then
-            if (idnint(100.*wave1(j)) .eq. 369339 .or.
-     .          idnint(100.*wave1(j)) .eq. 369353) then
+         elseif(iatom10 .eq. 1060) then
+            if (iwave .eq. 3693) then
                call trudamp (j)
                damptype(j) = 'TRUEgam'
                return
             endif
 c     Ca I
-         elseif (idnint(10.*atom1(j)) .eq. 200) then
-            if (iwave.eq.6717 .or. iwave.eq.6318) then
+         elseif (iatom10 .eq. 200) then
+            if (iwave.eq.6717 .or. iwave.eq.6318
+     .          .or. iwave.eq.6343 .or. iwave.eq.6361) then
                call trudamp (j)
                damptype(j) = 'TRUEgam'
                return
             endif
-c     Na I
-         elseif (idnint(10.*atom1(j)) .eq. 110) then
+c     Ca I autoionization
+         elseif (iatom10 .eq. 200) then
+            if (iwave.eq.6318 .or. 
+     .          iwave.eq.6343 .or.
+     .          iwave.eq.6361) then
                call trudamp (j)
                damptype(j) = 'TRUEgam'
                return
+            endif
          endif
       endif
   
@@ -97,7 +84,7 @@ c                                        c6 done as in dampingopt = 0
 c*****these damping calculations are done at each atmosphere level
       if (linprintopt .gt. 2) write (nf1out,1001) j, wave1(j)
       do i=1,ntau
-         ich = idint(charge(j) + 0.1)
+         ich = nint(charge(j))
          v1 = dsqrt(2.1175d8*t(i)*(1.0/amass(j)+1.008))
 
 
@@ -126,7 +113,7 @@ c*****dampingopt = 1 and no Barklem data
             elseif (dampnum(j) .lt. 1.0d-15) then
                damptype(j) = '   MYc6'
                gammav = 17.0*dampnum(j)**0.4*v1**0.6*numdens(1,1,i)
-            elseif (dampnum(j) .lt. 1.0d-05) then
+            elseif (dampnum(j) .lt. 1.0d-04) then
                damptype(j) = 'MYgamma'
                gammav = dampnum(j)*(t(i)/10000.)**0.3*numdens(1,1,i)
             else
@@ -170,9 +157,18 @@ c*****dampingopt = 3
      .                  c6ht**0.4*numdens(8,1,i))*dampnum(j)**0.4
          endif
 
-c*****now calculate radiative and Stark broadening (approximate formulae)
-         gammar = 2.223d15/wave1(j)**2
-         excdiff = chi(j,idint(charge(j)+0.001)) - e(j,2)
+
+c*****compute radiative broadening either by an approximate formula or 
+c*****the value in Barklem.dat) 
+         if (gamrad(j).ne.0.0 .and. dampingopt .eq. 1) then
+            gammar = gamrad(j)
+         else
+            gammar = 2.223d15/wave1(j)**2
+         endif
+        
+
+c*****now Stark broadening (approximate formulae)
+         excdiff = chi(j,nint(charge(j))) - e(j,2)
          if (excdiff .gt. 0.0 .and. atom1(j).lt.100.) then
             effn2 = 13.6*charge(j)**2/excdiff
          else

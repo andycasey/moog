@@ -311,9 +311,9 @@ c  reset the spectrum plot boundaries before exiting
 c*****format statements
 3001  format (/'RUN NUMBER:', i4, 65('-'))
 3002  format (a80)
-3003  format ('sigma =',f8.5, '   lambda shift =',f7.3,' km/s')
-3004  format ('del(Vr)=', f6.1, 5x, 'L1/L2=', f5.2)
-3005  format ('sigma =',f7.4)
+3003  format ('sigma =', f8.4, '   lambda shift =', f7.3, ' km/s')
+3004  format ('del(Vr)=', f8.3, 5x, 'L1/L2=', f7.3)
+3005  format ('sigma =',f8.4)
 
 
       end

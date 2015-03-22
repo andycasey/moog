@@ -131,6 +131,7 @@ c  source function with scat+abs          scatopt
       gfstyle      = 0
       maxshift     = 0
       dostrong     = 0
+      molset       = 0
  
 
 c  INITIALIZE SOME VARIABLES:
@@ -140,11 +141,13 @@ c   -1.0 just to be sure we dont have floating point problems with 0.0
 
 
 c  INITIALIZE SOME VARIABLES: spectrum run parameters
+      oldstart = 0.
       start = 0.
       sstop = 0.
       step = 0.
       delta = 0.
       cogatom = 0.
+      contnorm = 1.0
 
 
 c  INITIALIZE SOME VARIABLES: line limit parameters
@@ -354,9 +357,9 @@ c           1 = do molecular equilibrium but do not print results
 c           2 = do molecular equilibrium and print results
       elseif (keyword .eq. 'molecules') then
          read (array,*) molopt
-         if (molopt .eq. 0) then
-            nchars = 46
-            array = 'WARNING: molecular eq. always done; OK (y/n)? '
+         if     (molopt .eq. 0) then
+            nchars = 64
+            write (array,1009) 
             call getasci (nchars,l0)
             if (chinfo(1:1) .eq. 'n') then
                stop
@@ -364,6 +367,14 @@ c           2 = do molecular equilibrium and print results
                molopt = 1
             endif
          endif
+
+
+c  keyword 'molset' controls the choice of which set of molecules will be
+c  used in molecular equilibrium calculations.
+c          1 = the small set involving H, C, N, O, Mg, Ti (DEFAULT)
+c          2 = the large set more useful for very cool stars
+      elseif (keyword .eq. 'molset') then
+         read (array,*) molset
 
 
 c  keyword 'deviations' controls whether, for synthetic spectrum computations,
@@ -383,49 +394,43 @@ c           2 = gory line data print (usually for diagnostic purposes)
          linprintalt = linprintopt
 
 
-c  keyword 'loggf     ' controls the output of line data
-c           0 = straight gf values
-c           1 = base-10 logarithms of the gf values
+c  keyword 'gfstyle   ' controls the output of line data
+c           0 = base-10 logarithms of the gf values (DEFAULT)
+c           1 = straight gf values
       elseif (keyword .eq. 'gfstyle') then
          read (array,*) gfstyle
 
 
+c  keyword 'contnorm  ' allows multiplicative adjustment of the
+c           continuum; useful probably only for batch syntheses
+c           the numbers employed should be around 1.0;
+c           default is 1.000000
+      elseif (keyword .eq. 'contnorm') then
+         read (array,*) contnorm
+
+
 c  keyword 'plotpars  ' allows you to set all of the plotting 
 c     parameters if you know them in advance
-c     0 = user supplied in plotting routine (default)
+c     0 = none set (default); user can change in plotting routine
 c     1 = given in following lines as follows 
 c xlow         xhi         ylo       yhi
 c vshift       lamshift    obsadd    obsmult
 c smooth-type  FWHM-Gauss  vsini     L.D.C.    FWHM-Macro     FWHM-Loren
       elseif (keyword .eq. 'plotpars') then
          read (array,*) iscale
-         read (nfparam,*) xlo, xhi, ylo, yhi
-         linecount = linecount + 1
-         read (nfparam,*) veladd, xadd, yadd, ymult
-         if (xadd .ne. 0.) then
-            veladd = 3.0d5*xadd/((xlo+xhi)/2.)
-            xadd = 0.
+         if (iscale .ne. 0) then
+            read (nfparam,*) xlo, xhi, ylo, yhi
+            linecount = linecount + 1
+            read (nfparam,*) veladd, xadd, yadd, ymult
+            if (xadd .ne. 0.) then
+               veladd = 3.0d5*xadd/((xlo+xhi)/2.)
+               xadd = 0.
+            endif
+            linecount = linecount + 1
+            read (nfparam,*) smtype, fwhmgauss, vsini, limbdark, vmac,
+     .                      fwhmloren
+            linecount = linecount + 1
          endif
-         linecount = linecount + 1
-         read (nfparam,*) smtype, fwhmgauss, vsini, limbdark, vmac,
-     .                   fwhmloren
-         linecount = linecount + 1
-c         call plotremember (1)
-
-
-c  keyword 'pscale    ' is an old version of 'plotpars  '; if you use
-c     it you will just get a warning message to switch to 'plotpars  '
-      elseif (keyword .eq. 'pscale') then
-         write(*,*) 'Warning: keyword changed to *plotpars*'
-         write(*,*) 'for synthesis plotting parameters.'
-         write(*,*) 'Here is the proper format:'
-         write(*,*)
-         write(*,*) 'plotpars 1'
-         write(*,*) '<xlow> <xhi> <ylo> <yhi>'
-         write(*,*) '<vshift> <lamshift> <obsadd> <obsmult>'
-         write(*,*) '<smtype> <FWHMgauss> <vsini> <L.D.C.> <Vmacro> ',
-     .     '<FWHMloren>'
-         stop
 
 
 c keyword 'trudamp     '  should moog use the detailed line damping for
@@ -450,6 +455,10 @@ c            1 = microns
 c            2 = 1/cm
       elseif (keyword .eq. 'units') then
          read (array,*) iunits
+         if (iunits .ne. 0) then
+            write (*,1010)
+            stop
+         endif
 
 
 c keyword 'iraf       ' allows the user to output a raw spectrum in 
@@ -475,11 +484,27 @@ c           1 = central intensity calculations
          read (array,*) fluxintopt
 
 
-c           0 = use the Unsold approximation, except multiply possibly
-c                 by a factor read in for an individual line
-c           1 = use the Unsold approximation multiplied by 6.3
-c           2 = use the Unsold approximation multiplied by the
-c                 factor recommended by the Blackwell group
+c*****here are the calculations to set up the damping; for atomic lines
+c     there are several options:
+c        dampingopt = 0 and dampnum < 0 --->
+c                             gammav = 10^{dampnum(i)}*(T/10000K)^0.3*n_HI
+c        dampingopt = 0 and dampnum = 0 --->
+c                             c6 = Unsold formula
+c        dampingopt = 0 and dampnum > 10^(-10) --->
+c                             c6 =  (Unsold formula)*dampnum(i)
+c        dampingopt = 0 and dampnum(i) < 10^(-10) --->
+c                             c6 = dampnum(i)
+c        dampingopt = 1 --->
+c                             gammav = gamma_Barklem if possible,
+c                                        otherwise use dampingopt=0 options
+c        dampingopt = 2 --->
+c                             c6 = c6_Blackwell-group
+c        dampingopt = 3 and dampnum <= 10^(-10) --->
+c                             c6 = c6_NEXTGEN for H I, He I, H2
+c        dampingopt = 3 and dampnum > 10^(-10) --->
+c                             c6 = (c6_NEXTGEN for H I, He I, H2)*dampnum
+c     for molecular lines (lacking a better idea) --->
+c                                        c6 done as in dampingopt = 0
       elseif (keyword .eq. 'damping') then
          read (array,*) dampingopt
 
@@ -517,6 +542,7 @@ c  keyword 'plot      ' decides whether or not to make a plot of results
 c           0 = do not make a plot
 c           For syntheses: 1 = plot only synthetic spectra
 c                          2 = plot synthetic and observed spectra
+c                          3 = smooth the syntheses but don't plot
 c           For line analyses: # = the minimum number of lines of a 
 c                                  species necessary to trigger a plot
 c           For curves-of-growth: 1 = make plots
@@ -622,6 +648,15 @@ c                       to either side of a synthesis point to consider
 c                       for line opacity calculations
       elseif (keyword .eq. 'synlimits') then
          read (nfparam,*) start, sstop, step, delta
+         oldstart = start
+         oldstop  = sstop
+         oldstep  = step
+         olddelta = delta
+         step1000 = 1000.*step
+         if (dble(idnint(step1000))-step1000 .ne. 0.) then
+            write (*,1008) step
+            stop
+         endif
          linecount = linecount + 1
 
 
@@ -704,8 +739,8 @@ c  loop back to get another parameter
  
 
 c  wrap things up with a few assignments
-98    if (control .eq. 'gridsyn' .or. control .eq. 'gridplo' .or.
-     .    control .eq. 'binary ' .or. control .eq. 'abandy ') then
+98    if (control.eq.'gridsyn' .or. control.eq.'gridplo' .or.
+     .    control.eq.'binary ' .or. control.eq.'abandy ') then
          control = 'gridend'
       endif
 
@@ -721,6 +756,7 @@ c  parameter file, then ask for it
       endif
       if (smterm.eq.'x11' .or. smterm.eq.'X11') then
          if    (control .eq. 'synth  ' .or.
+     .          control .eq. 'synpop ' .or.
      .          control .eq. 'synplot' .or.
      .          control .eq. 'isoplot' .or.
      .          control .eq. 'gridsyn' .or.
@@ -737,20 +773,20 @@ c  parameter file, then ask for it
       endif
 
 
-c  at the end of the parameter file, return after storing the starting
-c  values of the synthesis parameters
-c  wavlength units to Angstroms
-c  exit normally
-      if (iunits .eq. 1) then
-         start = 1.d+4*start
-         sstop  = 1.d+4*sstop
-         step  = 1.d+4*step
-         delta = 1.d+4*delta
+c  for syntheses, store the plotting parameters
+      if (control.eq.'synth  ' .or. control.eq.'synplot' .or.
+     .    control.eq.'gridsyn' .or. control.eq.'gridplo' .or.
+     .    control.eq.'binary ' .or. control.eq.'synpop ') then
+         if (oldstart .eq. 0) then
+            write (*,1011) 
+            stop
+         endif
+         if (iscale .eq. 0) call plotremember (0)
+         call plotremember (1)
       endif
-      oldstart = start
-      oldstop  = sstop
-      oldstep  = step
-      olddelta = delta
+
+
+c*****exit normally
       return
 
 
@@ -760,7 +796,13 @@ c*****format statements
      .        ' SYNTHESES DO NOT AGREE!   I QUIT!       ')
 1006  format ('THIS OPTION IS UNKNOWN TO MOOG: ', a10, ' I QUIT!')
 1007  format (79(' '))
-
+1008  format ('step =', f10.5, 'A but it cannot be more precise than ',
+     .        'the nearest 0.001A; I QUIT!')
+1009  format ('WARNING: molecular eq. always done if ',
+     .        'Teff < 8000K;  OK (y/n)???')
+1010  format ('the units=1 option is fragile; rerun with only ',
+     .       'Angstroms and units=0')
+1011  format ('SYNTHESIS START NOT SET; I QUIT!')
 
       end
 

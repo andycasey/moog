@@ -64,7 +64,7 @@ c     the declared velocity difference, the luminosity ratio, and
 c     for information, the computed fluxes of the two stars; get the user's
 c     agreement
       deltawave = deltaradvel/2.9979d+5*(start+sstop)/2.
-      pshift = int(deltawave/step+0.00001)
+      pshift = nint(deltawave/step)
       write (array,1002) fluxprimary, fluxsecondary
       lscreen = lscreen + 2
       nchars = 55
@@ -106,7 +106,7 @@ c     synthetic spectra
       read (nf7out,1004) array
       read (nf8out,1004) chinfo
       read (array,*) start, sstop, step
-      kount = int((sstop - start + (step/4.0) )/step) + 1
+      kount = nint((sstop - start + (step/4.0) )/step) + 1
       write (nf9out,1004) array
 
 
@@ -148,12 +148,12 @@ c     and dump to combined raw synthetic spectrum file
 
 
 c*****format statements
-1001  format ('INPUT DELTA VELOCITY = ', f6.1,
-     .        ';  DELTA WAVELENGTH = ', f6.2,
+1001  format ('INPUT DELTA VELOCITY = ', f8.3,
+     .        ';  DELTA WAVELENGTH = ', f8.3,
      .        ';  POINT SHIFT = ', i4)
 1002  format ('PRIMARY FLUX = ', 1pe10.3, 
      .        ';  SECONDARY FLUX = ', 1pe10.3)
-1003  format ('INPUT LUMINOSITY RATIO = ', 0pf7.2)
+1003  format ('INPUT LUMINOSITY RATIO = ', 0pf8.3)
 1004  format (a80)
 1006  format (10f7.4)
 1010  format (a59, ',', a6, ' dex')

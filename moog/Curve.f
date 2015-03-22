@@ -67,11 +67,11 @@ c*****end the computations with a summary print
 
 c*****format statements
 1001  format (a80)
-1002  format(/'wavelength =',f8.2,5x,'species =',f6.1,5x,'ep =',f6.2/
-     .       'abundance =',f9.2,5x,'n =',i2)
+1002  format(/'wavelength =', f9.3,5x, 'species =', f6.1,5x, 'ep =',
+     .       f7.3, 'abundance =', f10.3, 5x, 'n =',i2)
 1003  format('  curve of growth in (loggf,logrw) pairs'/
-     .       (5(f6.2,',',f6.2)))
-1004  format (12f6.2)
+     .       (5(f7.3,',',f7.3)))
+1004  format (10f7.3)
 
 
       end

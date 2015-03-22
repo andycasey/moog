@@ -17,8 +17,8 @@ c******************************************************************************
          temp = t(level)           
       endif
 
-      iatom = int(atom + 0.01)
-      ion = int(10.*(atom - float(iatom)) + 0.01)
+      iatom = nint(atom)
+      ion = nint(10.*(atom - float(iatom)))
       j = 4*(iatom-1) + ion + 1
     
       if (ion .eq. 0) then

@@ -33,7 +33,7 @@ c     files, and get the synthesis range parameters from the 'dump' file
      .    moditle(1:15).eq.' ALL abundances' .or.
      .    moditle(1:15).eq.'Isotope Ratio: ') go to 55
       read (nf2out,*) start, sstop, step
-      kount = int((sstop - start + (step/4.0) )/step) + 1
+      kount = nint((sstop - start + (step/4.0) )/step) + 1
       rewind nf2out
 
 

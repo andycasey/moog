@@ -19,13 +19,14 @@ c     be able to pull in auxiliary data files; executing 'make' will
 c     generate a reminder of this
       write (moogpath,1001)
       moogpath = 
-     .  '$SRCDIR'
+     .  '/Users/chris/CODES/moogapr2014'
+
 
 c*****What kind of machine are you using?  Possible ones are:
 c     "mac" = Intel-based Apple Mac
 c     "pcl" = a PC or desktop running some standard linux like Redhat
 c     "uni" = a machine running Unix, specifically Sun Solaris
-      machine = "$MACHINE"
+      machine = "mac"
 
 
 c*****for x11 terminal types, define the parameters of plotting windows;
@@ -52,7 +53,11 @@ c*****invoke the overall starting routine
 
 
 c*****use one of the standard driver routines ("isotop" is obsolete): 
-      if     (control .eq. 'synth  ') then
+      if     (control .eq. 'synplot') then
+         call plotit
+      elseif (control .eq. 'isoplot') then
+         call plotit
+      elseif (control .eq. 'synth  ') then
          call synth
       elseif (control .eq. 'cogsyn ') then
          call cogsyn  
@@ -100,8 +105,8 @@ c*****or else you are out of luck!
 
 c*****format statements
 1001  format (60(' '))
-1017  format ('x11 -bg black -title MOOG -geom 700x800+650+000')
-1018  format ('x11 -bg black -title MOOG -geom 1200x400+20+450')
+1017  format ('x11 -bg black -title MOOGplot -geom 700x800+650+000')
+1018  format ('x11 -bg black -title MOOGplot -geom 1200x400+20+450')
 
 
       end

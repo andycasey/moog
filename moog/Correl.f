@@ -71,8 +71,6 @@ c     synthetic spectrum
      .                  ((xobs(j)-xobs(j-1))*(xobs(j)-xobs(j+1))) +
      .              yobs(j+1)*(q-xobs(j-1))*(q-xobs(j))/
      .                  ((xobs(j+1)-xobs(j-1))*(xobs(j+1)-xobs(j)))
-c              write (*,2222) i, xgood(i), ygood(i), zgood(i)
-c2222          format (i4, 3f10.3)
       enddo
 
 

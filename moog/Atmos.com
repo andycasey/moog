@@ -17,7 +17,7 @@ c******************************************************************************
       integer      nf1out, nf2out, nf3out, nf4out, nf5out, nf6out,
      .             nf7out, nf8out, nf9out, nf10out,
      .             nfbarklem, nfbarklemUV
-      integer      modprintopt, molopt, linprintopt, linprintalt,
+      integer      modprintopt, linprintopt, linprintalt,
      .             fluxintopt, plotopt, dampingopt, specfileopt, 
      .             linfileopt, printstrong, linecount, oldcount,
      .             scatopt
@@ -45,7 +45,7 @@ c******************************************************************************
      .             nf1out, nf2out, nf3out, nf4out, nf5out, nf6out,
      .             nf7out, nf8out, nf9out, nf10out,
      .             nfbarklem, nfbarklemUV,
-     .             modprintopt, molopt, linprintopt, linprintalt,
+     .             modprintopt, linprintopt, linprintalt,
      .             fluxintopt, plotopt, dampingopt, specfileopt, 
      .             linfileopt, printstrong, linecount, oldcount, scatopt
 

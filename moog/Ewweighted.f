@@ -51,8 +51,8 @@ c*****add this EW to the total, weighting it by flux*radius^2*relcount
 
 c*****write out the mean EW
       ewmod(lim1) = ewweighttot/weighttot
-      write (nf7out,1006) 1000.*ewmod(lim1), 
-     .                    dlog10(xabund(iatom))+deltangf+12.
+      abundout(lim1) =dlog10(xabund(iatom))+deltangf+12.
+      write (nf7out,1006) 1000.*ewmod(lim1), abundout(lim1)
       return
 
 

@@ -65,14 +65,14 @@ c*****write out the opacities
       if (modprintopt .gt. 1) then
          write (nf1out,1001) waveop
          do i=1,ntau
-            write (nf1out,1002) i, int(t(i)), dlog10(kaplam(i)),
+            write (nf1out,1002) i, nint(t(i)), dlog10(kaplam(i)),
      .      dlog10(aH1(i)), dlog10(aHminus(i)), dlog10(sigH(i)), 
      .      dlog10(aHeminus(i)), dlog10(sigHe(i)), dlog10(sigel(i)),
      .      dlog10(sigH2(i))
          enddo
          write (nf1out,1003) waveop
          do i=1,ntau
-            write (nf1out,1002) i, int(t(i)), dlog10(kaplam(i)),
+            write (nf1out,1002) i, nint(t(i)), dlog10(kaplam(i)),
      .      dlog10(aC1(i)),  dlog10(aMg1(i)), dlog10(aMg2(i)), 
      .      dlog10(aAl1(i)), dlog10(aSi1(i)), dlog10(aSi2(i)), 
      .      dlog10(aFe1(i))

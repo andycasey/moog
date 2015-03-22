@@ -14,6 +14,7 @@ c******************************************************************************
       include 'Factor.com'
       include 'Pstuff.com'
       include 'Quants.com'
+      real*8 loggf, logstrength
       integer ifresh
       character*8 molname
       character*4 ion(3)
@@ -25,22 +26,31 @@ c******************************************************************************
       go to (1,2,3), number
 
 
-c*****here the line data are output; all drivers use this
+c*****here the line data are output to "standard_out"; all relevant 
+c     drivers use this
+c     if you don't want any line output, linprintopt=0 will exit the routine
 1     if (linprintopt .lt. 1) return
+c     if you want standard output, linprintopt=1 is chosen
+c     linprintopt>=2 outputs ionization potentials, charges, masses,
+c                            reduced masses for molecules, 
+c     linprintopt>=3 outputs partition functions
+c     lineprintop =4 outputs line-center opacities
       write (nf1out,1001) nlines
       if (linprintopt .ge. 2) write (nf1out,1002)
       do j=1,nlines
          ich = idint(charge(j) + 0.1)
          iatom = idint(atom1(j))
+         loggf = dlog10(gf(j))
+         logstrength = dlog10(strength(j))
          if (iatom .lt. 100) then
             if (iunits .eq. 1) then
                write (nf1out,1003) j, 1.d-4*wave1(j), names(iatom),
-     .           ion(ich), atom1(j), e(j,1), gf(j), damptype(j), 
-     .           strength(j), 1000.*width(j)
+     .           ion(ich), atom1(j), e(j,1), loggf, damptype(j), 
+     .           logstrength, 1000.*width(j)
             else
                write (nf1out,1004) j, wave1(j), names(iatom),
-     .           ion(ich), atom1(j), e(j,1), gf(j), damptype(j),
-     .           strength(j), 1000.*width(j)
+     .           ion(ich), atom1(j), e(j,1), loggf, damptype(j),
+     .           logstrength, 1000.*width(j)
             endif
             if (linprintopt .ge. 2) write (nf1out,1005) 
      .                 (chi(j,k),k=1,3), charge(j), amass(j), rdmass(j)
@@ -60,11 +70,11 @@ c*****here the line data are output; all drivers use this
             endif
             if (iunits .eq. 1) then
                write (nf1out,1009) j, 1.d-4*wave1(j), molname, 
-     .           atom1(j), e(j,1), gf(j), damptype(j), strength(j), 
+     .           atom1(j), e(j,1), gf(j), damptype(j), logstrength,
      .           1000.*width(j)
             else
                write (nf1out,1010) j, wave1(j), molname, 
-     .           atom1(j), e(j,1), gf(j), damptype(j), strength(j),
+     .           atom1(j), e(j,1), gf(j), damptype(j), logstrength,
      .           1000.*width(j)
             endif
             if (linprintopt .ge. 2) write (nf1out,1005) 
@@ -107,15 +117,17 @@ c     molecular line can possibly be in this category
       do j=nlines+1,nlines+nstrong
          ich = idint(charge(j) + 0.1)
          iatom = idint(atom1(j))
+         loggf = dlog10(gf(j))
+         logstrength = dlog10(strength(j))
          if (iatom .lt. 100) then
             if (iunits .eq. 1) then
-               write (nf1out,2002) j-nlines,1.d-4*wave1(j),names(iatom),
+               write (nf1out,1003) j-nlines,1.d-4*wave1(j),names(iatom),
      .                             ion(ich), atom1(j), e(j,1), gf(j),
-     .                             damptype(j), kapnu0(j,jtau5)
+     .                             damptype(j), logstrength
             else
-               write (nf1out,2003) j-nlines, wave1(j),names(iatom),
+               write (nf1out,1004) j-nlines, wave1(j),names(iatom),
      .                             ion(ich), atom1(j), e(j,1), gf(j), 
-     .                             damptype(j), kapnu0(j,jtau5)
+     .                             damptype(j), logstrength
             endif
          else
             write (*,2004) iatom
@@ -185,14 +197,14 @@ c     look here also for the calls to the trend line calculations
          endif
          ew = 1000.*width(l)
          rw = dlog10(width(l)/wave1(l))
-         write (array,3007) wave1(l),e(l,1),dlog10(gf(l)), 
-     .         ew,rw,abundout(l),diff
+         write (array,3007) wave1(l), atom1(l), e(l,1), dlog10(gf(l)),
+     .         ew, rw, abundout(l), diff
          if (errmess(1:9) .ne. 'stopinfo!') then
             line = line + 1
             call prinfo (line)
          endif
-         write (nf2out,3007) wave1(l),e(l,1),dlog10(gf(l)), 
-     .         ew,rw,abundout(l),diff
+         write (nf2out,3007) wave1(l), atom1(l), e(l,1), dlog10(gf(l)),
+     .         ew, rw, abundout(l), diff
       enddo
       write (array,3008) average, deviate, kount
       line = line + 1
@@ -247,23 +259,24 @@ c     look here also for the calls to the trend line calculations
 
 
 c*****format statements
-1001  format (/'INPUT LINES DATA FOR ',i5,' LINES'/'   j ',4x,'wave1',
-     .       7x,'species',8x,'E.P.',5x,'gf',5x,'damptype',
-     .       2x,'strength',6x,'E.W.')
+1001  format (/'INPUT LINES DATA FOR ' ,i5, ' LINES'/ 
+     .        '   #', 5x, 'wave1', 3x, 'spec', 9x, 'spec#', 
+     .        3x, 'E.P.', 3x, 'loggf', 5x, 'damp', 4x, 'logSTR', 
+     .        5x, 'E.W.')
 1002  format (20x, 6x, 'chi1', 4x, 'chi2', 6x, 'chi3', 4x, 'charge',
      .        6x, 'mass', 4x, 'rdmass')
-1003  format (i5,f10.6,3x,a2,a4,f8.3,f8.2,1pd10.2,3x,a7,
-     .        d10.2,0pf10.2)
-1004  format (i5,f10.3,3x,a2,a4,f8.3,f8.2,1pd10.2,3x,a7,
-     .        d10.2,0pf10.2)
-1005  format (20x, f10.3, f8.3, f10.3, f10.1,f10.2,f10.4)
+1003  format (i4, f10.6, 2x, a2, a4, f13.5, f7.3, f8.3, 2x, a7,
+     .        f9.1, f9.2)
+1004  format (i4, f10.3, 2x, a2, a4, f13.5, f7.3, f8.3, 2x, a7,
+     .        f10.2, f8.2)
+1005  format (20x, f10.3, f8.3, f10.3, f10.1, f10.2, f10.4)
 1006  format (a1)
 1007  format (1x,a1,a2,i4)
 1008  format (2a2,i4)
-1009  format (i5,f10.6,2x,a4,f11.5,f8.2,1pd10.2,3x,a7,
-     .              d10.2,0pf10.2)
-1010         format (i5,f10.3,2x,a4,f11.5,f8.2,1pd10.2,3x,a7,
-     .              d10.2,0pf10.2)
+1009  format (i4, f10.6, 3x, a4, 1x, f13.5, f7.3, f8.3, 2x, a7,
+     .        f10.2, f8.2)
+1010  format (i4, f10.3, 3x, a4, 1x, f13.5, f7.3, f8.3, 2x, a7,
+     .        f10.2, f8.2)
 1011  format (/'SYNTHETIC SPECTRUM PARAMETERS (units=1/cm)'/
      .        10x,'start =',f11.3,' ',5x,'stop =',f11.3,' '/  
      .        'step size in the spectrum =',f11.4,' '/
@@ -271,9 +284,9 @@ c*****format statements
      .        ' within',f11.4,' of the point')          
 1012  format (/'SYNTHETIC SPECTRUM PARAMETERS (units=A)'/
      .        10x,'start =',f11.3,' ',5x,'stop =',f11.3,' '/  
-     .        'step size in the spectrum =',f11.4,' '/
+     .        'step size in the spectrum =',f11.3,' '/
      .        'at each point, opacity will include lines' ,
-     .        ' within',f11.4,' of the point')          
+     .        ' within',f11.3,' of the point')          
 1013  format (/'CURVE-OF-GROWTH PARAMETERS'/
      .        10x,'log(R.W) lower bound =',f7.3, 
      .        10x,'upper bound =',f7.3/
@@ -281,29 +294,25 @@ c*****format statements
 1014  format (/'PARTITION FUNCTIONS')
 1015  format (/'Z =',i2,' (',a2,'),  mass=',f8.3,'  I.P.s=', 3f7.3)
 1016  format ('    ionization state = ',i1/(10f8.3))  
-2001  format (/'INPUT LINES DATA FOR',i4,' STRONG LINES'/' j ',4x,
-     .        'wave1',7x,'species',8x,'E.P.',5x,'gf',5x,'damptype',
-     .        2x,'strength')
-2002  format (i3,f10.3,3x,a2,a4,f8.3,f8.2,1pd11.2,2x,a7,
-     .        1pd10.2)
-2003  format (i3,f10.3,3x,a2,a4,f8.3,f8.2,1pd11.2,2x,a7,
-     .        1pd10.2)
+2001  format (/'INPUT LINES DATA FOR',i4,' STRONG LINES'/
+     .        '   #', 5x, 'wave1', 3x, 'spec', 9x, 'spec#',
+     .        3x, 'E.P.', 3x, 'loggf', 5x, 'damp', 4x, 'logSTR')
 2004  format ('SPECIES = ', i5, ' IS A MOLECULE, NOT ALLOWED AS A ',
      .        'STRONG LINE; I QUIT!')
 3001  format (a80)
 3002  format ('Abundance Results for Species ',a2,a4,
-     .        '       (input abundance = ',f6.2,')')
-3003  format ('wavelength        EP     logGF        EW',
-     .        '     logRW     abund     del avg')
+     .        '       (input abundance = ',f7.3,')')
+3003  format ('wavelength', 9x, 'ID', 6x, 'EP', 3x, 'logGF', 5x, 'EWin',
+     .        3x, 'logRWin', 5x, 'abund', 3x, 'delavg')
 3004  format ('Abundance Results for Species ',a8,
      .        '       (input abundance = ',f6.2,')')
 3005  format ('From these data, the abundance of ',a2, 
      .        ' will be altered')
-3006  format ('wavelength        EP     logGF      EWin',
-     .        '   logRWin     abund     del avg')
-3007  format (f10.2,f10.2,f10.3,f10.1,2f10.2,f12.2)
-3008  format ('average abundance = ',f5.2,'     std. ',
-     .        'deviation = ',f5.2,'     #lines = ',i3)
+3006  format ('wavelength', 9x, 'ID', 6x, 'EP', 3x, 'logGF', 5x, 'EWin',
+     .        3x, 'logRWin', 5x, 'abund', 3x, 'delavg')
+3007  format (f10.3, f11.5, f8.3, f8.3, f9.2, f10.3, f10.3, f9.3)
+3008  format ('average abundance = ',f6.3,'     std. ',
+     .        'deviation = ',f6.3,'     #lines = ',i3)
 3009  format ('E.P. correlation:  slope = ',f7.3,'  intercept = ',
      .        f7.3,'  corr. coeff. = ',f7.3)
 3010  format ('R.W. correlation:  slope = ',f7.3,'  intercept = ',

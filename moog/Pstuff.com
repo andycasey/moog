@@ -33,7 +33,7 @@ c******************************************************************************
       character*400 abitle
       character*240 isoitle
       character*80  smterm, smtotalterm, smt1, smt2
-      character*80  moditle, obsitle, linitle, smitle,
+      character*80  moditle, obsitle, linitle, smitle, popitle,
      .              array, chinfo, errmess, plotroutine
       character*4   whichwin, origwhichwin, oldwhichwin
       character*1   choice, smtype, oldsmtype, origsmtype,
@@ -66,7 +66,7 @@ c******************************************************************************
 
       common/cstuff/abitle, isoitle,
      .              smterm, smtotalterm, smt1, smt2,
-     .              moditle, obsitle, linitle, smitle,
+     .              moditle, obsitle, linitle, smitle, popitle,
      .              array, chinfo, errmess, plotroutine,
      .              whichwin, origwhichwin, oldwhichwin,
      .              choice, smtype, oldsmtype, origsmtype,

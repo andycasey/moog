@@ -2,8 +2,8 @@
       subroutine plotremember (option)
 c******************************************************************************
 c     This subroutine declares or stores or recovers the plotting parameters 
-c     that were default, or set in the parameter file or were the ones used in the
-c     most recent call to a plotting routine.
+c     that were default, or set in the parameter file or were the ones used 
+c     in the most recent call to a plotting routine.
 c****************************************************************************** 
 
       include 'Linex.com'
@@ -16,14 +16,14 @@ c     iscale=1 is when these parameters have been read from the
 c     parameter file
       if     (option .eq. 0) then
          if (iscale .eq. 0) then
-            xlo       = start
-            xhi       = sstop
+            xlo       = oldstart
+            xhi       = oldstop
             ylo       = 0.
             yhi       = 1.1
+            veladd    = 0.
             xadd      = 0.
             yadd      = 0.
             ymult     = 1.
-            veladd     = 0.
             smtype    = 'g'
             fwhmgauss = 0.1
             vsini     = 0.
@@ -40,10 +40,10 @@ c*****store the original plot parameters
          origxhi       = xhi
          origylo       = ylo
          origyhi       = yhi
+         origveladd    = veladd
          origxadd      = xadd
          origyadd      = yadd
          origymult     = ymult
-         origveladd     = veladd
          origsmtype    = smtype
          origfwhmgauss = fwhmgauss
          origvsini     = vsini
@@ -59,10 +59,10 @@ c*****re-set the plot parameters to their original values
          xhi       = origxhi
          ylo       = origylo
          yhi       = origyhi
+         veladd    = origveladd
          xadd      = origxadd
          yadd      = origyadd
          ymult     = origymult
-         veladd     = origveladd
          smtype    = origsmtype
          fwhmgauss = origfwhmgauss
          vsini     = origvsini
@@ -78,10 +78,10 @@ c*****store the plot parameters from the last entry into pltspec
          oldxhi       = xhi
          oldylo       = ylo
          oldyhi       = yhi
+         oldveladd    = veladd
          oldxadd      = xadd
          oldyadd      = yadd
          oldymult     = ymult
-         oldveladd     = veladd
          oldsmtype    = smtype
          oldfwhmgauss = fwhmgauss
          oldvsini     = vsini
@@ -97,10 +97,10 @@ c*****re-set plot parameters to values from the last entry into pltspec
          xhi       = oldxhi
          ylo       = oldylo
          yhi       = oldyhi
+         veladd    = oldveladd
          xadd      = oldxadd
          yadd      = oldyadd
          ymult     = oldymult
-         veladd     = oldveladd
          smtype    = oldsmtype
          fwhmgauss = oldfwhmgauss
          vsini     = oldvsini

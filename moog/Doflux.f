@@ -68,7 +68,7 @@ c*****compute the flux curve
       write (nf2out,1001) wave, flux, waveinv, fluxlog
       wave = wave + step
       if (wave .le. sstop) go to 1
-c      call pltflux
+      call pltflux
 
 
 c****end the computations
@@ -78,12 +78,12 @@ c****end the computations
 
 c*****format statements
 1001  format (1p2d12.4,0p2f10.4)
-1002  format ('  kaplam from 1 to ntau at wavelength',f10.2/
+1002  format ('  kaplam from 1 to ntau at wavelength',f11.3/
      1        (6(1pd12.4)))
 1003  format ('AT WAVELENGTH/FREQUENCY =',f11.7,
-     .        '  CONTINUUM FLUX/INTENSITY =',1p,d12.5)
+     .        '  CONTINUUM FLUX/INTENSITY =', 1pd12.5)
 1004  format ('AT WAVELENGTH/FREQUENCY =',f11.3,
-     .        '  CONTINUUM FLUX/INTENSITY =',1p,d12.5)
+     .        '  CONTINUUM FLUX/INTENSITY =', 1pd12.5)
 
 
       end                                                               

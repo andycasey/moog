@@ -95,6 +95,7 @@ c     line equivalent width; here is the code for ordinary species
          call lineinfo (3)
       else
 
+
 c*****and here is the code for species involved in molecular equilibrium;
 c     this procedure is iterated until input and output abundances are in 
 c     agreement
@@ -137,7 +138,7 @@ c*****here a plot may be made on the terminal (and paper) if there
 c     are enough lines; then the user will be prompted on some
 c     options concerning what is seen on the plot
       if (plotopt .ne. 0) then
-c         call pltabun
+         call pltabun
          if     (choice.eq.'v') then
             rewind nf1out
             rewind nf2out
@@ -192,7 +193,7 @@ c*****format statements
      .        'EQUILIBRIUM')
 1002  format (a80)
 1003  format ('FOR SPECIES ', f10.1,' NO CONVERGENCE: '/
-     .        'LAST ITERATIONS YIELD', 2f10.2, '  I QUIT!')
+     .        'LAST ITERATIONS YIELD', 2f10.3, '  I QUIT!')
 
 
       end

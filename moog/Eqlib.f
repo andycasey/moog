@@ -268,9 +268,10 @@ c*****here the big loop in tau ends
 
 c*****format statements
 1001  format ('I do not know this molecule: ',f10.0)              
-1002  format (/'INPUT EQUILIBRIUM DATA:'/1x,'species',2x,'D0/Chi ',
-     .        3x,'const1',6x,'const2',6x,'const3',6x,'const4',6x,
-     .        'const5'/(0pf8.1,f8.3,1p5d12.4))
+1002  format (/'INPUT EQUILIBRIUM DATA:'/1x, 'species', 2x, 
+     .        'D0/Chi ', 3x, 'const1', 6x, 'const2', 6x,
+     .        'const3', 6x, 'const4', 6x, 'const5'/
+     .        (0pf8.1, f8.3, 1p5d12.4))
 1003  format (/'MOLECULAR EQUILIBRIUM SOLUTIONS:  (log partial',
      .        ' pressures listed under names)'/
      .        2x,'i',5x,'T',2x,'Pgas',8f8.1/(15x,8f8.1))

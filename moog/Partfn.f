@@ -13,9 +13,9 @@ c******************************************************************************
       include 'Quants.com'
 
 
-      iat = 10*idint(atom) - 1
+      iat = 10*nint(atom) - 1
       at = dfloat(iat)/10.
-      iatom = int(atom + 0.01)
+      iatom = nint(atom)
 
 
 c*****compute partition functions for 4 ionization states of an element.

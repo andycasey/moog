@@ -30,6 +30,7 @@ c*****compute the average and standard deviation
          enddo
          deviate = dsqrt(deviate/(kount-1))
       endif
+
          
 c*****correlate the abundances with excitation potential, equivalent width,
 c     and wavelength

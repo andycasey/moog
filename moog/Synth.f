@@ -86,123 +86,62 @@ c*****open the line list file and the strong line list file
       
 
 c*****do the syntheses
-      ncall = 1
-10    if (numpecatom .eq. 0 .or. numatomsyn .eq. 0) then
-         isynth = 1
-         isorun = 1
-         nlines = 0
-         mode = 3
-         call inlines (1)
-         call eqlib
-         call nearly (1)
-         call synspec
-      else
-         do n=1,numatomsyn
-            isynth = n
-            isorun = n
-            start = oldstart
-            sstop = oldstop
-            mode = 3
-            call inlines (1)
-              molopt = 2
-            call eqlib
-            call nearly (1)
-            call synspec
-            linprintopt = 0
-         enddo
-      endif
+      choice = '1'
+      do i=1,100
+         if (i .eq. 100) then
+            write (*,1002) 
+            stop
+         endif
+         ncall = 1
+         call getsyns (lscreen,ncall)
          
 
-c*****now plot the spectrum
-20    if (plotopt.eq.2 .and. specfileopt.gt.0) then
-         nfobs = 33               
-         lscreen = lscreen + 2
-         array = 'THE OBSERVED SPECTRUM'
-         nchars = 21
-         if (specfileopt.eq.1 .or. specfileopt.eq.3) then
-            call infile ('input  ',nfobs,'unformatted',2880,nchars,
-     .                   fobs,lscreen)
+c*****now either don't make a plot (plotopt = 0) 
+c                plot the synthetic spectrum, (plotopt = 1)
+c                plot syntheses and observation (plotopt = 2) 
+c                or just smooth the syntheses (plotopt = 3)
+         if (choice .eq. 'n') then
+            ncall = 2
          else
-            call infile ('input  ',nfobs,'formatted  ',0,nchars,
-     .                   fobs,lscreen)
+            ncall = 1
          endif
-      endif
+         if     (plotopt .eq. 0) then
+            choice = 'q'
+         elseif (plotopt .eq. 1) then
+            call pltspec (lscreen,ncall)
+         elseif (plotopt .eq. 2) then
+            nfobs = 33               
+            lscreen = lscreen + 2
+            array = 'THE OBSERVED SPECTRUM'
+            nchars = 21
+            if (specfileopt .eq. 1) then
+               call infile ('input  ',nfobs,'unformatted',2880,nchars,
+     .                      fobs,lscreen)
+            else
+               call infile ('input  ',nfobs,'formatted  ',0,nchars,
+     .                      fobs,lscreen)
+            endif
+            call pltspec (lscreen,ncall)
+         elseif (plotopt .eq. 3) then
+            call smooth (-1,ncall)
+            choice = 'q'
+         else
+            write (*,1001)
+            stop
+         endif
+         if (choice .eq. 'q') then
+            call finish (0)
+            exit
+         endif
+      enddo
 
-
-c*****if the syntheses need to be redone: first rewind the output files,
-c     then close/reopen line list(s), then rewrite model atmosphere output
-      if (choice .eq. 'n') then
-         call chabund
-         if (choice .eq. 'x') go to 20
-         rewind nf1out
-         rewind nf2out
-         if (nflines .ne. 0) then
-            close (unit=nflines)
-            open (unit=nflines,file=flines,access='sequential',
-     .            form='formatted',blank='null',status='old',
-     .            iostat=jstat,err=10)
-         endif
-         if (nfslines .ne. 0) then
-            close (unit=nfslines)
-            open (unit=nfslines,file=fslines,access='sequential',
-     .            form='formatted',blank='null',status='old',
-     .            iostat=jstat,err=10)
-         endif
-         if (plotopt .ne. 0) then
-            rewind nf3out
-         endif
-         write (nf1out,1002) modtype
-         if (modprintopt .ge. 1) then
-            if (modtype .eq. 'begn      ' .or.
-     .          modtype .eq. 'BEGN      ') write (nf1out,1003)
-            write (nf1out,1102) moditle
-            do i=1,ntau
-               dummy1(i) = dlog10(pgas(i))
-               dummy2(i) = dlog10(ne(i)*1.38054d-16*t(i))
-            enddo
-            write (nf1out,1103) wavref,(i,xref(i),tauref(i),t(i),
-     .                          dummy1(i), pgas(i),dummy2(i),ne(i),
-     .                          vturb(i),i=1,ntau)
-            write (nf1out,1104)
-            do i=1,95
-               dummy1(i) = dlog10(xabund(i)) + 12.0
-            enddo
-            write (nf1out,1105) (names(i),i,dummy1(i),i=1,95)
-            write (nf1out,1106) modprintopt, molopt, linprintopt, 
-     .                          fluxintopt
-            write (nf1out,1107) (kapref(i),i=1,ntau)
-         endif
-         linprintopt = linprintalt
-         ncall = 2
-         choice = '1'
-         go to 10
-
-
-c*****otherwise end the code gracefully
-      else
-         call finish (0)
-      endif
 
 
 c*****format statements
-1002  format (13('-'),'MOOG OUTPUT FILE',10('-'),
-     .        '(MOOG version from 23/04/07)',13('-')//
-     .        'THE MODEL TYPE: ',a10)
-1003  format ('   The Rosseland opacities and optical depths have ',
-     .        'been read in')
-1102  format (/'MODEL ATMOSPHERE HEADER:'/a80/)
-1103  format ('INPUT ATMOSPHERE QUANTITIES',10x,
-     .        '(reference wavelength =',f10.2,')'/3x,'i',2x,'xref',3x,
-     .        'tauref',7x,'T',6x,'logPg',4x,'Pgas',6x,'logPe',
-     .        5x,'Ne',9x,'Vturb'/
-     .        (i4,0pf6.2,1pd11.4,0pf9.1,f8.3,1pd11.4,0pf8.3,
-     .        1pd11.4,d11.2))
-1104  format (/'INPUT ABUNDANCES: (log10 number densities, log H=12)'/
-     .       '      Default solar abundances: Anders and Grevesse 1989')
-1105  format (5(3x,a2,'(',i2,')=',f5.2))
-1106  format (/'OPTIONS: atmosphere = ',i1,5x,'molecules  = ',i1/
-     .        '         lines      = ',i1,5x,'flux/int   = ',i1)
-1107  format (/'KAPREF ARRAY:'/(6(1pd12.4)))
+1001  format ('for syntheses, parameter "plot" must be 0, 1, 2, or 3;',
+     .        ' I QUIT!')
+1002  format ('something wrong:  max number (99) of synthesis ',
+     .        'cycles exceeded; I QUIT!')
 
 
 

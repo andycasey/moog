@@ -13,15 +13,34 @@ c*************************************************************************
 
 c*****begin with some calculations leading to a c6 value ("unsold")
       j = linnum
-      iwave = idint(wave1(j))
-      ich = idint(charge(j) + 0.1)
+      iwave = int(wave1(j))
+      iatom10 = nint(10.*atom1(j))
+      ich = nint(charge(j))
       unsold = dabs(1.61d-33*(13.5*charge(j)/(chi(j,ich) -
      .         e(j,1)))**2 - 1.61d-33*(13.5*charge(j)/
      .         (chi(j,ich)-e(j,2)))**2)
 
 
+c*****Ca II "IR triplet" lines at the Ca II K line at 3934 A
+      if (iatom.eq.201 .and. iwave.eq.3933) then
+         do i=1,ntau
+            gammaa = 1.45d+8 
+            gnature = gammaa + 0.5*1.5d-9*t(i)**(1/3)*numdens(1,1,i)
+            gvander = 1.6d-8 * (t(i)/5000.)**0.3 * numdens(1,1,i)
+            gstark = 3.0d-6 * ne(i)
+            gammadamp = anature + gvander + gstark
+            a(j,i) = gammadamp*wave1(j)*1.0e-8/(12.56636*dopp(j,i))
+            write (nf1out,1001) gnature, gstark, gvander,
+     .                          gammadamp, a(j,i)             
+         enddo                                                
+         return
+
+
 c*****Ca II "IR triplet" lines at 8498, 8542, and 8662 A
-      if (idint(10*atom1(j)+0.01) .eq. 201) then
+      elseif (iatom10.eq.201 .and.
+     .        (iwave.eq.8498.or.
+     .         iwave.eq.8542.or.
+     .         iwave.eq.8662)) then
          write (nf1out,1000)
          do i=1,ntau
             nhe = xabund(2)*nhtot(i)
@@ -41,7 +60,7 @@ c*****Ca II "IR triplet" lines at 8498, 8542, and 8662 A
 
 
 c*****Ca I 6717 A
-      elseif (atom1(j).eq.20.0 .and. idint(wave1(j)).eq.6717) then
+      elseif (iatom10.eq.200 .and. iwave.eq.6717) then
          write (nf1out,1002) iwave
          do i=1,ntau
             nhe = xabund(2)*nhtot(i)
@@ -60,25 +79,27 @@ c*****Ca I 6717 A
          return
 
 
-c*****Ca I 6318
-      elseif (atom1(j) .eq. 20.0 .and. idint(wave1(j)).eq.6318) then
-         write (nf1out,1004) 
+c*****Ca I 6318, 6343, 6361 A autoionization lines
+      elseif (iatom10.eq.200 .and. 
+     .        (iwave.eq.6318 .or.
+     .         iwave.eq.6343 .or.
+     .         iwave.eq.6361)) then
+         write (nf1out,1005) iwave
          do i=1,ntau
-            gnature = 10.**(+11.28)
-            gstark  = 10.**(-30.00)*ne(i)
-            gvander = 10.**(-13.38)*numdens(1,1,i)
-            gammadamp = gnature + gstark + gvander
+            if (dampnum(j) .eq. 0) then
+               gnature = 1.5d12
+            else
+               gnature = dampnum(j)*1.5d12
+            endif
+            gammadamp = gnature
             a(j,i) = gammadamp*wave1(j)*1.0e-8/(12.56636*dopp(j,i))
-            v1 = dsqrt(2.1175d8*t(i)*(1.0/amass(j)+1.008))
-            avander = gvander*wave1(j)*1.0d-8/(12.56636*dopp(j,i))
-            write (nf1out,1001) gnature, gstark, gvander,
-     .                          gammadamp, a(j,i)
+            write (nf1out,1001) gnature, gammadamp, a(j,i)
          enddo
          return
 
 
 c*****Na I lines
-      elseif (atom1(j) .eq. 11.0) then
+      elseif (iatom .eq. 110) then
          write (nf1out,1003) iwave
          do i=1,ntau
             gnature = 2.21e+15/wave1(j)**2
@@ -90,6 +111,23 @@ c*****Na I lines
             avander = gvander*wave1(j)*1.0d-8/(12.56636*dopp(j,i))  
             write (nf1out,1001) gnature, gcoll, gammadamp, 
      .                          a(j,i), avander
+         enddo
+         return
+
+
+c*****CH autoionization line at 3693 A
+      elseif (iatom10.eq.1060 .and.
+     .        iwave.eq.3693) then
+         write (nf1out,1006) iwave
+         do i=1,ntau
+            if (dampnum(j) .eq. 0) then
+               gnature = 4.0d11
+            else
+               gnature = dampnum(j)*4.0d11
+            endif
+            gammadamp = gnature
+            a(j,i) = gammadamp*wave1(j)*1.0e-8/(12.56636*dopp(j,i))
+            write (nf1out,1001) gnature, gammadamp, a(j,i)
          enddo
          return
       endif
@@ -113,6 +151,12 @@ c*****format statements
      .       'CaI LINE AT 6318A'/
      .       4x,'natural',6x,'Stark',4x,'vdwaals',
      .       6x,'gammadamp',5x,'a(j,i)')
+1005  format(//' LINE BROADENING PARAMETERS FOR ',
+     .       'THE CaI AUTOIONIZATION LINE AT',i6/
+     .       4x,'natural', 2x,'gammadamp',5x,'a(j,i)')
+1006  format(//' LINE BROADENING PARAMETERS FOR ',
+     .       'THE CH AUTOIONIZATION LINE AT',i6/
+     .       4x,'natural', 2x,'gammadamp',5x,'a(j,i)')
 
 
       end

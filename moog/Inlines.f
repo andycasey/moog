@@ -12,15 +12,14 @@ c******************************************************************************
       include 'Pstuff.com'
       include 'Quants.com'
       include 'Factor.com'
-      real*8        swave1(40), satom1(40), se(40),sgf(40),
-     .              sdampnum(40),sd0(40),swidth(40), scharge(40)
-      integer n1, n2
-      data n1,n2 /1,0/
+      real*8 swave1(40), satom1(40), se(40),sgf(40),
+     .       sdampnum(40),sd0(40),swidth(40), scharge(40)
+      integer n2
 
 
       if (num .eq. 2) go to 4
       if (num .eq. 6) go to 340
-      n1 = 1
+      n1marker = 1
       n2 = 0
 
 
@@ -43,8 +42,15 @@ c*****decide if certain element abundances need to be modified.
          do j=1,93
             if (pec(j) .gt. 0 ) then
                dummy1(j) = dlog10(xabund(j)) + 12.0
-               write (nf1out,1007) names(j),dummy1(j)
-               if (nf2out .gt. 0) write (nf2out,1007) names(j),dummy1(j)
+               if (dummy1(j) .le. -10.) then 
+                  write (nf1out,1008) names(j),dummy1(j)
+                  if (nf2out .gt. 0) 
+     .                write (nf2out,1008) names(j),dummy1(j)
+               else
+                  write (nf1out,1007) names(j),dummy1(j)
+                  if (nf2out .gt. 0) 
+     .                write (nf2out,1007) names(j),dummy1(j)
+               endif
             endif
          enddo
       endif
@@ -158,25 +164,25 @@ c*****here excitation potentials are changed from cm^-1 to eV, if needed
             do jj=1,nlines+nstrong
                e(jj,1) = 1.2389e-4*e(jj,1)
             enddo
-            go to 378
+            exit
          endif
       enddo
  
 
 c*****here log(gf) values are turned into gf values, if needed
-378   do j=1,nlines+nstrong
+      do j=1,nlines+nstrong
          if (gfstyle.eq.1 .or. gf(j) .lt. 0) then
             do jj=1,nlines+nstrong
                gf(jj) = 10.**gf(jj)
             enddo
-            go to 379
+            exit
          endif
       enddo         
 
 
 c*****turn log(RW) values and EW values in mA into EW values in A.  Stuff
 c     duplicate EW values of the first line of a blend into all blend members.
-379   do j=1,nlines+nstrong
+      do j=1,nlines+nstrong
          if (width(j) .lt. 0.) then
             width(j) = 10.**width(j)*wave1(j)
          else
@@ -261,8 +267,8 @@ c*****quit the routine normally
 
 
 c****prepare to get another chunk of line data 
-4     n2 = n1 + lim1line - 1
-      n1 = n2
+4     n2 = n1marker + lim1line - 1
+      n1marker = n2
       rewind nflines
       do j=1,n2
          read (nflines,1001)
@@ -282,7 +288,8 @@ c*****format statements
 1005  format ('Changing overall metallicity: ', f6.2, ' dex')
 1006  format ('ALL abundances NOT listed below differ ',
      .        'from solar by ', f6.2, ' dex')
-1007  format ('element ', a2, ':  abundance = ', f7.2)
+1007  format ('element ', a2, ':  abundance = ', f5.2)
+1008  format ('element ', a2, ':  abundance = ', f5.1)
 1010  format ('ATOMIC NUMBERS IN MOLECULAR NAME (',
      .        2i2, ') ARE IN WRONG ORDER'/'I QUIT!!!')
 1011  format ('ISOTOPIC MASS NUMBERS IN MOLECULAR NAME (',

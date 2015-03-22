@@ -90,7 +90,7 @@ c
          return
       endif
 
-      i = int(100.*xprofile) + 1
+      i = nint(100.*xprofile) + 1
       vmacro = (yrt(i+1)-yrt(i))*(xprofile-xrt(i))/(xrt(i+1)-xrt(i)) 
      .         + yrt(i) 
 

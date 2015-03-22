@@ -46,23 +46,32 @@ c*****the computed RW
 
 
 c*****are the observed and computed RWs too different?  if so, iterate 
-c*****by adjusting the assumed gf, and recompute the line
+c*****by adjusting the assumed gf, and recompute the line.
+c*****for strong lines, the iterations are slowed down by using the
+c*****square root of the proposed gf shift.
 20    error = (w(ncurve)-width(lim1))/width(lim1)
       ratio = 10.**(gfobs-gfcal)
       ncurve = ncurve + 1
-      if (dabs(error) .ge. 0.0025 .and. ncurve .lt. 20) then
+      if (dabs(error) .ge. 0.0015 .and. ncurve .lt. 20) then
          rwlcomp = dlog10(w(ncurve-1)/wave1(lim1))
-         gf1(ncurve) = gf1(ncurve-1)*ratio
-         do i=1,ntau                                
-            kapnu0(lim1,i) = kapnu0(lim1,i)*ratio            
-         enddo
+         if (rwlcomp .gt. -4.7) then
+            gf1(ncurve) = gf1(ncurve-1)*dsqrt(ratio)
+            do i=1,ntau                                
+               kapnu0(lim1,i) = kapnu0(lim1,i)*dsqrt(ratio)
+            enddo
+         else
+            gf1(ncurve) = gf1(ncurve-1)*ratio
+            do i=1,ntau                                
+               kapnu0(lim1,i) = kapnu0(lim1,i)*ratio            
+            enddo
+         endif
          go to 15
       endif
 
 
 c*****if the observed and computed RWs are close, do a final gf adjustment
 c*****and finish with one more line recomputation
-      if (ncurve .eq. 20) then
+      if (ncurve .eq. 30) then
          write (nf1out,1001)
          write (nf2out,1001)
       endif
@@ -85,7 +94,8 @@ c*****and finish with one more line recomputation
 
 c*****format statements
 1001  format ('OH NO! ANOTHER FAILED ITERATION!')
-1002  format (' This fit required ',i2,' iterations'/)
+1002  format (' This fit required ',i2,' iterations including ',
+     .        'a final small adjustment'/)
 
 
       end

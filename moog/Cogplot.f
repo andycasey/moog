@@ -22,8 +22,8 @@ c*****dump the data into working arrays
 
 
 c*****define the plot boundaries
-      ylo = real(int(rwlow*10))/10. - 0.1
-      yhi = real(int(rwhigh*10))/10. + 0.1
+      ylo = real(nint(rwlow*10))/10. - 0.1
+      yhi = real(nint(rwhigh*10))/10. + 0.1
       do i=1,ncurve
          if (rwplot(i) .gt. rwlow) then
             if (gfplot(i) .gt. 0) then
@@ -112,9 +112,9 @@ c*****plot the computed curve-of-growth points; exit normally
 
 c*****format statements
 1002  format (a2,a4)
-1003  format ('log eps =',f6.2)
-1004  format ('E.P. (eV) =',f6.2) 
-1005  format ('lambda (A) =',f10.2)
+1003  format ('log eps =',f7.3)
+1004  format ('E.P. (eV) =',f7.3) 
+1005  format ('lambda (A) =',f11.3)
 
       end
 
