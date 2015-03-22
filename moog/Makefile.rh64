@@ -3,7 +3,8 @@
 
 #     here are the object files
 OBJECTS = Abfind.o Abpop.o Abunplot.o Batom.o Begin.o Binary.o \
-	Binplot.o Binplotprep.o Blankstring.o Blends.o Bmolec.o Boxit.o \
+	Blankstring.o Binplot.o Binplotprep.o Blankstring.o Blends.o Bmolec.o \
+	Boxit.o \
 	Calmod.o Cdcalc.o Chabund.o Cog.o Cogplot.o Cogsyn.o \
 	Correl.o Crosscorr.o Curve.o Damping.o Defcolor.o Discov.o \
 	Doflux.o Drawcurs.o Eqlib.o Estim.o Ewfind.o \
