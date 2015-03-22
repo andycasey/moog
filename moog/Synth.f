@@ -107,21 +107,6 @@ c                or just smooth the syntheses (plotopt = 3)
          endif
          if     (plotopt .eq. 0) then
             choice = 'q'
-         elseif (plotopt .eq. 1) then
-            call pltspec (lscreen,ncall)
-         elseif (plotopt .eq. 2) then
-            nfobs = 33               
-            lscreen = lscreen + 2
-            array = 'THE OBSERVED SPECTRUM'
-            nchars = 21
-            if (specfileopt .eq. 1) then
-               call infile ('input  ',nfobs,'unformatted',2880,nchars,
-     .                      fobs,lscreen)
-            else
-               call infile ('input  ',nfobs,'formatted  ',0,nchars,
-     .                      fobs,lscreen)
-            endif
-            call pltspec (lscreen,ncall)
          elseif (plotopt .eq. 3) then
             call smooth (-1,ncall)
             choice = 'q'

@@ -134,7 +134,6 @@ c*****now plot the spectrum
       endif
       if (plotopt .ne. 0) then
          ncall = 1
-         call pltspec (lscreen,ncall)
       endif
 
 

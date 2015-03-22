@@ -214,7 +214,6 @@ c     options concerning what is seen on the plot
          call blankstring (moditle)
          moditle(1:70) = popitle(1:70)
          moditle(57:80) = 'EW-POPULATION '
-         call pltabun
       endif
 
 

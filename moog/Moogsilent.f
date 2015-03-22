@@ -53,11 +53,7 @@ c*****invoke the overall starting routine
 
 
 c*****use one of the standard driver routines ("isotop" is obsolete): 
-      if     (control .eq. 'synplot') then
-         call plotit
-      elseif (control .eq. 'isoplot') then
-         call plotit
-      elseif (control .eq. 'synth  ') then
+      if (control .eq. 'synth  ') then
          call synth
       elseif (control .eq. 'cogsyn ') then
          call cogsyn  

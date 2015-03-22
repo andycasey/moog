@@ -781,8 +781,6 @@ c  for syntheses, store the plotting parameters
             write (*,1011) 
             stop
          endif
-         if (iscale .eq. 0) call plotremember (0)
-         call plotremember (1)
       endif
 
 

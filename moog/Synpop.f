@@ -259,7 +259,6 @@ c*****now plot the spectrum
             call infile ('output ',nf5out,'formatted  ',0,nchars,
      .                   f5out,lscreen)
          endif
-         call pltspec (lscreen,ncall)
 
 
 c*****if needed, loop back with abundance changes
