@@ -1,5 +1,4 @@
-FC = gfortran
-FFLAGS = -Wall -O4 -ffixed-line-length-72 -ff2c
+#$CONFIGURATION
 #     makefile for MOOGSILENT with all of the common block assignments;
 #     this is for a mac machine
 
