@@ -1,3 +1,26 @@
+============
+NOTICE posted 2022-03-25
+============
+
+MOOG has been through many iterations since this repository was created. I used to have time to keep this repository up-to-date so you could install MOOG(SILENT) easily. The installation instructions here still work for some people/systems, but not all. Importantly, though, this version of MOOG does not include fixes for all known bugs.
+
+I **strongly** recommend that you instead use Alex Ji's hosted version of MOOG: 
+
+https://github.com/alexji/moog17scat 
+
+This should be easier to install than off-the-shelf MOOG, simply because it has gone through more trial and error. Ji's version also includes fixes for some known bugs, which to my knowledge have not yet made their way into the MOOG code base.
+
+You can still use the repository below, but buyer beware.
+
+
+
+
+
+
+
+
+
+
 =======
 Installing MOOG the Easy Way™
 =======
